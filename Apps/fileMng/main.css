@@ -1,0 +1,16 @@
+
+
+.root-container .ui-container {
+    display: flex;
+    margin: 3px;
+    /* width: content; */
+    flex-grow: 1; /* 나머지 빈공간 체워넣기 */
+    height: 512px;
+    /* background-color: #f0f0f0; */
+    overflow: auto;
+}
+
+.root-container .gl-container {
+    width: 512px;
+    height: 512px;
+}

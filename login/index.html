@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./main.css">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <div id="resultView" class="hide" >
+        <h3></h3>
+        <a href="/" > home </a>
+    </div>
+
+    <div id="login">
+        <h2>login</h2>
+
+        <form>
+            <label for="userId">ID</label>
+            <input type="text" name="userId" placeholder="id">
+            <label for="userPw">Password</label>
+            <input type="password" name="userPw" placeholder="password">
+            <br />
+            <input type="submit" value="login">
+            <button class="register">register</button>
+        </form>
+
+
+
+    </div>
+
+    <div id="register" class="hide">
+        <h2>register</h2>
+
+        <form>
+            <label for="userId">ID</label>
+            <input type="text" name="userId" placeholder="id">
+            <label for="userName">Name</label>
+            <input type="text" name="userName" placeholder="name">
+            <label for="userPw">Password</label>
+            <input type="password" name="userPw" placeholder="password">
+            <input type="submit" value="register">
+        </form>
+    </div>
+
+    <script type="module">
+        import main from './index.js';
+        //document.addEventListener('DOMContentLoaded', main);
+        main();
+    </script>
+
+</body>
+
+</html>
