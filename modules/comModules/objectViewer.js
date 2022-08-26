@@ -52,6 +52,7 @@ export default function setup(option) {
 
             scope.userData = {}
 
+            //확장함수
 
             scope.loadFbx = async function ({ textureMap, modelFile,onProgress,diffuseColor }) {
                 const loader = new FBXLoader();
@@ -129,7 +130,7 @@ export default function setup(option) {
                 // return _texture
             }
 
-            //확장함수
+            
             scope.addObject = async function ({
                 modelFile, textureFile, fileId,
                 diffuseColor,

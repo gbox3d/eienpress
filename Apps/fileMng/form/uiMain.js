@@ -108,15 +108,12 @@ export default async function (_Context) {
                 <div class="w3-bar-item">
                     <span class="w3-large" > ${item.title} </span><br>
                     <span> ${item.fileType} </span>,
-                    <span> ${item.size} </span>,
-                    <span> ${item.isPublic} </span>,
-                    <span> ${item.date} </span><br>
-                    <span> ${item.md5} </span>
-
+                    <span> ${item.size} </span>
                 </div>
                 `
 
                 li.dataset._id = item._id;
+                li.dataset.fileName = item.srcName;
                 // li.dataset.modelFile = item.modelFile;
                 // li.dataset.textureFile = item.textureFile;
                 // li.dataset.type = item.type;
@@ -133,6 +130,8 @@ export default async function (_Context) {
     //selection
     _listElm.addEventListener('click', async function (e) {
         console.log(e.target);
+
+        _Context.objViewer.clearObject();
 
         let item = e.target;
 
@@ -187,7 +186,11 @@ export default async function (_Context) {
                             textureFile : res.data._id
                         });
 
+                        console.log(_tex.source.data.width)
+
                         _Context.objViewer.addPlane({
+                            width : _tex.source.data.width,
+                            height : _tex.source.data.height,
                             map : _tex,
                             color : 0xffffff,
                         });
@@ -287,6 +290,35 @@ export default async function (_Context) {
                 if (res.r === 'ok') {
                     await _updateList();
                 }
+            }
+            catch (err) {
+                console.log(err)
+            }
+        }
+    });
+
+    //download
+    _downloadBtn.addEventListener('click', async function () {
+        if (select_Item) {
+            const _id = select_Item.dataset._id;
+            // console.log(_id);
+            try {
+                ///com/file/download/pub/${fileId}
+                let resp = await (fetch(`${host_url}/com/file/download/pub/${_id}`));
+
+                if(resp.status === 200) {
+                    let _blob = await resp.blob();
+                    const url = window.URL.createObjectURL(_blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    // the filename you want
+                    a.download = select_Item.dataset.fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+                
             }
             catch (err) {
                 console.log(err)

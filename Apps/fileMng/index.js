@@ -8,11 +8,10 @@ import objectViewerSetup from '/modules/comModules/objectViewer.js';
 import uiMainSetup from './form/uiMain.js';
 
 //models
-import waitModalSetup from '/modules/comModules/waitModal.js';
-import progressBoxSetup from '/modules/comModules/progressBox.js';
-import messageModal from '/modules/comModules/messageModal.js';
-
-import fileUploadFormSetup from '/modules/comModules/fileUploadForm.js';
+import waitModalSetup from '../../modules/comModules/waitModal.js';
+import progressBoxSetup from '../../modules/comModules/progressBox.js';
+import messageModal from '../../modules/comModules/messageModal.js';
+import fileUploadFormSetup from '../../modules/comModules/fileUploadForm.js';
 
 
 // import fileSelectorSetup from './modal/.js';
@@ -27,11 +26,23 @@ async function main() {
 
     try {
 
+
         globalThis.theApp = {
             host_url: '',
             ui_container: document.querySelector('.ui-container'),
             modalContainer: document.querySelector('.modal-container')
         }
+
+        theApp.progressBox = progressBoxSetup(theApp);
+        theApp.waitModal = waitModalSetup(theApp);
+        theApp.messageModal = messageModal(theApp);
+        // theApp.fileSelector = fileSelectorSetup(theApp);
+        theApp.fileUploadForm = fileUploadFormSetup(theApp);
+
+        theApp.waitModal.show({
+            msg: 'connecting to server...'
+        })
+
 
         let res = await (await (fetch(`${theApp.host_url}/api/v2/users/`, {
             method: 'GET',
@@ -53,15 +64,9 @@ async function main() {
 
             // theApp.objectReg = objectRegSetup(theApp);
 
-            theApp.progressBox = progressBoxSetup(theApp);
-            theApp.waitModal = waitModalSetup(theApp);
-            theApp.messageModal = messageModal(theApp);
-            // theApp.fileSelector = fileSelectorSetup(theApp);
-            theApp.fileUploadForm = fileUploadFormSetup(theApp);
 
             // theApp.attrEditor = attrEditorSetup(theApp);
-            theApp.uiMain = uiMainSetup(theApp);
-
+            theApp.uiMain = await uiMainSetup(theApp);
 
             let basicEnvMapId = null;
             {
@@ -84,7 +89,7 @@ async function main() {
                         basicEnvMapId = res.data[0]._id;
                     }
                     else {
-                        theApp.messageModal.show({msg :'기본 환경맵이 없습니다. (basic_envmap)'});
+                        theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
                     }
                 }
 
@@ -103,6 +108,8 @@ async function main() {
                     }
                 });
             });
+
+            theApp.waitModal.close();
 
         }
         else {
