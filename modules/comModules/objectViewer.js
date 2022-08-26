@@ -20,11 +20,11 @@ export default function setup(option) {
     // let onSelectObject = option.onSelectObject;
     // let onObjectEditChange = option.onObjectEditChange;
     let envMapFile = option.envMapFile;
+    // let envMapFileFormat = option.envMapFileFormat ? option.envMapFileFormat : 'hdr';
+
+    const _HDRILoader = option.envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
 
     const mObjectRepository = {}
-
-    
-
 
     return new Elvis({
         camera: {
@@ -211,10 +211,12 @@ export default function setup(option) {
                 scope.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
                 //tone map setup
+                if(envMapFile)
                 {
                     let texture = await new Promise((resolve, reject) => {
                         // new RGBELoader()
-                        new EXRLoader()
+                        // new EXRLoader()
+                        _HDRILoader
                             .setPath('/com/file/download/pub/')
                             .load(envMapFile, function (texture) {
                                 return resolve(texture);

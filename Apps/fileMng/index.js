@@ -1,17 +1,18 @@
 import * as THREE from 'three';
 import WEBGL from 'WebGL';
 
-import objectViewerSetup from '../../../modules/comModules/objectViewer.js';
+import { makeFormBody, comFileUpload, makeFileObj } from "/modules/comLibs/utils.js";
+import objectViewerSetup from '/modules/comModules/objectViewer.js';
 
 //forms
 import uiMainSetup from './form/uiMain.js';
 
 //models
-import waitModalSetup from '../../modules/comModules/waitModal.js';
-import progressBoxSetup from '../../modules/comModules/progressBox.js';
-import messageModal from '../../modules/comModules/messageModal.js';
+import waitModalSetup from '/modules/comModules/waitModal.js';
+import progressBoxSetup from '/modules/comModules/progressBox.js';
+import messageModal from '/modules/comModules/messageModal.js';
 
-import fileUploadFormSetup from '../../modules/comModules/fileUploadForm.js';
+import fileUploadFormSetup from '/modules/comModules/fileUploadForm.js';
 
 
 // import fileSelectorSetup from './modal/.js';
@@ -46,21 +47,10 @@ async function main() {
 
             loginStatus.innerHTML = `${res.user.userName} 님 환영합니다.`;
 
-            theApp.root_path = res.repository+ '/' + res.user.userId;
+            theApp.root_path = res.repository + '/' + res.user.userId;
             console.log(theApp.root_path);
 
-            theApp.objViewer = await new Promise(resolve => {
-                objectViewerSetup({
-                    Context: theApp,
-                    container: glWindow,
-                    envMapFile : '63085141f020b41956bff664',
-                    onComplete: function (scene) { // 모듈 초기화 완료
-                        console.log('sceneEditorSetup complete');
-                        console.log(scene);
-                        resolve(scene);
-                    }
-                });
-            });
+
             // theApp.objectReg = objectRegSetup(theApp);
 
             theApp.progressBox = progressBoxSetup(theApp);
@@ -71,6 +61,49 @@ async function main() {
 
             // theApp.attrEditor = attrEditorSetup(theApp);
             theApp.uiMain = uiMainSetup(theApp);
+
+
+            let basicEnvMapId = null;
+            {
+                let res = await (await (fetch(`/com/file/list`, {
+                    method: 'POST',
+                    headers: {
+                        // 'Content-Type': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'authorization': localStorage.getItem('jwt_token')
+                    },
+                    body: makeFormBody({
+                        userId: 'all',
+                        title: 'basic_envmap'
+                    })
+                }))).json();
+
+                // console.log(res);
+                if (res.r === 'ok') {
+                    if (res.data.length > 0) {
+                        basicEnvMapId = res.data[0]._id;
+                    }
+                    else {
+                        theApp.messageModal.show({msg :'기본 환경맵이 없습니다. (basic_envmap)'});
+                    }
+                }
+
+            }
+
+            theApp.objViewer = await new Promise(resolve => {
+                objectViewerSetup({
+                    Context: theApp,
+                    container: glWindow,
+                    // envMapFileFormat : '', // exr, hdr, pic
+                    envMapFile: basicEnvMapId,
+                    onComplete: function (scene) { // 모듈 초기화 완료
+                        console.log('sceneEditorSetup complete');
+                        console.log(scene);
+                        resolve(scene);
+                    }
+                });
+            });
+
         }
         else {
             loginStatus.innerHTML = `로그인이 필요합니다. <a href="/login">로그인</a>`;
