@@ -87,6 +87,7 @@ async function main() {
                 if (res.r === 'ok') {
                     if (res.data.length > 0) {
                         basicEnvMapId = res.data[0]._id;
+                        
                     }
                     else {
                         theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
@@ -99,7 +100,7 @@ async function main() {
                 objectViewerSetup({
                     Context: theApp,
                     container: glWindow,
-                    // envMapFileFormat : '', // exr, hdr, pic
+                    // envMapFileFormat : '', // exr, hdr, pic , default : hdr
                     envMapFile: basicEnvMapId,
                     onComplete: function (scene) { // 모듈 초기화 완료
                         console.log('sceneEditorSetup complete');

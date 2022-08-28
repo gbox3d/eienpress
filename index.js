@@ -1,15 +1,7 @@
 const host_url = ''
 
 async function main() {
-    // const tokenInput = document.querySelector('#authtoken input');
-
-    // document.querySelector('#authtoken button').addEventListener('click', function () {
-
-    //     localStorage.setItem('authToken', tokenInput.value);
-
-    // });
-
-    // tokenInput.value = localStorage.getItem('authToken');
+    
 
     try {
         let res = await (await (fetch(`${host_url}/api/v2/users/`, {
