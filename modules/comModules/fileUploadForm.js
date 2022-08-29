@@ -29,8 +29,10 @@ export default function (_Context) {
                         <input class="w3-input" type="text" name='directory'>
 
                         <input class="w3-check w3-margin-top" type="checkbox" checked="checked"> public
-
                         <br><br>
+
+                        <label>File type</label>
+                        <input class="w3-input" type="text" name='fileType'>
                         
                         <div style="height: 80px;">
                             <label>File </label>
@@ -57,6 +59,7 @@ export default function (_Context) {
     const _directoryInput = _rootElm.querySelector('form.w3-container input[name="directory"]');
     const _publicCheckbox = _rootElm.querySelector('form.w3-container input[type="checkbox"]');
     const _fileInput = _rootElm.querySelector('form.w3-container input[type="file"]');
+    const _fileTypeInput = _rootElm.querySelector('form.w3-container input[name="fileType"]');
 
     let _onCallback = null;
 
@@ -69,7 +72,18 @@ export default function (_Context) {
 
     _rootElm.querySelector('form.w3-container input[type="file"]').addEventListener('change', (evt) => {
         console.log(evt.target.files[0])
+
+        //이름항목이 공백이면 이름 넣기
         _titleInput.value == '' ? _titleInput.value = evt.target.files[0].name : null;
+
+        _fileTypeInput.value = evt.target.files[0].type;
+
+        // get ext type
+        if(_fileTypeInput.value === ''){
+            const ext = evt.target.files[0].name.split('.').pop();
+            _fileTypeInput.value = `application/${ext}`;
+        }
+
     });
 
     _rootElm.querySelector('form.w3-container button.ok').addEventListener('click', (evt) => {
@@ -80,6 +94,7 @@ export default function (_Context) {
 
         _onCallback ? _onCallback({
             file: file,
+            fileType : _fileTypeInput.value,
             title: _titleInput.value,
             description: _descInput.value,
             public: _publicCheckbox.checked,
@@ -106,6 +121,7 @@ export default function (_Context) {
             _descInput.value = '';
             _directoryInput.value = '';
             _publicCheckbox.checked = true;
+            _fileTypeInput.value = '';
             
 
             _rootElm.style.display = 'block';

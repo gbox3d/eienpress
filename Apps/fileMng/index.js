@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import WEBGL from 'WebGL';
 
-import { makeFormBody, comFileUpload, makeFileObj } from "/modules/comLibs/utils.js";
-import objectViewerSetup from '/modules/comModules/objectViewer.js';
+import { makeFormBody, comFileUpload, makeFileObj } from "../../modules/comLibs/utils.js";
+import objectViewerSetup from '../../modules/comModules/objectViewer.js';
 
 //forms
 import uiMainSetup from './form/uiMain.js';
+import uiMenuBarSetup from './form/uiMenuBar.js';
 
 //models
 import waitModalSetup from '../../modules/comModules/waitModal.js';
@@ -29,6 +30,7 @@ async function main() {
 
         globalThis.theApp = {
             host_url: '',
+            menubar_container: document.querySelector('.menubar-container'),
             ui_container: document.querySelector('.ui-container'),
             modalContainer: document.querySelector('.modal-container')
         }
@@ -38,6 +40,7 @@ async function main() {
         theApp.messageModal = messageModal(theApp);
         // theApp.fileSelector = fileSelectorSetup(theApp);
         theApp.fileUploadForm = fileUploadFormSetup(theApp);
+        
 
         theApp.waitModal.show({
             msg: 'connecting to server...'
@@ -63,9 +66,9 @@ async function main() {
 
 
             // theApp.objectReg = objectRegSetup(theApp);
-
-
             // theApp.attrEditor = attrEditorSetup(theApp);
+            
+            theApp.uiMenuBar = await uiMenuBarSetup(theApp);
             theApp.uiMain = await uiMainSetup(theApp);
 
             let basicEnvMapId = null;

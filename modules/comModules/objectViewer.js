@@ -7,7 +7,7 @@ import { FBXLoader } from 'fbxLoader';
 import { GLTFLoader } from 'GLTFLoader';
 
 import { RGBELoader } from 'RGBELoader';
-import {EXRLoader} from 'EXRLoader';
+import { EXRLoader } from 'EXRLoader';
 
 import Elvis from 'evlis';
 import { TextureLoader } from 'three';
@@ -54,10 +54,13 @@ export default function setup(option) {
 
             //확장함수
 
-            scope.loadFbx = async function ({ textureMap, modelFile,onProgress,diffuseColor }) {
+            scope.loadFbx = async function ({ textureMap, modelFile, onProgress, 
+                diffuseColor = 0xffffff, 
+                metalness = 0.5,
+                roughness = 0.5,
+                bumpScale = 0.01,
+                material }) {
                 const loader = new FBXLoader();
-                const _texture = textureMap;
-                // console.log(loader);
 
                 let object = await new Promise((resolve, reject) => {
                     // loader.load(`/com/file/download/pub/6282fc15be7f388aab7750db`,
@@ -77,29 +80,47 @@ export default function setup(option) {
                     );
                 });
 
-                object.traverse(function (child) {
-                    if (child.isMesh) {
+                if (material) {
+                    object.traverse( (child) =>{
+                        if (child.isMesh) {
+                            child.material = material;
+                        }
+                    });
+                }
+                else if(textureMap) {
+                    const _texture = textureMap;
+                    object.traverse( (child) =>{
+                        if (child.isMesh) {
 
-                        // const diffuseColor = new THREE.Color().setRGB(0.8, 0.8, 0.8);
+                            // const diffuseColor = new THREE.Color().setRGB(0.8, 0.8, 0.8);
 
-                        child.material = new THREE.MeshStandardMaterial(
-                            {
-                                map: _texture,
-                                bumpMap: _texture,
-                                bumpScale: 0.01,
-                                color: diffuseColor,
-                                metalness: 0.5,
-                                roughness: 0.5,
-                                // envMap: hdrTexture, //오브잭트 단위로 환경멥을 적용시킨다.
-                            }
-                        );
-                    }
-                });
-
+                            child.material = new THREE.MeshStandardMaterial(
+                                {
+                                    map: _texture ? _texture : null,
+                                    bumpMap: _texture ? _texture : null,
+                                    bumpScale: bumpScale,
+                                    color: diffuseColor,
+                                    metalness: metalness,
+                                    roughness: roughness
+                                    // envMap: hdrTexture, //오브잭트 단위로 환경멥을 적용시킨다.
+                                }
+                            );
+                        }
+                    });
+                }
+                else {
+                    //메트리얼 텍스춰 모두 지정안되어있을때
+                    object.traverse( (child) =>{
+                        if (child.isMesh) {
+                            child.material = scope.defaultMaterial;
+                        }
+                    });
+                }
+                
                 return object;
             }
 
-            scope.loadTexture = async function ({ textureFile,onProgress }) {
+            scope.loadTexture = async function ({ textureFile, onProgress }) {
                 // let _texture
 
                 const loader = new TextureLoader();
@@ -130,7 +151,14 @@ export default function setup(option) {
                 // return _texture
             }
 
-            
+            scope.addObject_fbx = async function ({file_id,material=null}) {
+                let _obj = await scope.loadFbx({
+                    modelFile : file_id,
+                    material : material
+                });
+                scope.root_dummy.add(_obj);
+            }
+
             scope.addObject = async function ({
                 modelFile, textureFile, fileId,
                 diffuseColor,
@@ -143,12 +171,12 @@ export default function setup(option) {
                 try {
 
 
-                    let object = fileId ? mObjectRepository[fileId] : undefined ;
+                    let object = fileId ? mObjectRepository[fileId] : undefined;
                     // if(fileId ) 
                     //     object = mObjectRepository[fileId]
                     if (object === undefined) {
-                        const textureMap = await scope.loadTexture({ textureFile,onProgress });
-                        
+                        const textureMap = await scope.loadTexture({ textureFile, onProgress });
+
                         object = await scope.loadFbx({
                             textureMap,
                             modelFile,
@@ -192,15 +220,18 @@ export default function setup(option) {
                 color = 0x00ff00,
                 map = null,
             }) {
-                const geometry = new THREE.PlaneGeometry(width,height, 1);
-                const material = new THREE.MeshStandardMaterial({ 
-                    map : map,
-                    color: color });
+                const geometry = new THREE.PlaneGeometry(width, height, 1);
+                const material = new THREE.MeshStandardMaterial({
+                    map: map,
+                    color: color
+                });
                 const plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = -(Math.PI / 2);
                 plane.position.y = -0.1;
                 scope.root_dummy.add(plane);
             }
+
+
             ////////////////////////////////////////////////////////////////////////////////////////////////
             try {
                 scope.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -212,8 +243,7 @@ export default function setup(option) {
                 scope.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
                 //tone map setup
-                if(envMapFile)
-                {
+                if (envMapFile) {
                     let texture = await new Promise((resolve, reject) => {
                         // new RGBELoader()
                         // new EXRLoader()
@@ -239,6 +269,14 @@ export default function setup(option) {
 
                     //사용자변수 등록 
                     scope.userData.envMapTexure = texture;
+                }
+
+                {
+                    scope.defaultMaterial = new THREE.MeshStandardMaterial({
+                        color: 0xffffff,
+                        metalness: 0.5,
+                        roughness: 0.5,
+                    });
                 }
 
 

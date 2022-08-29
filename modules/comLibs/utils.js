@@ -19,7 +19,7 @@ function makeFormBody(data) {
 }
 
 
-async function comFileUpload({ fileObj, title, description, directory, hostUrl,md5 }) {
+async function comFileUpload({ fileObj, title, description, directory, hostUrl,md5,fileType }) {
 
     let host_url = hostUrl ? hostUrl : '';
 
@@ -31,10 +31,12 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl,m
         title: title,
         description: description,
         size : fileObj.file.size,
+        fileType : fileType,
         md5 : md5
     };
 
-    let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    const query = makeFormBody(params);
+    // let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
 
     let res = await (await (fetch(`${host_url}/com/file/upload`, {
         method: 'POST',
