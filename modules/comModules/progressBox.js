@@ -55,8 +55,19 @@ export default function (_Context) {
             _progressBar.innerText = `${ _.round(progress.progress,2)}%`;
             _msg.innerText = `${progress.name}`;
         },
-        close: () => {
-            closeModal();
+        close: closeModal,
+        closeDelay: async (delay) => {
+            _progressBar.style.width = `100%`;
+            _progressBar.innerText = `100%`;
+
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    closeModal();
+                    resolve();
+                }, delay);
+            })
+
+            
             // delay? setTimeout(closeModal, delay) : closeModal();
             // closeModal()
         }

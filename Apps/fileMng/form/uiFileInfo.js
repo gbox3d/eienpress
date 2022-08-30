@@ -31,6 +31,8 @@ export default async function (_Context) {
             <input class="w3-input" type="text" name='file_path'>
             <label>file md5</label>
             <input class="w3-input" type="text" name='file_md5'>
+            <label>repoitory address</label>
+            <input class="w3-input" type="text" name='repo_ip'>
                 
         </form>
     </div>
@@ -53,19 +55,6 @@ export default async function (_Context) {
             console.log(data);
             const form = _rootElm.querySelector('.file-info');
 
-            // _fileInfoElm.querySelector('input[name=id]').value = res.data._id;
-                // _fileInfoElm.querySelector('input[name=creator]').value = res.data.creator;
-                // _fileInfoElm.querySelector('input[name=title]').value = res.data.title;
-                // _fileInfoElm.querySelector('input[name=description]').value = res.data.description;
-                // _fileInfoElm.querySelector('input[name=directory]').value = res.data.directory;
-                // _fileInfoElm.querySelector('input[name=isPublic]').checked = res.data.isPublic;
-                // _fileInfoElm.querySelector('input[name=created]').value = res.data.date;
-                // _fileInfoElm.querySelector('input[name=file_type]').value = res.data.fileType;
-                // _fileInfoElm.querySelector('input[name=file_size]').value = res.data.size;
-                // _fileInfoElm.querySelector('input[name=src_name]').value = res.data.srcName;
-                // _fileInfoElm.querySelector('input[name=file_path]').value = res.data.filepath;
-                // _fileInfoElm.querySelector('input[name=file_md5]').value = res.data.md5;
-
             form.elements.id.value = data._id;
             form.elements.creator.value = data.creator;
             form.elements.title.value = data.title;
@@ -78,6 +67,7 @@ export default async function (_Context) {
             form.elements.src_name.value = data.srcName;
             form.elements.file_path.value = data.filepath;
             form.elements.file_md5.value = data.md5;
+            form.elements.repo_ip.value = data.repo_ip ? data.repo_ip : '';
         }
         // getSelection: function () {
         //     return select_Item;

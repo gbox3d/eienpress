@@ -54,78 +54,88 @@ export default function setup(option) {
 
             //확장함수
 
-            scope.loadFbx = async function ({ textureMap, modelFile, onProgress, 
-                diffuseColor = 0xffffff, 
+            scope.loadFbx = async function ({ textureMap, modelFile, onProgress,
+                diffuseColor = 0xffffff,
                 metalness = 0.5,
                 roughness = 0.5,
                 bumpScale = 0.01,
-                material }) {
+                material,
+                repo_ip
+             }) {
                 const loader = new FBXLoader();
 
-                let object = await new Promise((resolve, reject) => {
-                    // loader.load(`/com/file/download/pub/6282fc15be7f388aab7750db`,
-                    loader.load(`/com/file/download/pub/${modelFile}`,
-                        (object) => resolve(object),
-                        (xhr) => { //progress
-                            // console.log(xhr)
-                            // console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`);
-                            onProgress ? onProgress({
-                                name: 'modelfile',
-                                progress: (xhr.loaded / xhr.total * 100)
-                            }) : null;
-                        },
-                        (err) => {
-                            reject(err);
-                        }
-                    );
-                });
-
-                if (material) {
-                    object.traverse( (child) =>{
-                        if (child.isMesh) {
-                            child.material = material;
-                        }
+                try {
+                    let object = await new Promise((resolve, reject) => {
+                        // loader.load(`/com/file/download/pub/6282fc15be7f388aab7750db`,
+                        loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${modelFile}`,
+                            (object) => resolve(object),
+                            (xhr) => { //progress
+                                // console.log(xhr)
+                                // console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`);
+                                onProgress ? onProgress({
+                                    name: 'modelfile',
+                                    progress: (xhr.loaded / xhr.total * 100)
+                                }) : null;
+                            },
+                            (err) => {
+                                reject(err);
+                            }
+                        );
                     });
+
+                    if (material) {
+                        object.traverse((child) => {
+                            if (child.isMesh) {
+                                child.material = material;
+                            }
+                        });
+                    }
+                    else if (textureMap) {
+                        const _texture = textureMap;
+                        object.traverse((child) => {
+                            if (child.isMesh) {
+
+                                // const diffuseColor = new THREE.Color().setRGB(0.8, 0.8, 0.8);
+
+                                child.material = new THREE.MeshStandardMaterial(
+                                    {
+                                        map: _texture ? _texture : null,
+                                        bumpMap: _texture ? _texture : null,
+                                        bumpScale: bumpScale,
+                                        color: diffuseColor,
+                                        metalness: metalness,
+                                        roughness: roughness
+                                        // envMap: hdrTexture, //오브잭트 단위로 환경멥을 적용시킨다.
+                                    }
+                                );
+                            }
+                        });
+                    }
+                    else {
+                        //메트리얼 텍스춰 모두 지정안되어있을때
+                        object.traverse((child) => {
+                            if (child.isMesh) {
+                                child.material = scope.defaultMaterial;
+                            }
+                        });
+                    }
+                    return object;
+
                 }
-                else if(textureMap) {
-                    const _texture = textureMap;
-                    object.traverse( (child) =>{
-                        if (child.isMesh) {
-
-                            // const diffuseColor = new THREE.Color().setRGB(0.8, 0.8, 0.8);
-
-                            child.material = new THREE.MeshStandardMaterial(
-                                {
-                                    map: _texture ? _texture : null,
-                                    bumpMap: _texture ? _texture : null,
-                                    bumpScale: bumpScale,
-                                    color: diffuseColor,
-                                    metalness: metalness,
-                                    roughness: roughness
-                                    // envMap: hdrTexture, //오브잭트 단위로 환경멥을 적용시킨다.
-                                }
-                            );
-                        }
-                    });
-                }
-                else {
-                    //메트리얼 텍스춰 모두 지정안되어있을때
-                    object.traverse( (child) =>{
-                        if (child.isMesh) {
-                            child.material = scope.defaultMaterial;
-                        }
-                    });
+                catch (err) {
+                    console.log(err)
+                    return null;
+                    
                 }
                 
-                return object;
             }
 
-            scope.loadTexture = async function ({ textureFile, onProgress }) {
+            scope.loadTexture = async function ({ textureFile, onProgress,repo_ip }) {
                 // let _texture
 
                 const loader = new TextureLoader();
                 let texture = await new Promise((resolve, reject) => {
-                    loader.load(`/com/file/download/pub/${textureFile}`, function (texture) {
+                    loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${textureFile}`, function (texture) {
                         resolve(texture);
                     },
                         function (xhr) {
@@ -151,12 +161,20 @@ export default function setup(option) {
                 // return _texture
             }
 
-            scope.addObject_fbx = async function ({file_id,material=null}) {
+            scope.addObject_fbx = async function ({ file_id, material = null,repo_ip }) {
                 let _obj = await scope.loadFbx({
-                    modelFile : file_id,
-                    material : material
+                    modelFile: file_id,
+                    material: material,
+                    repo_ip: repo_ip
                 });
-                scope.root_dummy.add(_obj);
+                if (_obj) {
+                    console.log(_obj)
+                    // scope.addObject(_obj);
+                    scope.root_dummy.add(_obj);
+                    return _obj;
+                }
+                return null
+                // scope.root_dummy.add(_obj);
             }
 
             scope.addObject = async function ({

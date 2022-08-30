@@ -27,7 +27,7 @@ export default async function (_Context) {
 
     const host_url = _Context.host_url;
 
-    _Context.uiMenuBar.initCallBack(async (menuName) => {
+    _Context.uiMenuBar.setCallback(async (menuName) => {
 
         console.log(menuName);
 
@@ -69,7 +69,7 @@ export default async function (_Context) {
                         console.log(_res)
 
                         if (_res.r === 'ok') {
-                            await _updateList();
+                            await _fileListView.updateList();
                         }
                     }
                     else {
@@ -93,10 +93,10 @@ export default async function (_Context) {
                                 }
                             }))).json();
 
-                            console.log(res)
-                            if (res.r === 'ok') {
-                                await _updateList();
-                            }
+                            // console.log(res)
+                            // if (res.r === 'ok') {
+                            //     await _updateList();
+                            // }
                         }
                         catch (err) {
                             console.log(err)
@@ -106,6 +106,7 @@ export default async function (_Context) {
                 break;
             case 'Delete':
                 {
+                    const select_Item = _fileListView.getSelection();
                     if (select_Item) {
                         const _id = select_Item.dataset._id;
                         console.log(_id);
@@ -120,7 +121,8 @@ export default async function (_Context) {
 
                             console.log(res)
                             if (res.r === 'ok') {
-                                await _updateList();
+                                await _fileListView.updateList();
+                                // await _updateList();
                             }
                         }
                         catch (err) {
@@ -137,6 +139,10 @@ export default async function (_Context) {
     _fileListView.setOnSelect(async ({item,_id}) => {
         console.log(item)
 
+        _Context.waitModal.show({
+            msg: 'loading...'
+        })
+
         try {
 
             let res = await (await (fetch(`${host_url}/com/file/findOne/${_id}`, {
@@ -148,7 +154,12 @@ export default async function (_Context) {
             }))).json();
             console.log(res)
 
+            
+
             if (res.r === 'ok') {
+
+                _Context.waitModal.close();
+                _Context.progressBox.show();
 
                 _fileInfoView.setData(res.data);
 
@@ -156,7 +167,12 @@ export default async function (_Context) {
 
                 if (_type[0] === 'image') {
                     let _tex = await _Context.objViewer.loadTexture({
-                        textureFile: res.data._id
+                        textureFile: res.data._id,
+                        repo_ip : res.data.repo_ip,
+                        onProgress : (progress) => {
+                            console.log(progress)
+                            _Context.progressBox.update(progress);
+                        }
                     });
 
                     console.log(_tex.source.data.width)
@@ -171,16 +187,34 @@ export default async function (_Context) {
                 }
                 else if (_type[0] === 'application') {
                     if (_type[1] === 'fbx') {
-                        _Context.objViewer.addObject_fbx({
-                            file_id: res.data._id
+
+                        let _obj = await _Context.objViewer.addObject_fbx({
+                            file_id: res.data._id,
+                            repo_ip : res.data.repo_ip,
+                            onProgress : (progress) => {
+                                console.log(progress)
+                                _Context.progressBox.update(progress);
+                            }
                         });
+                        if(!_obj) {
+                            _Context.messageModal.show({
+                                msg: 'file load error : ' + res.data._id
+                            });
+                        }
                     }
                 }
+                await _Context.progressBox.closeDelay(300);
+                // _Context.progressBox.close()
             }
         }
         catch (err) {
             console.log(err)
+            _Context.messageModal.show({
+                msg: 'file load error : ' + _id
+            });
         }
+
+        _Context.waitModal.close()
 
     });
 

@@ -18,12 +18,9 @@ export default async function (_Context) {
     const _rootElm = htmlDoc.querySelector('.ui-view');
     const _fileListElm = _rootElm.querySelector('.file-list');
     
-    // _rootElm.style.display = 'flex';
-    // _fileListElm.style.width = '512px';
     _fileListElm.style.height = '512px';
     _fileListElm.style.overflow = 'auto';
     
-
     const host_url = _Context.host_url;
     let select_Item = null;
     let onSelect = null;
@@ -112,80 +109,7 @@ export default async function (_Context) {
                 item : item
             }) : null;
 
-            // try {
-
-                
-
-
-            //     let res = await (await (fetch(`${host_url}/com/file/findOne/${_id}`, {
-            //         method: 'GET',
-            //         headers: {
-            //             'Content-Type': 'application/text',
-            //             'authorization': localStorage.getItem('jwt_token')
-            //         }
-            //     }))).json();
-            //     console.log(res)
-
-            //     if (res.r === 'ok') {
-
-            //         _fileInfoElm.querySelector('input[name=id]').value = res.data._id;
-            //         _fileInfoElm.querySelector('input[name=creator]').value = res.data.creator;
-            //         _fileInfoElm.querySelector('input[name=title]').value = res.data.title;
-            //         _fileInfoElm.querySelector('input[name=description]').value = res.data.description;
-            //         _fileInfoElm.querySelector('input[name=directory]').value = res.data.directory;
-            //         _fileInfoElm.querySelector('input[name=isPublic]').checked = res.data.isPublic;
-            //         _fileInfoElm.querySelector('input[name=created]').value = res.data.date;
-            //         _fileInfoElm.querySelector('input[name=file_type]').value = res.data.fileType;
-            //         _fileInfoElm.querySelector('input[name=file_size]').value = res.data.size;
-            //         _fileInfoElm.querySelector('input[name=src_name]').value = res.data.srcName;
-            //         _fileInfoElm.querySelector('input[name=file_path]').value = res.data.filepath;
-            //         _fileInfoElm.querySelector('input[name=file_md5]').value = res.data.md5;
-
-            //         let _type = res.data.fileType.split('/')
-
-            //         if (_type[0] === 'image') {
-            //             let _tex = await _Context.objViewer.loadTexture({
-            //                 textureFile: res.data._id
-            //             });
-
-            //             console.log(_tex.source.data.width)
-
-            //             _Context.objViewer.addPlane({
-            //                 width: _tex.source.data.width,
-            //                 height: _tex.source.data.height,
-            //                 map: _tex,
-            //                 color: 0xffffff,
-            //             });
-            //             console.log(_tex);
-            //         }
-            //         else if (_type[0] === 'application') {
-            //             if (_type[1] === 'fbx') {
-            //                 // let _obj = await _Context.objViewer.loadFbx({
-            //                 //     modelFile : res.data._id
-            //                 // });
-            //                 // _Context.objViewer.root_dummy.add(_obj);
-            //                 _Context.objViewer.addObject_fbx({
-            //                     file_id: res.data._id
-            //                 });
-            //             }
-            //         }
-
-
-
-            //     }
-
-            //     // document.querySelector('#updateForm input[name=title]').value = res.data.title
-            //     // document.querySelector('#updateForm input[name=description]').value = res.data.description
-            //     // document.querySelector('#updateForm input[name=isPublic]').checked = res.data.isPublic
-
-
-            // }
-            // catch (err) {
-            //     console.log(err)
-            // }
-
-            // _Context.waitModal.close();
-
+            
 
         }
     });
@@ -200,7 +124,8 @@ export default async function (_Context) {
         },
         setOnSelect: function (cb) {
             onSelect = cb;
-        }
+        },
+        updateList: _updateList
     }
 
 }

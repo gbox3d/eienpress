@@ -17,10 +17,10 @@ export default async function (_Context) {
             </div>
         </div>
         <div class="w3-dropdown-click">
-            <button class="w3-button">setup</button>
+            <button class="w3-button">Test</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button">User</a>
-                <a href="#" class="w3-bar-item w3-button">System</a>
+                <a href="#" class="w3-bar-item w3-button">item1</a>
+                <a href="#" class="w3-bar-item w3-button">item2</a>
             </div>
         </div>
         
@@ -48,7 +48,7 @@ export default async function (_Context) {
             callBack? callBack(_targetText) : null;
 
             const dropDown = _target.closest('.w3-dropdown-click')
-            dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show');
+            dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
 
         }
         else if(_target.classList.contains('w3-button')){
@@ -94,7 +94,7 @@ export default async function (_Context) {
 
     return {
         element: _rootElm,
-        initCallBack : (_callback )=> {
+        setCallback : (_callback )=> {
             callBack = _callback;
         }
         
