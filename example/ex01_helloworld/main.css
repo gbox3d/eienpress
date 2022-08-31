@@ -1,0 +1,8 @@
+.root-container {
+    display: flex;
+}
+
+.root-container .gl-container {
+    width: 1024px;
+    height: 768px;
+}

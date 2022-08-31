@@ -18,21 +18,21 @@ function makeFormBody(data) {
     return Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&');
 }
 
-
-async function comFileUpload({ fileObj, title, description, directory, hostUrl,md5,fileType }) {
+//com file api utils
+async function comFileUpload({ fileObj, title, description, directory, hostUrl, md5, fileType }) {
 
     let host_url = hostUrl ? hostUrl : '';
 
     // let fileObj = fbxFileObj
     let params = {
         directory: directory,
-        fileName : fileObj.file.name,
+        fileName: fileObj.file.name,
         isPublic: true,
         title: title,
         description: description,
-        size : fileObj.file.size,
-        fileType : fileType,
-        md5 : md5
+        size: fileObj.file.size,
+        fileType: fileType,
+        md5: md5
     };
 
     const query = makeFormBody(params);
@@ -53,6 +53,46 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl,m
     console.log(res)
     return res;
 }
+
+
+async function comFileFindFile( {hostUrl='',filename='basic_envmap'} ) {
+
+    let _id = null;
+    try {
+        let res = await (await (fetch(`${hostUrl}/com/file/list`, {
+            method: 'POST',
+            headers: {
+                // 'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                'authorization': localStorage.getItem('jwt_token')
+            },
+            body: makeFormBody({
+                userId: 'all',
+                title: filename
+            })
+        }))).json();
+
+        // console.log(res);
+        if (res.r === 'ok') {
+            if (res.data.length > 0) {
+                _id = res.data[0]._id;
+            }
+            else {
+                return null
+                // theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
+            }
+        }
+        return _id;
+
+    }
+    catch (e) {
+        console.log(e);
+    }
+
+    return null
+    
+}
+
 
 //webdisk file api
 async function get_file_list({ path, hostUrl }) {
@@ -81,14 +121,14 @@ async function remove_file({ path, file, hostUrl }) {
 }
 
 //public api
-async function getObjectDetail({id,hostUrl}) {
+async function getObjectDetail({ id, hostUrl }) {
     let host_url = hostUrl ? hostUrl : '';
     return await (await (fetch(`${host_url}/com/object/detail/pub/${id}`, {
         method: 'GET'
     }))).json();
 }
 
-async function getGalleryDetail({id,hostUrl}) {
+async function getGalleryDetail({ id, hostUrl }) {
     let host_url = hostUrl ? hostUrl : '';
     return await (await (fetch(`${host_url}/com/gallery/detail/pub/${id}`, {
         method: 'GET'
@@ -100,10 +140,14 @@ async function getGalleryDetail({id,hostUrl}) {
 
 export {
     makeFileObj,
+    
     comFileUpload,
+    comFileFindFile,
+
     makeFormBody,
     get_file_list,
     remove_file,
     getObjectDetail,
     getGalleryDetail
+
 }

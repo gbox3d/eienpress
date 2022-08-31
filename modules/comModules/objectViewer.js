@@ -29,7 +29,7 @@ export default function setup(option) {
     return new Elvis({
         camera: {
             fov: 45,
-            far: 5000,
+            far: 15000,
             near: 1,
             position: new THREE.Vector3(0, 100, 200),
             lookat: new THREE.Vector3()
@@ -244,9 +244,11 @@ export default function setup(option) {
                     color: color
                 });
                 const plane = new THREE.Mesh(geometry, material);
-                plane.rotation.x = -(Math.PI / 2);
-                plane.position.y = -0.1;
+                // plane.rotation.x = -(Math.PI / 2);
+                // plane.position.y = -0.1;
                 scope.root_dummy.add(plane);
+                
+                return plane;
             }
 
 
@@ -299,9 +301,9 @@ export default function setup(option) {
 
 
                 //그리드헬퍼
-                // const helper = new THREE.GridHelper(5000, 50, 0x00ff00, 0xff0000);
-                //helper.setColors(0x00ff00,0xff0000);
-                // scope.scene.add(helper);
+                const helper = new THREE.GridHelper(5000, 50, 0x00ff00, 0xff0000);
+                // helper.setColors(0x00ff00,0xff0000);
+                scope.scene.add(helper);
 
                 //오빗컨트롤
                 //카메라의 현재 위치 기준으로 시작한다.
