@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import WEBGL from 'WebGL';
 
-import { makeFormBody, comFileUpload, makeFileObj } from "../../modules/comLibs/utils.js";
+import {comFileFindFile } from "../../modules/comLibs/utils.js";
 import objectViewerSetup from '../../modules/comModules/objectViewer.js';
 
 //forms
@@ -71,33 +71,38 @@ async function main() {
             theApp.uiMenuBar = await uiMenuBarSetup(theApp);
             theApp.uiMain = await uiMainSetup(theApp);
 
-            let basicEnvMapId = null;
-            {
-                let res = await (await (fetch(`/com/file/list`, {
-                    method: 'POST',
-                    headers: {
-                        // 'Content-Type': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                        'authorization': localStorage.getItem('jwt_token')
-                    },
-                    body: makeFormBody({
-                        userId: 'all',
-                        title: 'basic_envmap'
-                    })
-                }))).json();
 
-                // console.log(res);
-                if (res.r === 'ok') {
-                    if (res.data.length > 0) {
-                        basicEnvMapId = res.data[0]._id;
+
+            // let basicEnvMapId = null;
+            // {
+            //     let res = await (await (fetch(`/com/file/list`, {
+            //         method: 'POST',
+            //         headers: {
+            //             // 'Content-Type': 'application/json',
+            //             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            //             'authorization': localStorage.getItem('jwt_token')
+            //         },
+            //         body: makeFormBody({
+            //             userId: 'all',
+            //             title: 'basic_envmap'
+            //         })
+            //     }))).json();
+
+            //     // console.log(res);
+            //     if (res.r === 'ok') {
+            //         if (res.data.length > 0) {
+            //             basicEnvMapId = res.data[0]._id;
                         
-                    }
-                    else {
-                        theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
-                    }
-                }
+            //         }
+            //         else {
+            //             theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
+            //         }
+            //     }
 
-            }
+            // }
+            const basicEnvMapId = await comFileFindFile({
+                filename: 'basic_envmap'
+            })
 
             theApp.objViewer = await new Promise(resolve => {
                 objectViewerSetup({

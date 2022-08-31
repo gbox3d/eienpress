@@ -27,6 +27,7 @@ export default async function (_Context) {
 
     const host_url = _Context.host_url;
 
+    //메뉴 이밴트 처리 
     _Context.uiMenuBar.setCallback(async (menuName) => {
 
         console.log(menuName);
@@ -121,7 +122,9 @@ export default async function (_Context) {
 
                             console.log(res)
                             if (res.r === 'ok') {
+                                _Context.objViewer.clearObject();
                                 await _fileListView.updateList();
+                                
                                 // await _updateList();
                             }
                         }
