@@ -58,20 +58,14 @@ export default async function (_Context) {
                 switch (menuName) {
                     case 'hello':
                         {   
-                            const gameObject = {
+                            const gameObject = objViewer.elvis.createGameObject({
                                 entity : new THREE.Object3D()
-                            }
-                            
-                            const _script = await (await fetch(`./script_exam/hello.js`)).text();
-                            const _codeObj = (new Function('gameObject', _script)).bind(gameObject)();
+                            });
 
-                            gameObject.update = _codeObj.update;
-                            gameObject.start = _codeObj.start;
-                            gameObject.entity.gameObject = gameObject;
+                            gameObject.addScriptFromUrl(`${host_url}/example/ex02_objectViewer/script_exam/hello.js`);
 
                             objViewer.elvis.root_dummy.add(gameObject.entity);
-
-                            _codeObj.start();
+                            gameObject.start();
                             
                         }
                         break;
@@ -79,21 +73,22 @@ export default async function (_Context) {
                         {
                             let cube = objViewer.addCube({ size: 100, color: 0xff0000 });
 
-                            const gameObject = {
+                            const gameObject = objViewer.elvis.createGameObject({
                                 entity : cube
-                            }
+                            });
 
-                            const _script = await (await fetch(`./script_exam/rotation.js`)).text();
-                            const _codeObj = (new Function('engine', _script)).bind(gameObject)(objViewer.elvis);
-
-                            gameObject.update = _codeObj.update;
-                            gameObject.start = _codeObj.start;
-
-                            gameObject.entity.gameObject = gameObject;
+                            gameObject.addScriptFromUrl(`${host_url}/example/ex02_objectViewer/script_exam/rotation.js`);
+                            gameObject.start();
 
                             
+                            // const _script = await (await fetch(`./script_exam/rotation.js`)).text();
+                            // const _codeObj = (new Function('engine', _script)).bind(gameObject)(objViewer.elvis);
 
-                            _codeObj.start();
+                            // gameObject.update = _codeObj.update;
+                            // gameObject.start = _codeObj.start;
+
+                            // gameObject.entity.gameObject = gameObject;
+                            // _codeObj.start();
 
                         }
                         break;
@@ -101,21 +96,29 @@ export default async function (_Context) {
                         {
 
                             let redPlaneObj = objViewer.addPlane({ color: 0xff0000 });
-                            redPlaneObj.position.set(0, 0, 0);
+                            const gameObject = objViewer.elvis.createGameObject({
+                                entity : redPlaneObj
+                            });
 
-                            const gameObject = {
-                                entity : redPlaneObj,
-                            } 
+                            gameObject.addScriptFromUrl(`${host_url}/example/ex02_objectViewer/script_exam/destory.js`);
+                            gameObject.start();
 
-                            const _script = await (await fetch(`./script_exam/destory.js`)).text();
-                            const _codeObj = (new Function('gameObject', _script)).bind(gameObject)();
 
-                            gameObject.update = _codeObj.update;
-                            gameObject.start = _codeObj.start;
+                            // redPlaneObj.position.set(0, 0, 0);
 
-                            gameObject.entity.gameObject = gameObject;
+                            // const gameObject = {
+                            //     entity : redPlaneObj,
+                            // } 
 
-                            _codeObj.start();
+                            // const _script = await (await fetch(`./script_exam/destory.js`)).text();
+                            // const _codeObj = (new Function('gameObject', _script)).bind(gameObject)();
+
+                            // gameObject.update = _codeObj.update;
+                            // gameObject.start = _codeObj.start;
+
+                            // gameObject.entity.gameObject = gameObject;
+
+                            // _codeObj.start();
                             
                         }
                         break;

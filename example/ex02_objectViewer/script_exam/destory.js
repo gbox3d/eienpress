@@ -13,6 +13,7 @@ return {
 
         if(accTick > 1){
             this.entity.parent.remove(this.entity);
+            
         }
 
     }
