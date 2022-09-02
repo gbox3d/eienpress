@@ -122,6 +122,18 @@ export default async function (_Context) {
                             
                         }
                         break;
+                    case 'load from fileid':
+                        {
+                            let cube = objViewer.addCube({ size: 100, color: 0xff0000 });
+
+                            const gameObject = objViewer.elvis.createGameObject({
+                                entity : cube
+                            });
+
+                            gameObject.addScriptFromFileID(`63121b8e790b685903324fa3`);
+                            gameObject.start();
+                        }
+                        break;
 
                 }
             }

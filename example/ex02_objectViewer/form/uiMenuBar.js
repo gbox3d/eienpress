@@ -22,6 +22,7 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" >hello</a>
                 <a href="#" class="w3-bar-item w3-button" >test1</a>
                 <a href="#" class="w3-bar-item w3-button" >test2</a>
+                <a href="#" class="w3-bar-item w3-button" >load from fileid</a>
                 
             </div>
         </div>
