@@ -143,6 +143,13 @@ export default async function setup(option) {
                 onWindowResize: function () {
                 },
                 onUpdate: function (event) {
+
+                    this.scene.traverse((node) => {
+                        if(node.gameObject && node.gameObject.update){
+                            node.gameObject.update(event);
+                        }
+                    });
+                    
                     this.updateAll();
                 }
             }
@@ -349,6 +356,7 @@ export default async function setup(option) {
     }
 
 
+
     return {
         elvis: scope,
         addObject,
@@ -356,7 +364,19 @@ export default async function setup(option) {
         clearObject,
         addPlane,
         loadTexture,
-        loadFbx
+        loadFbx,
+        addCube : ({
+            size = 10,
+            color = 0x00ff00
+        }) => {
+            const geometry = new THREE.BoxGeometry(size, size, size);
+            const material = new THREE.MeshStandardMaterial({ color: color });
+            const cube = new THREE.Mesh(geometry, material);
+            scope.root_dummy.add(cube);
+
+            return cube;
+        }
+        
     }
 
 }

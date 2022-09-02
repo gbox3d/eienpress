@@ -13,7 +13,16 @@ export default async function (_Context) {
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >clear</a>
                 <a href="#" class="w3-bar-item w3-button" >camera reset</a>
-                <a href="#" class="w3-bar-item w3-button">add object</a>
+                <a href="#" class="w3-bar-item w3-button" >add object</a>
+            </div>
+        </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >script</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >hello</a>
+                <a href="#" class="w3-bar-item w3-button" >test1</a>
+                <a href="#" class="w3-bar-item w3-button" >test2</a>
+                
             </div>
         </div>
         
@@ -37,10 +46,17 @@ export default async function (_Context) {
             const _targetText = _target.textContent;
             // console.log(_targetText);
 
-            callBack? callBack(_targetText) : null;
-
             const dropDown = _target.closest('.w3-dropdown-click')
-            dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
+
+            if(dropDown) {
+                callBack? callBack(_targetText,dropDown.querySelector('.w3-button').textContent) : null;
+                dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show')
+            }
+            else {
+                callBack? callBack(_targetText) : null;
+            }
+            
+            // dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
 
         }
         else if(_target.classList.contains('w3-button')){
