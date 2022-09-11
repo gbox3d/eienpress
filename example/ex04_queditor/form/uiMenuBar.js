@@ -9,26 +9,16 @@ export default async function (_Context) {
     <div class="ui-view w3-bar w3-light-grey">
         <a href="#" class="w3-bar-item w3-button">About</a>
         <div class="w3-dropdown-click">
-            <button class="w3-button" >Viewer</button>
+            <button class="w3-button" >Editor</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button" >clear</a>
                 <a href="#" class="w3-bar-item w3-button" >camera reset</a>
                 <a href="#" class="w3-bar-item w3-button" >enviroment map</a>
                 <a href="#" class="w3-bar-item w3-button" >grid</a>
             </div>
         </div>
+        
         <div class="w3-dropdown-click">
-            <button class="w3-button" >script</button>
-            <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button" >hello</a>
-                <a href="#" class="w3-bar-item w3-button" >rotate</a>
-                <a href="#" class="w3-bar-item w3-button" >test2</a>
-                <a href="#" class="w3-bar-item w3-button" >load from fileid</a>
-                
-            </div>
-        </div>
-        <div class="w3-dropdown-click">
-            <button class="w3-button" >Object</button>
+            <button class="w3-button" >Entity</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >plane</a>
                 <a href="#" class="w3-bar-item w3-button" >cube</a>
@@ -37,10 +27,22 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" >cone</a>
                 <a href="#" class="w3-bar-item w3-button" >torus</a>
                 <a href="#" class="w3-bar-item w3-button" >from fbx</a>
-
             </div>
         </div>
-        
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >Material</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >add</a>
+                <a href="#" class="w3-bar-item w3-button" >select</a>
+            </div>
+        </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >Scene</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >save</a>
+                <a href="#" class="w3-bar-item w3-button" >load</a>
+            </div>
+        </div>
     </div>
     `;
 

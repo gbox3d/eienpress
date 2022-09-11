@@ -3,7 +3,8 @@ import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLi
 import uiMenuBarSetup from './uiMenuBar.js';
 
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../../modules/comModules/objectViewer.js';
+// import objectViewerSetup from '../../../modules/comModules/objectViewer.js';
+import sceneEditorSetup from '../../../modules/elvisPlugins/sceneEditor.js';
 
 
 import 'md5';
@@ -38,7 +39,7 @@ export default async function (_Context) {
             if (btnName === 'Viewer') {
                 switch (menuName) {
                     case 'clear':
-                        objViewer.objMng.clearObject();
+                        objViewer.clearObject();
                         break;
                     case 'camera reset':
                         objViewer.resetCamera();
@@ -60,6 +61,38 @@ export default async function (_Context) {
                             objViewer.toggleGrid();
                         }
                         break;
+                }
+            }
+            else if (btnName === 'File') {
+                switch (menuName) {
+                    case 'open':
+                        {
+
+                        }
+                        break;
+                    case 'save':
+                        {
+                            
+                        }
+                        break;
+                }
+            }
+            else if (btnName === 'Edit') {
+                if (menuName === 'delete') {
+                    objViewer.delObject();
+                }
+                else if (menuName === 'clone') {
+                    // objViewer.copyObject();
+                    const obj = objViewer.getSelectObject().clone();
+                    objViewer.objMng.addObject({
+                        entity: obj
+                    });
+                }
+                else if (menuName === 'rotateX') {
+                    objViewer.getSelectObject().rotation.x -= THREE.Math.degToRad(90);
+                }
+                else if (menuName === 'set zero pos') {
+                    objViewer.getSelectObject().position.set(0, 0, 0);
                 }
             }
             else if (btnName === 'script') {
@@ -244,12 +277,13 @@ export default async function (_Context) {
     let basicEnvMapId = await comFileFindFile({});
 
 
-    const objViewer = await objectViewerSetup({
+    const objViewer = await sceneEditorSetup({
         Context: theApp,
         window_size: {
             width: 1024,
             height: 768
         },
+        // cameraPosition : new THREE.Vector3(0, 100, -140),
         isGrid: true,
         container: _glContainer,
         // envMapFileFormat : '', // exr, hdr, pic , default : hdr

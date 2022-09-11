@@ -18,13 +18,30 @@ export default async function (_Context) {
             </div>
         </div>
         <div class="w3-dropdown-click">
-            <button class="w3-button" >script</button>
+            <button class="w3-button" >Edit</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >delete</a>
+                <a href="#" class="w3-bar-item w3-button" >clone</a>
+                <a href="#" class="w3-bar-item w3-button" >rotateX</a>
+                <a href="#" class="w3-bar-item w3-button" >set zero pos</a>
+            </div>
+        </div>
+
+        <div class="w3-dropdown-click">
+            <button class="w3-button">File</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >open</a>
+                <a href="#" class="w3-bar-item w3-button" ></a>
+            </div>
+        </div>
+
+        <div class="w3-dropdown-click">
+            <button class="w3-button">script</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >hello</a>
                 <a href="#" class="w3-bar-item w3-button" >rotate</a>
                 <a href="#" class="w3-bar-item w3-button" >test2</a>
                 <a href="#" class="w3-bar-item w3-button" >load from fileid</a>
-                
             </div>
         </div>
         <div class="w3-dropdown-click">
@@ -49,7 +66,7 @@ export default async function (_Context) {
     const _rootElm = htmlDoc.querySelector('.ui-view');
 
     // _Context.menubar_container.appendChild(_rootElm);
-    let callBack=null;
+    let callBack = null;
     //click event
     _rootElm.addEventListener('click', (e) => {
         e.preventDefault();
@@ -63,22 +80,22 @@ export default async function (_Context) {
 
             const dropDown = _target.closest('.w3-dropdown-click')
 
-            if(dropDown) {
-                callBack? callBack(_targetText,dropDown.querySelector('.w3-button').textContent) : null;
+            if (dropDown) {
+                callBack ? callBack(_targetText, dropDown.querySelector('.w3-button').textContent) : null;
                 dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show')
             }
             else {
-                callBack? callBack(_targetText) : null;
+                callBack ? callBack(_targetText) : null;
             }
-            
+
             // dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
 
         }
-        else if(_target.classList.contains('w3-button')){
+        else if (_target.classList.contains('w3-button')) {
             const dropDown = e.target.closest('.w3-dropdown-click')
             dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show');
         }
-        
+
     });
 
     function _hoverOffEvent(e) {
@@ -86,22 +103,22 @@ export default async function (_Context) {
         e.stopPropagation();
 
         const dropDown = e.target.closest('.w3-dropdown-click')
-        if(dropDown) {
+        if (dropDown) {
             dropDown.querySelector('.w3-dropdown-content').classList.remove('w3-show');
         }
     }
 
     //add hover out events
-    for(let ele of _rootElm.querySelectorAll('.w3-dropdown-click') ) {
+    for (let ele of _rootElm.querySelectorAll('.w3-dropdown-click')) {
         console.log(ele)
         ele.addEventListener('mouseleave', _hoverOffEvent);
     }
-    
+
     console.log('complete setup menuBar');
 
     return {
         element: _rootElm,
-        setCallback : (_callback )=> {
+        setCallback: (_callback) => {
             callBack = _callback;
         }
     }

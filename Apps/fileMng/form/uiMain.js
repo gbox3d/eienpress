@@ -191,7 +191,7 @@ export default async function (_Context) {
                 else if (_type[0] === 'application') {
                     if (_type[1] === 'fbx') {
 
-                        let _obj = await _Context.objViewer.addObject_fbx({
+                        let _obj = await _Context.objViewer.objMng.addObject_fbx({
                             file_id: res.data._id,
                             repo_ip : res.data.repo_ip,
                             onProgress : (progress) => {
