@@ -83,7 +83,7 @@ export default async function (_Context) {
     _listElm.addEventListener('click', async function (e) {
         console.log(e.target);
 
-        _Context.objViewer.clearObject();
+        _Context.objViewer.objMng.clearObject();
 
         let item = e.target;
 

@@ -50,10 +50,16 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
         // },
         body: fileObj.data
     }))).json();
-    console.log(res)
+    // console.log(res)
     return res;
 }
 
+async function comFileDownload({ fileID, hostUrl }) {
+    let host_url = hostUrl ? hostUrl : '';
+    return await (fetch(`${host_url}/com/file/download/pub/${fileID}`, {
+        method: 'GET'
+    }));
+}
 
 async function comFileFindFile( {hostUrl='',filename='basic_envmap'} ) {
 
@@ -92,6 +98,21 @@ async function comFileFindFile( {hostUrl='',filename='basic_envmap'} ) {
     return null
     
 }
+
+async function comFileGetDetail({ hostUrl='',fileID }) {
+    let host_url = hostUrl ? hostUrl : '';
+    return await (await (fetch(`${host_url}/com/file/findOne/${fileID}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/text',
+            'authorization': localStorage.getItem('jwt_token')
+        }
+    }))).json();
+    // console.log(res)
+    // return res;
+}    
+
+
 
 
 //webdisk file api
@@ -142,7 +163,9 @@ export {
     makeFileObj,
     
     comFileUpload,
+    comFileDownload,
     comFileFindFile,
+    comFileGetDetail,
 
     makeFormBody,
     get_file_list,

@@ -11,9 +11,14 @@ export default async function (_Context) {
         <div class="w3-dropdown-click">
             <button class="w3-button" >Editor</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >clear scene</a>
                 <a href="#" class="w3-bar-item w3-button" >camera reset</a>
                 <a href="#" class="w3-bar-item w3-button" >enviroment map</a>
                 <a href="#" class="w3-bar-item w3-button" >grid</a>
+                <a href="#" class="w3-bar-item w3-button" >delete</a>
+                <a href="#" class="w3-bar-item w3-button" >clone</a>
+                <a href="#" class="w3-bar-item w3-button" >rotateX</a>
+                <a href="#" class="w3-bar-item w3-button" >set zero pos</a>
             </div>
         </div>
         
@@ -32,10 +37,21 @@ export default async function (_Context) {
         <div class="w3-dropdown-click">
             <button class="w3-button" >Material</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button" >add</a>
-                <a href="#" class="w3-bar-item w3-button" >select</a>
+                <a href="#" class="w3-bar-item w3-button" >set texture</a>
+                <a href="#" class="w3-bar-item w3-button" >set parameter</a>
+                <a href="#" class="w3-bar-item w3-button" >save material</a>
+                <a href="#" class="w3-bar-item w3-button" >load material</a>
             </div>
         </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >Prefab</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >save</a>
+                <a href="#" class="w3-bar-item w3-button" >load</a>
+            </div>
+        </div>
+
+
         <div class="w3-dropdown-click">
             <button class="w3-button" >Scene</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">

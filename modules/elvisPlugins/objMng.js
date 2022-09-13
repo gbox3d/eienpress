@@ -15,6 +15,9 @@ import { TextureLoader } from 'three';
 export default async function ({ scope }) {
 
     const mObjectRepository = {}
+    const mTextureRepository = {}
+    const mMaterialRepository = {}
+
 
     //확장함수
     const loadFbx = async function ({ material, modelFile, onProgress, repo_ip
@@ -87,34 +90,33 @@ export default async function ({ scope }) {
     }
 
     const loadTexture = async function ({ textureFile, onProgress, repo_ip }) {
-        // let _texture
 
-        const loader = new TextureLoader();
-        let texture = await new Promise((resolve, reject) => {
-            loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${textureFile}`, function (texture) {
-                resolve(texture);
-            },
-                function (xhr) {
-                    // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                    onProgress ? onProgress({
-                        name: textureFile,
-                        progress: (xhr.loaded / xhr.total * 100)
-                    }) : null;
-                    //loadingStatus.innerText = `radios hdr enviroment map : ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`;
-                }
-                ,
-                err => {
-                    console.log(err);
-                    return reject(err);
-                }
-            );
-        })
-        return texture;
+        if ( !mTextureRepository[textureFile] ) {
+            const loader = new TextureLoader();
+            const texture = await new Promise((resolve, reject) => {
+                loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${textureFile}`, function (texture) {
+                    resolve(texture);
+                },
+                    function (xhr) {
+                        // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                        onProgress ? onProgress({
+                            name: textureFile,
+                            progress: (xhr.loaded / xhr.total * 100)
+                        }) : null;
+                        //loadingStatus.innerText = `radios hdr enviroment map : ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`;
+                    }
+                    ,
+                    err => {
+                        console.log(err);
+                        return reject(err);
+                    }
+                );
+            })
+            console.log(`repo added ${textureFile}`)
+            mTextureRepository[textureFile] = texture;
+        }
 
-        //     console.log('load complete', texture);
-        //     _texture = texture;
-
-        // return _texture
+        return mTextureRepository[textureFile];
     }
 
     const addObject_fbx = async function ({ file_id, material = null, repo_ip }) {
@@ -143,8 +145,8 @@ export default async function ({ scope }) {
         metalness = 0.5,
         bumpScale = 0.01,
     }) {
-
-        if(entity) {
+        
+        if (entity) {
             parent ? parent.add(entity) : scope.root_dummy.add(entity);
             return entity;
         }
@@ -156,14 +158,14 @@ export default async function ({ scope }) {
                 //     object = mObjectRepository[fileId]
                 if (object === undefined) {
                     const textureMap = await scope.loadTexture({ textureFile, onProgress });
-    
+
                     object = await scope.loadFbx({
                         textureMap,
                         modelFile,
                         diffuseColor,
                         onProgress
                     });
-    
+
                     object.userData = {
                         fileId,
                         fileName: modelFile,
@@ -172,14 +174,14 @@ export default async function ({ scope }) {
                         metalness,
                         bumpScale,
                     }
-    
+
                     // scope.root_dummy.add(object);
                     fileId ? mObjectRepository[fileId] = object : null;
                     // mObjectRepository[fileId] = object;
                 }
-    
+
                 parent ? parent.add(object) : scope.root_dummy.add(object);
-    
+
                 return object;
             }
             catch (e) {
@@ -187,11 +189,12 @@ export default async function ({ scope }) {
             }
 
         }
-
-        
-
     }
+    
     const clearObject = function () {
+
+        scope.select_node ? scope.trn_control?.detach(scope.select_node) : null;
+
         while (scope.root_dummy.children.length > 0) {
             scope.root_dummy.remove(scope.root_dummy.children[0]);
         }
@@ -216,7 +219,7 @@ export default async function ({ scope }) {
         return plane;
     }
 
-    
+
 
     return {
         addObject,
@@ -225,6 +228,9 @@ export default async function ({ scope }) {
         addPlane,
         loadTexture,
         loadFbx,
+        mTextureRepository,
+        mObjectRepository,
+        mMaterialRepository,
         addMeshObject({ geometry, material, position, rotation, scale }) {
             const object = new THREE.Mesh(geometry, material ? material : scope.defaultMaterial);
             position ? object.position.copy(position) : null;
@@ -232,7 +238,32 @@ export default async function ({ scope }) {
             scale ? object.scale.copy(scale) : null;
             scope.root_dummy.add(object);
             return object;
+        },
+        removeObject(id) {
+
+            let object = id ? scope.root_dummy.getObjectById(id) : scope.select_node ? scope.select_node : null;
+
+            if (object) {
+                console.log(object);
+                scope.trn_control?.detach(object);
+                object.removeFromParent();
+            }
+            // object.parent.remove(object);
+        },
+        updateTranform({
+            objId,
+            position,
+            rotation,
+            scale
+        }) {
+            const _obj = objId ? scope.root_dummy.getObjectById(objId) : scope.select_node;
+            if (_obj) {
+                position ? _obj.position.copy(position) : null
+                rotation ? _obj.rotation.copy(rotation) : null
+                scale ? _obj.scale.copy(scale) : null
+            }
         }
+
     }
 
 }

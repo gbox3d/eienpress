@@ -15,9 +15,10 @@ export default function (_Context) {
                 </header>
                 <form class="w3-container">
                     
-                    <table class="w3-table-all file-list">
-
-                    </table>
+                    <div>
+                        <table class="w3-table-all file-list">
+                        </table>
+                    </div>
 
                     <input class='w3-input' disable />
                     <button class="w3-button w3-block w3-green w3-section w3-padding" type="submit"> 열기 </button>
@@ -31,8 +32,8 @@ export default function (_Context) {
     const _fileList = _rootElm.querySelector('table.file-list');
 
 
-    _fileList.style.height = '300px';
-    _fileList.style.overflowY = 'scroll';
+    _fileList.parentElement.style.height = '250px';
+    _fileList.parentElement.style.overflowY = 'scroll';
 
     // let currentDir = _Context.root_path;
 
@@ -94,6 +95,7 @@ export default function (_Context) {
             _tr.dataset.id = item._id;
             _tr.dataset.type = item.fileType;
             _tr.dataset.size = item.size;
+            _tr.dataset.repo_ip = item.repo_ip;
 
             _tr.innerHTML = `
                             <td>${item.title}</td>
@@ -115,19 +117,8 @@ export default function (_Context) {
         show: async function (_callback, _rootDir) {
 
             select_item = null;
-
-            // if (_rootDir !== '' && _rootDir !== undefined) {
-                
-            //     currentDir = `${_Context.root_path}/${_rootDir}`
-            // }
-            // else {
-            //     currentDir = _Context.root_path
-            // }
-
             updateList();
-
             onCallback = _callback;
-            // _rootElm.classList.remove('hide');
             _rootElm.style.display = 'block';
         },
         close: function () {

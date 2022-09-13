@@ -117,7 +117,7 @@ export default async function ({
                         // scope.scene.userData.envMapTexure = texture;
                     }
 
-                    
+
 
                     scope.scene.add(grid_helper);
                     if (!isGrid) {
@@ -240,8 +240,8 @@ export default async function ({
                         _rayCaster.setFromCamera(new THREE.Vector2(mx, my), this.camera);
 
                         //transform controller collider check
-                        if(checkIntersecctTransformController(_rayCaster)) return;
-                        
+                        if (checkIntersecctTransformController(_rayCaster)) return;
+
 
                         // //레이캐스팅 충돌 검사
                         let intersects = _rayCaster.intersectObjects(this.root_dummy.children);
@@ -326,11 +326,11 @@ export default async function ({
                     }
                 },
                 onMouseOver: function (event) {
-                    console.log('mouse over');
+                    // console.log('mouse over');
                     this.bEnableKeyInput = true;
                 },
                 onMouseLeave: function (event) {
-                    console.log('mouse leave');
+                    // console.log('mouse leave');
                     this.bEnableKeyInput = false;
                 },
                 onKeyDown: function (event) {
@@ -418,6 +418,7 @@ export default async function ({
     scope.defaultMaterial = defaultMaterial;
 
 
+
     //확장함수
     const setEnableKeyInput = function (bEnable) {
         scope.bEnableKeyInput = bEnable;
@@ -427,7 +428,7 @@ export default async function ({
     const checkIntersecctTransformController = function (_rayCaster) {
 
         //check invisible status
-        if(!scope.trn_control.visible) return;
+        if (!scope.trn_control.visible) return;
 
         let _intersectTrnCtrl = _rayCaster.intersectObjects(scope.trn_control.children);
         let bFind = false;
@@ -450,9 +451,6 @@ export default async function ({
 
         return bFind;
     }
-
-
-
 
     ////////////////////////////////////////////////////////////////////////////////
     //object 
@@ -534,14 +532,7 @@ export default async function ({
         }
     }
 
-    const removeObject = function (id) {
-        let object = scope.root_dummy.getObjectById(id);
-        console.log(object);
-
-        scope.trn_control.detach(object);
-        object.removeFromParent();
-        // object.parent.remove(object);
-    }
+    
 
     const searchParentDummy = function (obj) {
         let parent = obj.parent;
@@ -640,19 +631,7 @@ export default async function ({
         }
     }
 
-    const updateTranform = function ({
-        objId,
-        position,
-        rotation,
-        scale
-    }) {
-        const _obj = scope.root_dummy.getObjectById(objId)
-        if (_obj) {
-            position ? _obj.position.copy(position) : null
-            rotation ? _obj.rotation.copy(rotation) : null
-            scale ? _obj.scale.copy(scale) : null
-        }
-    }
+    
 
     const updateUserData = function ({
         objId,
@@ -957,10 +936,17 @@ export default async function ({
         scope: scope
     });
 
+    function getSelectObject() {
+        return scope.select_node
+    }
+
     return {
         elvis: scope,
         objMng: objMng,
-        setEnableKeyInput: setEnableKeyInput,
+        setEnableKeyInput,
+        getSelectObject,
+        // removeObject,
+        // updateTranform,
         showEnvMap: (bShow) => {
 
             if (bShow) {
@@ -988,8 +974,10 @@ export default async function ({
         resetCamera: function () {
             scope.camera.position.set(0, 100, 200);
             scope.camera.lookAt(0, 0, 0);
+        },
+        getSelectEntity() {
+            return scope.select_node
         }
-
 
     }
 

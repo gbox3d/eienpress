@@ -110,7 +110,7 @@ export default async function (_Context) {
                     const select_Item = _fileListView.getSelection();
                     if (select_Item) {
                         const _id = select_Item.dataset._id;
-                        console.log(_id);
+                        
                         try {
                             let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
                                 method: 'GET',
@@ -122,7 +122,7 @@ export default async function (_Context) {
 
                             console.log(res)
                             if (res.r === 'ok') {
-                                _Context.objViewer.clearObject();
+                                _Context.objViewer.objMng.clearObject();
                                 await _fileListView.updateList();
                                 
                                 // await _updateList();
@@ -169,7 +169,7 @@ export default async function (_Context) {
                 let _type = res.data.fileType.split('/')
 
                 if (_type[0] === 'image') {
-                    let _tex = await _Context.objViewer.loadTexture({
+                    let _tex = await _Context.objViewer.objMng.loadTexture({
                         textureFile: res.data._id,
                         repo_ip : res.data.repo_ip,
                         onProgress : (progress) => {
@@ -180,7 +180,7 @@ export default async function (_Context) {
 
                     console.log(_tex.source.data.width)
 
-                    _Context.objViewer.addPlane({
+                    _Context.objViewer.objMng.addPlane({
                         width: _tex.source.data.width,
                         height: _tex.source.data.height,
                         map: _tex,
