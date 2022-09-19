@@ -30,6 +30,7 @@ export default function (_Context) {
     const _rootElm = htmlDoc.querySelector('.w3-modal');
     const _inputFile = _rootElm.querySelector('input');
     const _fileList = _rootElm.querySelector('table.file-list');
+    let directory = '';
 
 
     _fileList.parentElement.style.height = '250px';
@@ -77,6 +78,7 @@ export default function (_Context) {
             },
             body: makeFormBody({
                 fileType: '',
+                directory : directory,
                 skip: 0,
                 limit: 100
             })
@@ -114,10 +116,13 @@ export default function (_Context) {
 
     return {
         element: _rootElm,
-        show: async function (_callback, _rootDir) {
+        show: async function (_callback, _Dir) {
 
             select_item = null;
-            updateList();
+            directory = _Dir;
+            
+            await updateList();
+            
             onCallback = _callback;
             _rootElm.style.display = 'block';
         },

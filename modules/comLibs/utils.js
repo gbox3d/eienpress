@@ -54,6 +54,35 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
     return res;
 }
 
+async function textDataUpload({hostUrl='',name='nope', directory='',description='',data }) {
+
+    const fileObj = {
+        file: {
+            name: name,
+            size: data.length,
+            type: 'application/text',
+        },
+        data: data
+    }
+
+    //     console.log(fileObj)
+    let hash = md5(fileObj.data)
+    // console.log(hash);
+
+    const _res = await comFileUpload({
+        fileObj: fileObj,
+        fileType: 'application/text',
+        title: fileObj.file.name,
+        description: description,
+        directory: directory,
+        isPublic: true,
+        md5: hash,
+        hostUrl: hostUrl
+    });
+    // console.log(_res)
+    return _res;
+}
+
 async function comFileDownload({ fileID, hostUrl }) {
     let host_url = hostUrl ? hostUrl : '';
     return await (fetch(`${host_url}/com/file/download/pub/${fileID}`, {
@@ -61,7 +90,7 @@ async function comFileDownload({ fileID, hostUrl }) {
     }));
 }
 
-async function comFileFindFile( {hostUrl='',filename='basic_envmap'} ) {
+async function comFileFindFile({ hostUrl = '', filename = 'basic_envmap' }) {
 
     let _id = null;
     try {
@@ -96,10 +125,10 @@ async function comFileFindFile( {hostUrl='',filename='basic_envmap'} ) {
     }
 
     return null
-    
+
 }
 
-async function comFileGetDetail({ hostUrl='',fileID }) {
+async function comFileGetDetail({ hostUrl = '', fileID }) {
     let host_url = hostUrl ? hostUrl : '';
     return await (await (fetch(`${host_url}/com/file/findOne/${fileID}`, {
         method: 'GET',
@@ -110,7 +139,7 @@ async function comFileGetDetail({ hostUrl='',fileID }) {
     }))).json();
     // console.log(res)
     // return res;
-}    
+}
 
 
 
@@ -161,8 +190,10 @@ async function getGalleryDetail({ id, hostUrl }) {
 
 export {
     makeFileObj,
-    
+
     comFileUpload,
+    textDataUpload,
+
     comFileDownload,
     comFileFindFile,
     comFileGetDetail,

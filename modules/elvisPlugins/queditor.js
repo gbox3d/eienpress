@@ -936,15 +936,25 @@ export default async function ({
         scope: scope
     });
 
-    function getSelectObject() {
+    function setSelectEntity(entity) {
+        
+        if (entity) {
+            // scope.orbitControl.target.copy(entity.position);
+            // scope.camera.target.copy(entity.position);
+            scope.trn_control.attach(entity);
+            scope.select_node = entity;
+        }
+    }
+    function getSelectEntity() {
         return scope.select_node
     }
+
 
     return {
         elvis: scope,
         objMng: objMng,
         setEnableKeyInput,
-        getSelectObject,
+        // getSelectObject,
         // removeObject,
         // updateTranform,
         showEnvMap: (bShow) => {
@@ -975,9 +985,9 @@ export default async function ({
             scope.camera.position.set(0, 100, 200);
             scope.camera.lookAt(0, 0, 0);
         },
-        getSelectEntity() {
-            return scope.select_node
-        }
+
+        setSelectEntity,
+        getSelectEntity
 
     }
 

@@ -18,7 +18,10 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" >delete</a>
                 <a href="#" class="w3-bar-item w3-button" >clone</a>
                 <a href="#" class="w3-bar-item w3-button" >rotateX</a>
+                <a href="#" class="w3-bar-item w3-button" >scale up</a>
+                <a href="#" class="w3-bar-item w3-button" >scale down</a>
                 <a href="#" class="w3-bar-item w3-button" >set zero pos</a>
+                <a href="#" class="w3-bar-item w3-button" >select prefab root</a>
             </div>
         </div>
         
@@ -48,6 +51,7 @@ export default async function (_Context) {
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >save</a>
                 <a href="#" class="w3-bar-item w3-button" >load</a>
+                <a href="#" class="w3-bar-item w3-button" >resolve</a>
             </div>
         </div>
 
@@ -57,6 +61,7 @@ export default async function (_Context) {
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >save</a>
                 <a href="#" class="w3-bar-item w3-button" >load</a>
+                <a href="#" class="w3-bar-item w3-button" >resolve</a>
             </div>
         </div>
     </div>

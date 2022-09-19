@@ -12,86 +12,80 @@ import { EXRLoader } from 'EXRLoader';
 import Elvis from 'evlis';
 import { TextureLoader } from 'three';
 
+import { comFileFindFile, comFileDownload, comFileUpload, textDataUpload, makeFileObj } from "../comLibs/utils.js";
+import elvisObjLoader from './elvisObjLoader.js';
+
 export default async function ({ scope }) {
 
-    const mObjectRepository = {}
+    const mEntityRepository = {}
     const mTextureRepository = {}
     const mMaterialRepository = {}
-
 
     //확장함수
     const loadFbx = async function ({ material, modelFile, onProgress, repo_ip
     }) {
-        const loader = new FBXLoader();
-        try {
-            let object = await new Promise((resolve, reject) => {
-                // loader.load(`/com/file/download/pub/6282fc15be7f388aab7750db`,
-                loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${modelFile}`,
-                    (object) => resolve(object),
-                    (xhr) => { //progress
-                        // console.log(xhr)
-                        // console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`);
-                        onProgress ? onProgress({
-                            name: 'modelfile',
-                            progress: (xhr.loaded / xhr.total * 100)
-                        }) : null;
-                    },
-                    (err) => {
-                        reject(err);
-                    }
-                );
-            });
-
-            if (material) {
-                object.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = material;
-                    }
+        if (!mEntityRepository[modelFile]) {
+            const loader = new FBXLoader();
+            try {
+                let object = await new Promise((resolve, reject) => {
+                    // loader.load(`/com/file/download/pub/6282fc15be7f388aab7750db`,
+                    loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${modelFile}`,
+                        (object) => resolve(object),
+                        (xhr) => { //progress
+                            // console.log(xhr)
+                            // console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`);
+                            onProgress ? onProgress({
+                                name: 'modelfile',
+                                progress: (xhr.loaded / xhr.total * 100)
+                            }) : null;
+                        },
+                        (err) => {
+                            reject(err);
+                        }
+                    );
                 });
+
+                if (material) {
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = material;
+                        }
+                    });
+                }
+                else {
+                    //메트리얼 텍스춰 모두 지정안되어있을때
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material = scope.defaultMaterial;
+                        }
+                    });
+                }
+
+                //fbx 파일로 만든 오브잭트는 바로 프펩이된다
+                // object.userData.isPrefabRoot = true;
+                object.userData.geometryFile = {
+                    modelFile: modelFile,
+                    repo_ip: repo_ip,
+                    format: 'fbx'
+                }
+                mEntityRepository[modelFile] = object;
+                return object;
+
             }
-            // else if (textureMap) {
-            //     const _texture = textureMap;
-            //     object.traverse((child) => {
-            //         if (child.isMesh) {
+            catch (err) {
+                console.log(err)
+                return null;
 
-            //             // const diffuseColor = new THREE.Color().setRGB(0.8, 0.8, 0.8);
-
-            //             child.material = new THREE.MeshStandardMaterial(
-            //                 {
-            //                     map: _texture ? _texture : null,
-            //                     bumpMap: _texture ? _texture : null,
-            //                     bumpScale: bumpScale,
-            //                     color: diffuseColor,
-            //                     metalness: metalness,
-            //                     roughness: roughness
-            //                     // envMap: hdrTexture, //오브잭트 단위로 환경멥을 적용시킨다.
-            //                 }
-            //             );
-            //         }
-            //     });
-            // }
-            else {
-                //메트리얼 텍스춰 모두 지정안되어있을때
-                object.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = scope.defaultMaterial;
-                    }
-                });
             }
-            return object;
-
         }
-        catch (err) {
-            console.log(err)
-            return null;
-
+        else {
+            return mEntityRepository[modelFile];
         }
-
     }
 
     const loadTexture = async function ({ textureFile, onProgress, repo_ip }) {
 
-        if ( !mTextureRepository[textureFile] ) {
+        if (!mTextureRepository[textureFile]) {
             const loader = new TextureLoader();
             const texture = await new Promise((resolve, reject) => {
                 loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${textureFile}`, function (texture) {
@@ -117,6 +111,78 @@ export default async function ({ scope }) {
         }
 
         return mTextureRepository[textureFile];
+    }
+
+    async function loadMaterial({
+        fileID,
+        onProgress,
+        repo_ip
+    }) {
+
+        if (mMaterialRepository[fileID]) return mMaterialRepository[fileID];
+
+        let resp = await comFileDownload({
+            fileID: fileID,
+            hostUrl: repo_ip ? repo_ip : ''
+        })
+
+        let matJsondata = await resp.json()
+
+        console.log(matJsondata)
+
+        const _loader = new THREE.MaterialLoader();
+
+        let material = _loader.parse(matJsondata);
+
+        console.log(material)
+
+        mMaterialRepository[fileID] = material;
+
+        // material.userData.file = {
+        //     id: fileID,
+        //     repo_ip: repo_ip
+        // }
+
+        if (material.userData.texture) {
+            let _tex = await loadTexture({
+                textureFile: material.userData.texture.id,
+                repo_ip: material.userData.texture.repo_ip,
+                onProgress: onProgress ? onProgress : null
+            });
+            material.map = _tex;
+        }
+
+        return material;
+    }
+
+    function setMaterialToEntity({ entity, material, materialFile }) {
+
+        // let _root = selectPrefabRoot(entity);
+        // _root.userData.materialFile = materialFile;
+
+        if (entity.isMesh) {
+            entity.material = material;
+            // entity.userData.materialFile = materialFile;
+        }
+
+        let bDone = false;
+        entity.traverseAncestors(parent => {
+            if (parent.isPrefabRoot) {
+                if (!bDone) {
+                    bDone = true;
+                    parent.materialFile = {
+                        id: materialFile.id,
+                        repo_ip: materialFile.repo_ip
+                    };
+                }
+            }
+        });
+
+        // entity.traverse((child) => {
+        //     if (child.isMesh) {
+        //         child.material = material;
+        //     }
+        // });
     }
 
     const addObject_fbx = async function ({ file_id, material = null, repo_ip }) {
@@ -145,7 +211,7 @@ export default async function ({ scope }) {
         metalness = 0.5,
         bumpScale = 0.01,
     }) {
-        
+
         if (entity) {
             parent ? parent.add(entity) : scope.root_dummy.add(entity);
             return entity;
@@ -153,7 +219,7 @@ export default async function ({ scope }) {
         else {
             try {
 
-                let object = fileId ? mObjectRepository[fileId] : undefined;
+                let object = fileId ? mEntityRepository[fileId] : undefined;
                 // if(fileId ) 
                 //     object = mObjectRepository[fileId]
                 if (object === undefined) {
@@ -176,7 +242,7 @@ export default async function ({ scope }) {
                     }
 
                     // scope.root_dummy.add(object);
-                    fileId ? mObjectRepository[fileId] = object : null;
+                    fileId ? mEntityRepository[fileId] = object : null;
                     // mObjectRepository[fileId] = object;
                 }
 
@@ -190,7 +256,7 @@ export default async function ({ scope }) {
 
         }
     }
-    
+
     const clearObject = function () {
 
         scope.select_node ? scope.trn_control?.detach(scope.select_node) : null;
@@ -219,24 +285,161 @@ export default async function ({ scope }) {
         return plane;
     }
 
+    /////////////////////////////
+    /*
+    isPrefabRoot가 true인 오브젝트를 찾아 반환한다. 만약 없으면 자기 자신을 보낸다.
+    */
+    function selectPrefabRoot(entity) {
 
+        let _ent = entity ? entity : scope.select_node;
+
+        // let __ent = _ent;
+
+        while (_ent && !_ent?.isPrefabRoot) {
+
+            // if () {
+            //     // scope.select_node = _ent;
+            //     return _ent;
+            //     break;
+            // }
+
+            _ent = _ent.parent;
+
+        }
+        return _ent;
+    }
+
+
+    async function savePrefab({ entity, name = 'nope' }) {
+        const _prefabRoot = selectPrefabRoot(entity);
+        if (_prefabRoot) {
+
+            const _data = _prefabRoot.toJSON();
+
+            console.log(_data)
+
+            const str_data = JSON.stringify(_data);
+
+            const _res = await textDataUpload({
+                name: name,
+                data: str_data,
+                directory: 'prefab'
+            })
+
+            console.log(_res)
+            return _res
+        }
+        else {
+            return {
+                r: 'error',
+                msg: 'no prefab root'
+            };
+        }
+    }
+    async function loadPrefab({ fileID, repo_ip }) {
+
+        if (mEntityRepository[fileID]) {
+
+            console.log(`${fileID} is already loaded`)
+
+            return mEntityRepository[fileID].clone();
+        }
+        else {
+
+            let resp = await comFileDownload({
+                fileID: fileID,
+                hostUrl: repo_ip
+            })
+
+            let _jsondata = await resp.json()
+
+            const _loader = new elvisObjLoader(this);
+            const obj = await _loader.parseAsync(_jsondata)
+
+            // addObject({
+            //     entity: obj
+            // })
+
+            console.log(obj)
+            mEntityRepository[fileID] = obj
+
+            return obj.clone();
+        }
+
+    }
+
+    ////////////////////////////////
+    //scene 
+    async function saveScene({ entity, name = 'nope' }) {
+
+        const _entity = entity ? entity : scope.root_dummy;
+
+        let _json = _entity.toJSON();
+
+        _json.images = [];
+        _json.textures = [];
+        _json.materials = [];
+        // _json.geometries = [];
+        // const object = _json.object
+
+        console.log(_json);
+
+        try {
+            const str_data = JSON.stringify(_json);
+
+            const _res = await textDataUpload({
+                name: name,
+                data: str_data,
+                directory: 'scene'
+            })
+
+            console.log(_res)
+            return _res
+
+        }
+        catch (e) {
+            return {
+                r: 'error',
+                msg: 'no prefab root'
+            };
+        }
+    }
+
+    async function loadScene({ fileID, repo_ip }) {
+
+        let _jsondata = await (await comFileDownload({
+            fileID: fileID,
+            hostUrl: repo_ip
+        })).json();
+
+        console.log(_jsondata)
+
+        const _loader = new elvisObjLoader(this);
+        const obj = await _loader.parseAsync(_jsondata)
+
+        console.log(obj)
+
+        return obj;
+    }
 
     return {
         addObject,
+        addEntity: addObject,
         addObject_fbx,
         clearObject,
         addPlane,
         loadTexture,
         loadFbx,
-        mTextureRepository,
-        mObjectRepository,
-        mMaterialRepository,
-        addMeshObject({ geometry, material, position, rotation, scale }) {
+        // mTextureRepository,
+        // mEntityRepository,
+        // mMaterialRepository,
+        addMeshObject({ geometry, material, position, rotation, scale, parent }) {
             const object = new THREE.Mesh(geometry, material ? material : scope.defaultMaterial);
             position ? object.position.copy(position) : null;
             rotation ? object.rotation.copy(rotation) : null;
             scale ? object.scale.copy(scale) : null;
-            scope.root_dummy.add(object);
+            parent ? parent.add(object) : scope.root_dummy.add(object);
+            // parent.add(object);
             return object;
         },
         removeObject(id) {
@@ -262,8 +465,19 @@ export default async function ({ scope }) {
                 rotation ? _obj.rotation.copy(rotation) : null
                 scale ? _obj.scale.copy(scale) : null
             }
-        }
+        },
 
+        //material
+        loadMaterial,
+        setMaterialToEntity,
+
+        //prefab
+        selectPrefabRoot,
+        savePrefab,
+        loadPrefab,
+
+        saveScene,
+        loadScene
     }
 
 }
