@@ -71,8 +71,8 @@ export default async function (_Context, container) {
                 <label>ao map</label>
                 <input class="w3-input" type="text" name='aoMap' disabled>
                 <div class="w3-row">
-                    <input type="range" name='aoMap-scale' value='1' min='0' max='1' step='0.01'>
-                    <span name="aoMap-intensity-value" >1</span>
+                    <input type="range" name='aoMapIntensity' value='1' min='0' max='1' step='0.01'>
+                    <span class="aoMapIntensity-value" >1</span>
                 </div>
                 <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-aoMap" >change</button>
             </div>
@@ -304,6 +304,55 @@ export default async function (_Context, container) {
         material.normalMapType = parseInt(_val);
         material.needsUpdate = true;
     });
+
+    //ao map
+    attr_form.querySelector('[name="change-aoMap"]').addEventListener('click', async (e) => {
+
+        const material = _Context.gameObject.entity.material;
+
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    // console.log(evt);
+                    resolve(evt);
+                },
+                'texture'
+            )
+        });
+
+        console.log(selectFile)
+
+        attr_form.elements['aoMap'].value = selectFile.id;
+
+        _Context.progressBox.show();
+
+        let _tex = await _Context.objViewer.objMng.loadTexture({
+            textureFile: selectFile.id,
+            repo_ip: selectFile.repo_ip,
+            onProgress: (progress) => {
+                console.log(progress)
+                _Context.progressBox.update(progress);
+            },
+            type: selectFile.type
+        });
+
+        material.aoMap = _tex;
+        material.needsUpdate = true;
+
+        material.userData.aoMap = selectFile;
+
+        _Context.progressBox.closeDelay(250);
+
+    });
+
+    attr_form.querySelector('[name="aoMapIntensity"]').addEventListener('input', (e) => {
+        const material = _Context.gameObject.entity.material;
+        let _val = e.target.value;
+        attr_form.querySelector('.aoMapIntensity-value').innerText = _val;
+        material.aoMapIntensity = parseFloat(_val);
+        material.needsUpdate = true;
+    });
+
 
     //displacement map
     attr_form.querySelector('[name="change-displacementMap"]').addEventListener('click', async (e) => {
@@ -541,6 +590,10 @@ export default async function (_Context, container) {
             form.elements.normalMap.value = mtrl.userData?.normalMap?.id ? mtrl.userData.normalMap.id : '';
             form.elements.normalMapScale.value = `${mtrl.normalScale.x},${mtrl.normalScale.y}`;
             form.elements.normalMapType.value = mtrl.normalMapType;
+
+            //ao map
+            form.elements.aoMap.value = mtrl.userData?.aoMap?.id ? mtrl.userData.aoMap.id : '';
+            form.elements.aoMapIntensity.value = mtrl.aoMapIntensity;
 
             //displacementMap
             form.elements.displacementMap.value = mtrl.userData?.displacementMap?.id ? mtrl.userData.displacementMap.id : '';

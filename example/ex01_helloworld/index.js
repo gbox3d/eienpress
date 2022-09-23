@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import WEBGL from 'WebGL';
 
-import { comFileFindFile } from "../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../modules/comModules/objectViewer.js';
+// import { comFileFindFile } from "../../modules/comLibs/utils.js";
+// import objectViewerSetup from '../../modules/comModules/objectViewer.js';
 
 
 //forms

@@ -3,7 +3,7 @@ import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLi
 import uiMenuBarSetup from './uiMenuBar.js';
 
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../../modules/comModules/objectViewer.js';
+import objectViewerSetup from '../../../modules/elvisPlugins/objectViewer.js';
 
 
 import 'md5';
