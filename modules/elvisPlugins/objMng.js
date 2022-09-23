@@ -21,6 +21,16 @@ export default async function ({ scope }) {
     const mTextureRepository = {}
     const mMaterialRepository = {}
 
+    // const mDefaultTexture = new THREE.TextureLoader().load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
+    const mDefaultStandardMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        metalness: 0.5,
+        roughness: 0.5,
+        // map: mDefaultTexture
+    });
+
+    
+
     //확장함수
     const loadFbx = async function ({ material, modelFile, onProgress, repo_ip
     }) {
@@ -83,10 +93,22 @@ export default async function ({ scope }) {
         }
     }
 
-    const loadTexture = async function ({ textureFile, onProgress, repo_ip }) {
+    const loadTexture = async function ({ textureFile, onProgress, repo_ip, type }) {
 
         if (!mTextureRepository[textureFile]) {
-            const loader = new TextureLoader();
+
+            let loader = new TextureLoader();
+
+            if (type == 'application/exr') {
+                loader = new EXRLoader();
+            }
+            else if (type == 'application/hdr') {
+                loader = new RGBELoader();
+            }
+            else {
+                loader = new TextureLoader();
+            }
+
             const texture = await new Promise((resolve, reject) => {
                 loader.load(`${repo_ip ? repo_ip : ''}/com/file/download/pub/${textureFile}`, function (texture) {
                     resolve(texture);
@@ -116,10 +138,11 @@ export default async function ({ scope }) {
     async function loadMaterial({
         fileID,
         onProgress,
-        repo_ip
+        repo_ip,
+        reload = false
     }) {
 
-        if (mMaterialRepository[fileID]) return mMaterialRepository[fileID];
+        if (mMaterialRepository[fileID] && reload === false) return mMaterialRepository[fileID];
 
         let resp = await comFileDownload({
             fileID: fileID,
@@ -138,22 +161,76 @@ export default async function ({ scope }) {
 
         mMaterialRepository[fileID] = material;
 
-        // material.userData.file = {
-        //     id: fileID,
-        //     repo_ip: repo_ip
-        // }
-
-        if (material.userData.texture) {
+        //diifuse map 있으면 로드
+        if (material.userData?.texture?.id) {
+            const fileInfo = material.userData.texture;
             let _tex = await loadTexture({
-                textureFile: material.userData.texture.id,
-                repo_ip: material.userData.texture.repo_ip,
-                onProgress: onProgress ? onProgress : null
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type : fileInfo.type
             });
             material.map = _tex;
         }
 
+        if(material.userData?.normalMap?.id) {
+            const fileInfo = material.userData.normalMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type : fileInfo.type
+            });
+            material.normalMap = _tex;
+        }
+
+        if(material.userData?.roughnessMap?.id) {
+            const fileInfo = material.userData.roughnessMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type : fileInfo.type
+            });
+            material.roughnessMap = _tex;
+        }
+
+        if(material.userData?.metalnessMap?.id) {
+            const fileInfo = material.userData.metalnessMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type : fileInfo.type
+            });
+            material.metalnessMap = _tex;
+        }
+
+        if(material.userData?.displacementMap?.id) {
+            const fileInfo = material.userData.displacementMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type : fileInfo.type
+            });
+            material.displacementMap = _tex;
+        }
+
         return material;
     }
+
+    async function disposeMaterial({fileID}) {
+        if (mMaterialRepository[fileID]) {
+            mMaterialRepository[fileID].dispose();
+            delete mMaterialRepository[fileID];
+        }
+    }
+
 
     function setMaterialToEntity({ entity, material, materialFile }) {
 
@@ -469,6 +546,7 @@ export default async function ({ scope }) {
 
         //material
         loadMaterial,
+        disposeMaterial,
         setMaterialToEntity,
 
         //prefab
@@ -477,7 +555,10 @@ export default async function ({ scope }) {
         loadPrefab,
 
         saveScene,
-        loadScene
+        loadScene,
+        defaultMaterial: {
+            standard : mDefaultStandardMaterial
+        }
     }
 
 }

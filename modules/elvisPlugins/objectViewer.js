@@ -105,7 +105,9 @@ export default async function ({
                         scope.defaultMaterial = new THREE.MeshStandardMaterial({
                             color: 0xffffff,
                             metalness: 0.5,
-                            roughness: 0.5,
+                            roughness: 0.5
+                            // transparent: true,
+                            // opacity: 0.5
                         });
                     }
 

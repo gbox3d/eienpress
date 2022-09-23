@@ -97,7 +97,7 @@ export default function (_Context) {
             _tr.dataset.id = item._id;
             _tr.dataset.type = item.fileType;
             _tr.dataset.size = item.size;
-            _tr.dataset.repo_ip = item.repo_ip;
+            _tr.dataset.repo_ip = item.repo_ip ? item.repo_ip : '';
 
             _tr.innerHTML = `
                             <td>${item.title}</td>

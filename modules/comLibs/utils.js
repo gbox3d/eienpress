@@ -19,11 +19,10 @@ function makeFormBody(data) {
 }
 
 //com file api utils
-async function comFileUpload({ fileObj, title, description, directory, hostUrl, md5, fileType }) {
+async function comFileUpload({ fileObj, title, description, directory, hostUrl, md5, fileType,id }) {
 
     let host_url = hostUrl ? hostUrl : '';
-
-    // let fileObj = fbxFileObj
+    
     let params = {
         directory: directory,
         fileName: fileObj.file.name,
@@ -32,11 +31,11 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
         description: description,
         size: fileObj.file.size,
         fileType: fileType,
-        md5: md5
+        md5: md5,
+        id : id
     };
 
     const query = makeFormBody(params);
-    // let query = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
 
     let res = await (await (fetch(`${host_url}/com/file/upload`, {
         method: 'POST',
@@ -45,12 +44,9 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
             'authorization': localStorage.getItem('jwt_token'),
             'query': query
         },
-        // params: {
-        //     isPublic: true
-        // },
         body: fileObj.data
     }))).json();
-    // console.log(res)
+    
     return res;
 }
 
@@ -83,7 +79,7 @@ async function textDataUpload({hostUrl='',name='nope', directory='',description=
     return _res;
 }
 
-async function comFileDownload({ fileID, hostUrl }) {
+async function comFileDownload({ fileID, hostUrl='' }) {
     let host_url = hostUrl ? hostUrl : '';
     return await (fetch(`${host_url}/com/file/download/pub/${fileID}`, {
         method: 'GET'
@@ -139,6 +135,19 @@ async function comFileGetDetail({ hostUrl = '', fileID }) {
     }))).json();
     // console.log(res)
     // return res;
+}
+
+async function comFileDelete({id,host_url=''}) {
+
+    let res = await (await (fetch(`${host_url}/com/file/delete/${id}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/text',
+            'authorization': localStorage.getItem('jwt_token')
+        }
+    }))).json();
+
+    return res;
 }
 
 
@@ -197,6 +206,7 @@ export {
     comFileDownload,
     comFileFindFile,
     comFileGetDetail,
+    comFileDelete,
 
     makeFormBody,
     get_file_list,

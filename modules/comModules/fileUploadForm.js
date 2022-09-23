@@ -114,14 +114,14 @@ export default function (_Context) {
 
     return {
         element: _rootElm,
-        show: function ({ onCallback }) {
+        show: function ({ onCallback, title, description, directory, isPublic=true, fileType }) {
             // _rootElm.classList.remove('hide');
             _fileInput.value = '';
-            _titleInput.value = '';
-            _descInput.value = '';
-            _directoryInput.value = '';
-            _publicCheckbox.checked = true;
-            _fileTypeInput.value = '';
+            _titleInput.value = title ? title : '';
+            _descInput.value = description ? description : '';
+            _directoryInput.value =  directory ? directory : '';
+            _publicCheckbox.checked = isPublic;
+            _fileTypeInput.value = fileType ? fileType : '';
             
 
             _rootElm.style.display = 'block';

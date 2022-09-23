@@ -11,28 +11,31 @@ export default async function (_Context) {
         <div class="w3-dropdown-click">
             <button class="w3-button" id='file' >File</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" >Refresh</a>
                 <a href="#" class="w3-bar-item w3-button" >Upload</a>
                 <a href="#" class="w3-bar-item w3-button" >Download</a>
                 <a href="#" class="w3-bar-item w3-button">Delete</a>
             </div>
         </div>
         <div class="w3-dropdown-click">
-            <button class="w3-button">Test</button>
+            <button class="w3-button">List</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button">item1</a>
-                <a href="#" class="w3-bar-item w3-button">item2</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='selectDir' >Change Directory</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='selectAll' >select all</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='unSelectAll' >unselect all</a>
             </div>
         </div>
         
     </div>
     `;
 
+
     const parser = new DOMParser();
     const htmlDoc = parser.parseFromString(_htmlText, 'text/html');
     const _rootElm = htmlDoc.querySelector('.ui-view');
 
     _Context.menubar_container.appendChild(_rootElm);
-    let callBack=null;
+    let callBack = null;
 
     //click event
     _rootElm.addEventListener('click', (e) => {
@@ -42,23 +45,23 @@ export default async function (_Context) {
         const _target = e.target;
         //check if the target is contianed w3-bar-item class
         if (_target.classList.contains('w3-bar-item')) {
-            const _targetText = _target.textContent;
-            // console.log(_targetText);
-
-            callBack? callBack(_targetText) : null;
+            const _targetText = _target.dataset.mid ? _target.dataset.mid : _target.textContent;
 
             const dropDown = _target.closest('.w3-dropdown-click')
-            dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
 
+            if (dropDown) {
+                callBack ? callBack(_targetText, dropDown.querySelector('.w3-button').textContent) : null;
+                dropDown ? dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show') : null;
+            }
+            else {
+                callBack ? callBack(_targetText,) : null;
+            }
         }
-        else if(_target.classList.contains('w3-button')){
+        else if (_target.classList.contains('w3-button')) {
             const dropDown = e.target.closest('.w3-dropdown-click')
             dropDown.querySelector('.w3-dropdown-content').classList.toggle('w3-show');
         }
 
-
-
-        
     });
 
     function _hoverOffEvent(e) {
@@ -66,13 +69,13 @@ export default async function (_Context) {
         e.stopPropagation();
 
         const dropDown = e.target.closest('.w3-dropdown-click')
-        if(dropDown) {
+        if (dropDown) {
             dropDown.querySelector('.w3-dropdown-content').classList.remove('w3-show');
         }
     }
 
     //add hover out events
-    for(let ele of _rootElm.querySelectorAll('.w3-dropdown-click') ) {
+    for (let ele of _rootElm.querySelectorAll('.w3-dropdown-click')) {
         console.log(ele)
         ele.addEventListener('mouseleave', _hoverOffEvent);
     }
@@ -82,7 +85,7 @@ export default async function (_Context) {
     //     e.preventDefault();
     //     console.log(e.target.dataset.mid);
     //     // close hover
-        
+
     //     // e.target.closest('.w3-dropdown-content').style.display = 'none';
     //     // setTimeout(() => {
     //     //     e.target.closest('.w3-dropdown-content').style.display = 'block';
@@ -94,10 +97,10 @@ export default async function (_Context) {
 
     return {
         element: _rootElm,
-        setCallback : (_callback )=> {
+        setCallback: (_callback) => {
             callBack = _callback;
         }
-        
+
     }
 
 }

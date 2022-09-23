@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import WEBGL from 'WebGL';
 
 import { comFileFindFile } from "../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../modules/comModules/objectViewer.js';
+import objectViewerSetup from '../../modules/elvisPlugins/objectViewer.js';
 
 //forms
 import uiMainSetup from './form/uiMain.js';

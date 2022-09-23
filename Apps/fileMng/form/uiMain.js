@@ -1,4 +1,4 @@
-import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
+import { makeFormBody,comFileDownload, comFileDelete, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 
 import 'md5';
 
@@ -28,118 +28,223 @@ export default async function (_Context) {
     const host_url = _Context.host_url;
 
     //메뉴 이밴트 처리 
-    _Context.uiMenuBar.setCallback(async (menuName) => {
+    _Context.uiMenuBar.setCallback(async (menuName, btnName) => {
 
         console.log(menuName);
 
-        switch (menuName) {
-            case 'Upload':
-                {
-                    let form_data = await new Promise(async (resolve, reject) => {
+        try {
+            if (btnName === 'File') {
+                switch (menuName) {
+                    case 'Refresh':
+                        {
+                            _fileListView.updateList()
 
+                        }
+                        break;
+                    case 'Upload':
+                        {
+                            let form_data = await new Promise(async (resolve, reject) => {
 
-                        _Context.fileUploadForm.show({
-                            onCallback: async function (data) {
-                                // console.log(file);
-                                resolve(data);
+                                _Context.fileUploadForm.show({
+                                    onCallback: async function (data) {
+                                        // console.log(file);
+                                        resolve(data);
+                                    },
+                                    directory : _fileListView.getSelectedDirectory()
+                                });
+                            });
+
+                            if (form_data) {
+                                const fileObj = await makeFileObj(form_data.file);
+
+                                // console.log(fileObj);
+
+                                let hash = md5(fileObj.data)
+                                console.log(hash);
+
+                                console.log(form_data);
+
+                                const _res = await comFileUpload({
+                                    fileObj: fileObj,
+                                    fileType: form_data.fileType,
+                                    title: form_data.title,
+                                    description: form_data.description,
+                                    directory: form_data.directory,
+                                    isPublic: form_data.isPublic,
+                                    md5: hash
+                                });
+
+                                console.log(_res)
+
+                                if (_res.r === 'ok') {
+                                    await _fileListView.updateList();
+                                }
                             }
-                        });
-                    });
-
-                    if (form_data) {
-
-                        const fileObj = await makeFileObj(form_data.file);
-
-                        // console.log(fileObj);
-
-                        let hash = md5(fileObj.data)
-                        console.log(hash);
-
-                        console.log(form_data);
-
-                        const _res = await comFileUpload({
-                            fileObj: fileObj,
-                            fileType: form_data.fileType,
-                            title: form_data.title,
-                            description: form_data.description,
-                            directory: form_data.directory,
-                            isPublic: form_data.isPublic,
-                            md5: hash
-                        });
-
-                        console.log(_res)
-
-                        if (_res.r === 'ok') {
-                            await _fileListView.updateList();
+                            else {
+                                _Context.messageModal.show({
+                                    msg: 'cancel'
+                                });
+                            }
                         }
-                    }
-                    else {
-                        _Context.messageModal.show({
-                            msg: 'cancel'
-                        });
-                    }
-                }
-                break;
-            case 'Download':
-                {
-                    if (select_Item) {
-                        const _id = select_Item.dataset._id;
-                        console.log(_id);
-                        try {
-                            let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/text',
-                                    'authorization': localStorage.getItem('jwt_token')
-                                }
-                            }))).json();
+                        break;
+                    case 'Download':
+                        {
+                            let items = _fileListView.getSelectedItem();
 
-                            // console.log(res)
-                            // if (res.r === 'ok') {
-                            //     await _updateList();
-                            // }
-                        }
-                        catch (err) {
-                            console.log(err)
-                        }
-                    }
-                }
-                break;
-            case 'Delete':
-                {
-                    const select_Item = _fileListView.getSelection();
-                    if (select_Item) {
-                        const _id = select_Item.dataset._id;
-                        
-                        try {
-                            let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/text',
-                                    'authorization': localStorage.getItem('jwt_token')
-                                }
-                            }))).json();
+                            
 
-                            console.log(res)
-                            if (res.r === 'ok') {
-                                _Context.objViewer.objMng.clearObject();
-                                await _fileListView.updateList();
+                            for (let i = 0; i < items.length; i++) {
+                                const _id = items[i].dataset._id;
+                                const fileName = items[i].dataset.fileName;
                                 
-                                // await _updateList();
+                                let resp = await comFileDownload({
+                                    fileID : _id
+                                });
+
+                                let _blob = await resp.blob()
+                                const url = window.URL.createObjectURL(_blob);
+                                const a = document.createElement('a');
+                                a.style.display = 'none';
+                                a.href = url;
+
+                                // the filename you want
+                                a.download = fileName;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+
+                                
+                            }
+
+                            
+
+
+                            /*
+                            if (select_Item) {
+                                const _id = select_Item.dataset._id;
+                                console.log(_id);
+                                try {
+                                    let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
+                                        method: 'GET',
+                                        headers: {
+                                            'Content-Type': 'application/text',
+                                            'authorization': localStorage.getItem('jwt_token')
+                                        }
+                                    }))).json();
+
+                                    // console.log(res)
+                                    // if (res.r === 'ok') {
+                                    //     await _updateList();
+                                    // }
+                                }
+                                catch (err) {
+                                    console.log(err)
+                                }
+                            }
+                            */
+                        }
+                        break;
+                    case 'Delete':
+                        {
+                            let items = _fileListView.getSelectedItem();
+
+                            console.log(items)
+
+                            _Context.progressBox.show({
+                                msg: 'delete',
+                            });
+
+
+                            for (let i = 0; i < items.length; i++) {
+                                const _id = items[i].dataset._id;
+
+                                await comFileDelete({
+                                    id: _id,
+                                    host_url: host_url
+                                })
+
+                                _Context.progressBox.update({
+                                    name: `${i + 1}/${items.length}`,
+                                    progress: i / items.length * 100,
+                                });
+                            }
+
+                            _Context.progressBox.closeDelay(200);
+                            await _fileListView.updateList();
+
+                            /*
+                            const select_Item = _fileListView.getSelection();
+                            if (select_Item) {
+                                const _id = select_Item.dataset._id;
+                                
+                                try {
+                                    let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
+                                        method: 'GET',
+                                        headers: {
+                                            'Content-Type': 'application/text',
+                                            'authorization': localStorage.getItem('jwt_token')
+                                        }
+                                    }))).json();
+        
+                                    console.log(res)
+                                    if (res.r === 'ok') {
+                                        _Context.objViewer.objMng.clearObject();
+                                        await _fileListView.updateList();
+                                        
+                                        // await _updateList();
+                                    }
+                                }
+                                catch (err) {
+                                    console.log(err)
+                                }
+                            }
+                            */
+
+                        }
+                        break;
+                }
+            }
+            else if (btnName === 'List') {
+                switch (menuName) {
+                    case 'selectDir':
+                        {
+                            let selDir = prompt(
+                                'Select Directory'
+                            )
+
+                            if (selDir !== null) {
+                                _fileListView.changeDirectory(selDir);
+                                await _fileListView.updateList();
+                            }
+                            else {
+                                _Context.messageModal.show({
+                                    msg: 'cancel'
+                                });
                             }
                         }
-                        catch (err) {
-                            console.log(err)
-                        }
-                    }
+                        break;
+                    case 'selectAll':
+                        {
+                            _fileListView.selectAll();
 
+                        }
+                        break;
+                    case 'unSelectAll':
+                        {
+                            _fileListView.unSelectAll();
+                        }
+                        break;
                 }
-                break;
+            }
+        }
+        catch (e) {
+            console.log(e);
+            _Context.uiMessage.show(e.message);
         }
 
-    })
+    });
 
-    _fileListView.setOnSelect(async ({item,_id}) => {
+    _fileListView.setOnSelect(async ({ item, _id }) => {
         console.log(item)
 
         _Context.waitModal.show({
@@ -157,7 +262,7 @@ export default async function (_Context) {
             }))).json();
             console.log(res)
 
-            
+
 
             if (res.r === 'ok') {
 
@@ -171,8 +276,8 @@ export default async function (_Context) {
                 if (_type[0] === 'image') {
                     let _tex = await _Context.objViewer.objMng.loadTexture({
                         textureFile: res.data._id,
-                        repo_ip : res.data.repo_ip,
-                        onProgress : (progress) => {
+                        repo_ip: res.data.repo_ip,
+                        onProgress: (progress) => {
                             console.log(progress)
                             _Context.progressBox.update(progress);
                         }
@@ -193,13 +298,13 @@ export default async function (_Context) {
 
                         let _obj = await _Context.objViewer.objMng.addObject_fbx({
                             file_id: res.data._id,
-                            repo_ip : res.data.repo_ip,
-                            onProgress : (progress) => {
+                            repo_ip: res.data.repo_ip,
+                            onProgress: (progress) => {
                                 console.log(progress)
                                 _Context.progressBox.update(progress);
                             }
                         });
-                        if(!_obj) {
+                        if (!_obj) {
                             _Context.messageModal.show({
                                 msg: 'file load error : ' + res.data._id
                             });

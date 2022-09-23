@@ -46,6 +46,9 @@ export default function (_Context) {
         element: _rootElm,
         show: function () {
             // _progressMsg.innerText = 'ready'
+            _progressBar.style.width = `0%`;
+            _progressBar.innerText = `0%`;
+
             _msg.innerText = 'Please wait...'
             _rootElm.style.display = 'block';
         },
