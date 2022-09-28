@@ -1,17 +1,13 @@
 import * as THREE from 'three';
-import WEBGL from 'WebGL';
-
-// import { comFileFindFile } from "../../modules/comLibs/utils.js";
-// import objectViewerSetup from '../../modules/comModules/objectViewer.js';
-
+import WEBGL from 'three/addons/capabilities/WebGL.js';
 
 //forms
 import uiMainSetup from './form/uiMain.js';
 
 //models
-import waitModalSetup from '../../modules/comModules/waitModal.js';
-import progressBoxSetup from '../../modules/comModules/progressBox.js';
-import messageModal from '../../modules/comModules/messageModal.js';
+import waitModalSetup from 'ideon/waitModal.js';
+import progressBoxSetup from 'ideon/progressBox.js';
+import messageModal from 'ideon/messageModal.js';
 
 
 // import fileSelectorSetup from './modal/.js';

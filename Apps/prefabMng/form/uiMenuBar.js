@@ -9,11 +9,38 @@ export default async function (_Context) {
     <div class="ui-view w3-bar w3-light-grey">
         <a href="#" class="w3-bar-item w3-button">About</a>
         <div class="w3-dropdown-click">
-            <button class="w3-button" >Hello</button>
+            <button class="w3-button" >Viwer</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >camera reset</a>
                 <a href="#" class="w3-bar-item w3-button" >enviroment map</a>
                 <a href="#" class="w3-bar-item w3-button" >grid</a>
+            </div>
+        </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >File</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" data-mid='new' >New</a>    
+                <a href="#" class="w3-bar-item w3-button" data-mid='load' >불러오기</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='save' >저장하기</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='save' >업데이트</a>
+            </div>
+        </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >Entity</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" data-mid='fbx' >fbx</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='obj' >obj</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='gltf' >gltf</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='glb' >glb</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='material' >재질 선택</a>
+            </div>
+        </div>
+        <div class="w3-dropdown-click">
+            <button class="w3-button" >Edit</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" data-mid='resolve' >Resolve</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='rx90' >rotate X 90</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='del' >delete</a>
             </div>
         </div>
     </div>

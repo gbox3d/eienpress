@@ -3,13 +3,13 @@ import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLi
 import * as THREE from 'three';
 // import WEBGL from 'WebGL';
 // import Stats from 'state';
-import { OrbitControls } from 'OrbitControls';
-import { TransformControls } from 'TransformControls';
-import { FBXLoader } from 'fbxLoader';
-import { GLTFLoader } from 'GLTFLoader';
-import { GLTFExporter } from 'GLTFExporter';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { TransformControls } from 'three/addons/controls/TransformControls.js';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
-import { RGBELoader } from 'RGBELoader';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 import Elvis from 'evlis';
 import { TextureLoader, Vector3 } from 'three';
@@ -240,7 +240,9 @@ export default async function ({
                         _rayCaster.setFromCamera(new THREE.Vector2(mx, my), this.camera);
 
                         //transform controller collider check
-                        if (checkIntersecctTransformController(_rayCaster)) return;
+                        if (!checkIntersecctTransformController()) return;
+
+                        console.log('checkIntersecctTransformController false');
 
 
                         // //레이캐스팅 충돌 검사
@@ -417,8 +419,6 @@ export default async function ({
 
     scope.defaultMaterial = defaultMaterial;
 
-
-
     //확장함수
     const setEnableKeyInput = function (bEnable) {
         scope.bEnableKeyInput = bEnable;
@@ -427,29 +427,9 @@ export default async function ({
     //트랜스폼 컨트롤러와 충돌체크 함수
     const checkIntersecctTransformController = function (_rayCaster) {
 
-        //check invisible status
-        if (!scope.trn_control.visible) return;
-
-        let _intersectTrnCtrl = _rayCaster.intersectObjects(scope.trn_control.children);
-        let bFind = false;
-        //check parent object type TransformControlsGizmo
-        for (let i = 0; i < _intersectTrnCtrl.length; i++) {
-            let _obj = _intersectTrnCtrl[i].object;
-
-            while (_obj) {
-                if (_obj.type === 'TransformControlsGizmo') {
-                    bFind = true;
-                    break;
-                }
-                _obj = _obj.parent;
-            }
-
-            if (bFind) {
-                break;
-            }
-        }
-
-        return bFind;
+        if(scope.trn_control.dragging || scope.trn_control.axis) return false;
+        
+        return true;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -531,8 +511,6 @@ export default async function ({
             console.log(err);
         }
     }
-
-    
 
     const searchParentDummy = function (obj) {
         let parent = obj.parent;
@@ -949,14 +927,14 @@ export default async function ({
         return scope.select_node
     }
 
+    
+
 
     return {
         elvis: scope,
         objMng: objMng,
         setEnableKeyInput,
-        // getSelectObject,
-        // removeObject,
-        // updateTranform,
+        
         showEnvMap: (bShow) => {
 
             if (bShow) {

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import WEBGL from 'WebGL';
+import WEBGL from 'three/addons/capabilities/WebGL.js';
 
 import { comFileFindFile } from "../../modules/comLibs/utils.js";
 import objectViewerSetup from '../../modules/elvisPlugins/objectViewer.js';

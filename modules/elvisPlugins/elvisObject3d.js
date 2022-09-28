@@ -1,21 +1,12 @@
 import * as THREE from 'three';
 
-import { FBXLoader } from 'fbxLoader';
-import { GLTFLoader } from 'GLTFLoader';
-
-import { RGBELoader } from 'RGBELoader';
-import { EXRLoader } from 'EXRLoader';
-
-import { TextureLoader } from 'three';
-
-import { comFileFindFile, comFileDownload, comFileGetDetail } from "../comLibs/utils.js";
-
 class elvisObject3d extends THREE.Object3D {
 	constructor() {
 		super();
 		this.type = 'elvisObject3d';
 		this.resolved = false;
 		this.isPrefabRoot = false;
+		this.isElvisObject3D = true;
 		this.assetType = 'none';
 	}
 	makePrefabEntity(assetType) {
@@ -127,7 +118,7 @@ class elvisObject3d extends THREE.Object3D {
 					onProgress: onProgress,
 					material: this.material
 				})
-				this.add(_entity)
+				this.add(_entity.clone())
 			}
 			this.resolved = true;
 			// return _entity

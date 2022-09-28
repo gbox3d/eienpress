@@ -50,7 +50,7 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
     return res;
 }
 
-async function textDataUpload({hostUrl='',name='nope', directory='',description='',data }) {
+async function textDataUpload({hostUrl='',name='nope', directory='',description='',data,id=null }) {
 
     const fileObj = {
         file: {
@@ -73,9 +73,10 @@ async function textDataUpload({hostUrl='',name='nope', directory='',description=
         directory: directory,
         isPublic: true,
         md5: hash,
-        hostUrl: hostUrl
+        hostUrl: hostUrl,
+        id : id
     });
-    // console.log(_res)
+    
     return _res;
 }
 

@@ -1,14 +1,18 @@
 import * as THREE from 'three';
 import WEBGL from 'three/addons/capabilities/WebGL.js';
 
+// import { comFileFindFile } from "../../modules/comLibs/utils.js";
+// import objectViewerSetup from '../../modules/comModules/objectViewer.js';
+
+
 //forms
 import uiMainSetup from './form/uiMain.js';
 
 //models
-import waitModalSetup from '../../modules/comModules/waitModal.js';
-import progressBoxSetup from '../../modules/comModules/progressBox.js';
-import messageModal from '../../modules/comModules/messageModal.js';
-import fileSelectBoxSetup from '../../modules/comModules/fileSelectBoxFromDB.js';
+import waitModalSetup from '/modules/comModules/waitModal.js';
+import progressBoxSetup from '/modules/comModules/progressBox.js';
+import messageModal from '/modules/comModules/messageModal.js';
+import fileSelectBoxSetup from '/modules/comModules/fileSelectBoxFromDB.js';
 
 
 // import fileSelectorSetup from './modal/.js';
@@ -32,10 +36,12 @@ async function main() {
             // modalContainer: document.querySelector('.modal-container')
         }
 
+        
         theApp.progressBox = progressBoxSetup(theApp);
         theApp.waitModal = waitModalSetup(theApp);
         theApp.messageModal = messageModal(theApp);
         theApp.fileSelectBox = fileSelectBoxSetup(theApp);
+        
         
         
 

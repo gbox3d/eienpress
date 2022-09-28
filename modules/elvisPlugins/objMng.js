@@ -1,16 +1,9 @@
 import * as THREE from 'three';
-// import WEBGL from 'WebGL';
-// import Stats from 'state';
-import { OrbitControls } from 'OrbitControls';
-import { TransformControls } from 'TransformControls';
-import { FBXLoader } from 'fbxLoader';
-import { GLTFLoader } from 'GLTFLoader';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-import { RGBELoader } from 'RGBELoader';
-import { EXRLoader } from 'EXRLoader';
-
-import Elvis from 'evlis';
-import { TextureLoader } from 'three';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
 import { comFileFindFile, comFileDownload, comFileUpload, textDataUpload, makeFileObj } from "../comLibs/utils.js";
 import elvisObjLoader from './elvisObjLoader.js';
@@ -97,7 +90,7 @@ export default async function ({ scope }) {
 
         if (!mTextureRepository[textureFile]) {
 
-            let loader = new TextureLoader();
+            let loader = new THREE.TextureLoader();
 
             if (type == 'application/exr') {
                 loader = new EXRLoader();
@@ -106,7 +99,7 @@ export default async function ({ scope }) {
                 loader = new RGBELoader();
             }
             else {
-                loader = new TextureLoader();
+                loader = new THREE.TextureLoader();
             }
 
             const texture = await new Promise((resolve, reject) => {
@@ -387,7 +380,7 @@ export default async function ({ scope }) {
     }
 
 
-    async function savePrefab({ entity, name = 'nope' }) {
+    async function savePrefab({ entity, name = 'nope',fileID = null, repo_ip = '' }) {
         const _prefabRoot = selectPrefabRoot(entity);
         if (_prefabRoot) {
 
@@ -400,7 +393,9 @@ export default async function ({ scope }) {
             const _res = await textDataUpload({
                 name: name,
                 data: str_data,
-                directory: 'prefab'
+                directory: 'prefab',
+                id: fileID,
+                repo_ip: repo_ip
             })
 
             console.log(_res)
@@ -438,6 +433,11 @@ export default async function ({ scope }) {
             // })
 
             console.log(obj)
+            obj.userData.fileInfo = {
+                id: fileID,
+                repo_ip: repo_ip
+            }
+
             mEntityRepository[fileID] = obj
 
             return obj.clone();

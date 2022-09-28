@@ -1,8 +1,5 @@
 import * as THREE from 'three';
-import WEBGL from 'WebGL';
-
-import { comFileFindFile } from "../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../modules/comModules/objectViewer.js';
+import WEBGL from 'three/addons/capabilities/WebGL.js';
 
 
 //forms
@@ -14,9 +11,6 @@ import progressBoxSetup from '../../modules/comModules/progressBox.js';
 import messageModal from '../../modules/comModules/messageModal.js';
 import fileSelectBoxSetup from '../../modules/comModules/fileSelectBoxFromDB.js';
 
-
-
-// import fileSelectorSetup from './modal/.js';
 
 async function main() {
 

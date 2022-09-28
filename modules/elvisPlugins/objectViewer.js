@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 
-import { OrbitControls } from 'OrbitControls';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-import { RGBELoader } from 'RGBELoader';
-import { EXRLoader } from 'EXRLoader';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 
 import Elvis from 'evlis';
 
