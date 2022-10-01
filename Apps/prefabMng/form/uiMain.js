@@ -10,6 +10,7 @@ import objectViewerSetup from '../../../modules/elvisPlugins/queditor.js';
 import uiMenuBarSetup from './uiMenuBar.js';
 import objTreeViewSetup from './objTreeView.js';
 import attrViewSetup from './attrView.js';
+import prefabViewSetup from './prefabView.js';
 
 import 'md5';
 import attrView from './attrView.js';
@@ -24,7 +25,11 @@ export default async function (_Context) {
                 <div class='prefab-tree' > </div>
                 <div class='prefab-attr' > </div>
             </div>
-            <div class='gl-container'></div>
+            <div class='center'>
+                <div class='gl-container'></div>
+                <div class='prefab-view' > </div>
+            </div>
+            
         </div>
     </div>
     `;
@@ -41,6 +46,11 @@ export default async function (_Context) {
     _sideframe.display = 'block';
     _sideframe.style.width = '320px';
     _sideframe.style.height = '1024px';
+
+    const _centerframe = _rootElm.querySelector('.center');
+    _centerframe.display = 'block';
+    _centerframe.style.width = '1024px';
+    _centerframe.style.height = '1024px';
 
     const host_url = _Context.host_url;
 
@@ -67,20 +77,68 @@ export default async function (_Context) {
                 let file_id = res.data._id;
 
                 let obj = await objViewer.objMng.loadFbx({
-                    modelFile: file_id,
+                    fileID: file_id,
                     repo_ip: res.data.repo_ip,
                 });
 
                 return {
+                    r: 'ok',
                     object: obj,
                     fileInfo: res.data
                 };
             }
         }
         else {
-            _Context.messageModal.show({
-                msg: 'fbx 파일만 지원합니다.'
-            })
+
+            return {
+                r: 'err',
+                msg: 'not fbx file'
+            }
+            // _Context.messageModal.show({
+            //     msg: 'fbx 파일만 지원합니다.'
+            // })
+            // alert('not support file type');
+        }
+    }
+
+    async function _loadGlf(selectFile) {
+        const fileID = selectFile.id;
+
+        if (_.endsWith(selectFile.type, 'gltf-buffer')) {
+
+            //get file info detail
+            let res = await (await (fetch(`${host_url}/com/file/findOne/${fileID}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text',
+                    'authorization': localStorage.getItem('jwt_token')
+                }
+            }))).json();
+
+            if (res.r === 'ok' && res.data) {
+                let file_id = res.data._id;
+
+                let obj = await objViewer.objMng.loadGlf({
+                    fileID: file_id,
+                    repo_ip: res.data.repo_ip,
+                });
+
+                return {
+                    r: 'ok',
+                    object: obj,
+                    fileInfo: res.data
+                };
+            }
+        }
+        else {
+
+            return {
+                r: 'err',
+                msg: 'glf 파일만 지원합니다.'
+            }
+            // _Context.messageModal.show({
+            //     msg: 'fbx 파일만 지원합니다.'
+            // })
             // alert('not support file type');
         }
     }
@@ -134,7 +192,14 @@ export default async function (_Context) {
                                 root_dummy.applyMatrix4(_matrix);
                                 root_dummy.matrixAutoUpdate = true;
 
-                                _treeView.updateTree(objViewer.elvis.root_dummy);
+                                _treeView.updateTree(root_dummy);
+                                _treeView.selectNode(root_dummy.uuid);
+                                _attrView.set(root_dummy);
+                                _prefabView.set(root_dummy);
+
+                                objViewer.setSelectEntity(root_dummy);
+
+                                objViewer.objMng.clearAllRepository();
 
                             }
                             break;
@@ -174,6 +239,7 @@ export default async function (_Context) {
                                     _treeView.updateTree(objViewer.elvis.root_dummy);
                                     _treeView.selectNode(entity.uuid);
                                     _attrView.set(entity);
+                                    _prefabView.set(entity);
 
 
                                 }
@@ -185,134 +251,337 @@ export default async function (_Context) {
                         case 'save':
                             {
                                 const _selentity = objViewer.getSelectEntity();
+                                console.log(_selentity);
+                                if (_selentity 
+                                    && _selentity.name !== 'root_dummy' //root_dummy는 저장하지 않는다.
+                                    // && _selentity.isElvisObject3D
+                                    ) 
+                                {
 
-                                if (_selentity.userData.fileInfo?.id) {
-                                    //update
-                                    objViewer.objMng.savePrefab(
-                                        {
-                                            entity: _selentity,
-                                            id : _selentity.userData.fileInfo.id, //id 가 주어지면 update
-                                            repo_ip: _selentity.userData.fileInfo.repo_ip
+                                    if (_selentity.name !== '' && _selentity.name) {
+                                        let res = await objViewer.objMng.savePrefab(
+                                            {
+                                                entity: _selentity,
+                                                name : _selentity.name,
+                                                fileID: _selentity.userData.fileInfo?.id, //id 가 주어지면 update
+                                                repo_ip: _selentity.userData.fileInfo?.repo_ip
+                                            }
+                                        );
+
+                                        if (res.r === 'ok') {
+                                            await _Context.messageModal.show({
+                                                msg: '저장 성공'
+                                            })
                                         }
-                                    );
-
-
-                                }
-                                else {
-                                    //신규 생성 
-
-                                    if (_selentity.type === "elvisObject3d") {
-                                        let _name = prompt('저장할 이름을 입력하세요.');
-                                        if (_name) {
-                                            // let _data = _selentity.toJSON();
-                                            // console.log(_data);
-
-                                            objViewer.objMng.savePrefab(
-                                                {
-                                                    entity: _selentity,
-                                                    name: _name
-                                                }
-                                            );
-
+                                        else {
+                                            await _Context.messageModal.show({
+                                                msg: '저장 실패'
+                                            })
                                         }
                                     }
                                     else {
-                                        _Context.messageModal.show({
-                                            msg: `elvisObject3d 타입만 저장할 수 있습니다.`
+                                        await _Context.messageModal.show({
+                                            msg: '이름을 입력하세요'
                                         })
                                     }
-
                                 }
-                                console.log(_selentity);
+                                else {
+                                    _Context.messageModal.show({
+                                        msg: '적합하지않는 오브잭트루트입니다.'
+                                    });
+                                }
+
+                            }
+                            break;
+                        case 'export_glf':
+                            {
+                                const _selentity = objViewer.getSelectEntity();
+                                let __selentity = _selentity.clone();
+                                __selentity.material = new THREE.MeshStandardMaterial();
+
+                                let res = await objViewer.objMng.saveGlf({
+                                    entity: __selentity
+                                });
+
+                                console.log(res)
+
+                                _Context.messageModal.show({
+                                    msg: '저장되었습니다.'
+                                });
+
                             }
                             break;
                     }
                 }
                 else if (btnName === 'Entity') {
+                    
+                    const _selentity = objViewer.getSelectEntity();
+
                     switch (menuName) {
-                        case 'fbx':
+                        // case 'fbx':
+                        //     {
+                        //         let _rootDummy = new elvisObject3d({
+                        //             isPrefabRoot: true,
+                        //             assetType: `prefab.fbx`
+                        //         });
+
+                        //         let selectFile = await new Promise((resolve, reject) => {
+                        //             _Context.fileSelectBox.show(
+                        //                 (evt) => {
+                        //                     console.log(evt);
+                        //                     resolve(evt);
+
+                        //                 },
+                        //                 'model'
+                        //             )
+                        //         });
+                        //         const fileID = selectFile.id
+                        //         if (fileID) {
+
+                        //             const res = await _loadFbx(selectFile);
+
+                        //             if (res) {
+                        //                 let obj = res.object;
+
+                        //                 console.log(res)
+
+                        //                 _rootDummy.makePrefabEntity('prefab.fbx')
+                        //                 _rootDummy.add(obj);
+                        //                 _rootDummy.geometryFile = {
+                        //                     id: res.fileInfo._id,
+                        //                     repo_ip: res.fileInfo.repo_ip,
+                        //                     format: 'fbx'
+                        //                 }
+
+                        //                 objViewer.objMng.addObject({
+                        //                     entity: _rootDummy
+                        //                 });
+
+                        //                 //setup tree view
+                        //                 _treeView.updateTree(objViewer.elvis.root_dummy);
+
+                        //                 //message box
+                        //                 _Context.messageModal.show({
+                        //                     msg: 'load complete'
+                        //                 });
+                        //             }
+                        //             else {
+                        //                 _Context.messageModal.show({
+                        //                     msg: 'load fail'
+                        //                 });
+                        //             }
+                        //         }
+                        //         else {
+                        //             _Context.messageModal.show({
+                        //                 msg: '취소'
+                        //             })
+                        //         }
+                        //         break;
+                        //     }
+                        // case 'file':
+                        //     {
+                        //         let parent_entity = objViewer.getSelectEntity();
+                        //         if (!parent_entity?.isElvisObject3D) {
+                        //             _Context.messageModal.show({
+                        //                 msg: '부모는 elvisObject3d여야 합니다.'
+                        //             });
+                        //             break;
+                        //         }
+
+                        //         let selectFile = await new Promise((resolve, reject) => {
+                        //             _Context.fileSelectBox.show(
+                        //                 (evt) => {
+                        //                     console.log(evt);
+                        //                     resolve(evt);
+
+                        //                 },
+                        //                 'model'
+                        //             )
+                        //         });
+                        //         const fileID = selectFile.id
+
+                        //         console.log(selectFile)
+
+                        //         if (fileID) {
+
+                        //             let res
+                        //             if (selectFile.type === 'application/gltf-buffer') {
+
+                        //                 parent_entity.makePrefabEntity('prefab.glf')
+                        //                 res = await _loadGlf(selectFile);
+                        //             }
+                        //             else if (selectFile.type === 'application/fbx') {
+                        //                 parent_entity.makePrefabEntity('prefab.fbx')
+                        //                 res = await _loadFbx(selectFile);
+                        //             }
+                        //             else {
+                        //                 _Context.messageModal.show({
+                        //                     msg: '지원하지 않는 파일 형식입니다.'
+                        //                 });
+                        //                 break;
+                        //             }
+
+                        //             console.log(res)
+
+                        //             if (res.r === 'ok') {
+
+                        //                 parent_entity.geometryFile = {
+                        //                     id: res.fileInfo._id,
+                        //                     repo_ip: res.fileInfo.repo_ip,
+                        //                     format: selectFile.type
+                        //                 }
+
+                        //                 objViewer.objMng.addObject({
+                        //                     entity: res.object,
+                        //                     parent: parent_entity
+                        //                 });
+
+                        //                 //setup tree view
+                        //                 _treeView.updateTree(objViewer.elvis.root_dummy);
+
+                        //                 //message box
+                        //                 _Context.messageModal.show({
+                        //                     msg: 'load complete'
+                        //                 });
+                        //                 // }
+                        //                 // else {
+
+                        //                 // }
+                        //             }
+                        //             else {
+                        //                 _Context.messageModal.show({
+                        //                     msg: 'load fail'
+                        //                 });
+                        //             }
+                        //         }
+                        //         else {
+                        //             _Context.messageModal.show({
+                        //                 msg: '취소'
+                        //             })
+                        //         }
+
+                        //     }
+                        //     break;
+                        case 'group':
                             {
-                                let _rootDummy = new elvisObject3d({
-                                    isPrefabRoot: true,
-                                    assetType: `prefab.fbx`
+                                let entity = new THREE.Group();
+
+                                objViewer.objMng.addEntity({
+                                    entity: entity,
+                                    parent: _selentity ? _selentity : objViewer.elvis.root_dummy
                                 });
-
-                                let selectFile = await new Promise((resolve, reject) => {
-                                    _Context.fileSelectBox.show(
-                                        (evt) => {
-                                            console.log(evt);
-                                            resolve(evt);
-
-                                        },
-                                        'model'
-                                    )
-                                });
-                                const fileID = selectFile.id
-                                if (fileID) {
-
-                                    const res = await _loadFbx(selectFile);
-
-                                    if (res) {
-                                        let obj = res.object;
-
-                                        console.log(res)
-
-                                        _rootDummy.makePrefabEntity('prefab.fbx')
-                                        _rootDummy.add(obj);
-                                        _rootDummy.geometryFile = {
-                                            id: res.fileInfo._id,
-                                            repo_ip: res.fileInfo.repo_ip,
-                                            format: 'fbx'
-                                        }
-
-                                        objViewer.objMng.addObject({
-                                            entity: _rootDummy
-                                        });
-
-                                        //setup tree view
-                                        _treeView.updateTree(objViewer.elvis.root_dummy);
-
-                                        //message box
-                                        _Context.messageModal.show({
-                                            msg: 'load complete'
-                                        });
-                                    }
-                                    else {
-                                        _Context.messageModal.show({
-                                            msg: 'load fail'
-                                        });
-                                    }
-                                }
-                                else {
-                                    _Context.messageModal.show({
-                                        msg: '취소'
-                                    })
-                                }
-                                break;
+                                _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+                                _treeView.selectNode(entity.uuid); //현제 선택된 엔티티 선택
+                                _attrView.set(entity);
+                                objViewer.setSelectEntity(entity);
                             }
-                        case 'material':
+                            break;
+                        case 'elvisObject3d':
                             {
+                                let entity = new elvisObject3d();
+
+                                objViewer.objMng.addEntity({
+                                    entity: entity,
+                                    parent: _selentity ? _selentity : objViewer.elvis.root_dummy
+                                });
+                                _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+                                _treeView.selectNode(entity.uuid); //현제 선택된 엔티티 선택
+                                _attrView.set(entity);
+                                _prefabView.set(entity);
+
+                                objViewer.setSelectEntity(entity);
+
 
                             }
                             break;
+                        case 'plane':
+                            {
+                                const _selentity = objViewer.getSelectEntity();
+                                let geometry = new THREE.PlaneGeometry(30, 30);
+                                let entity = objViewer.objMng.addMeshObject({
+                                    geometry: geometry,
+                                    parent: _selentity ? _selentity : objViewer.elvis.root_dummy,
+                                });
+                                _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+                                _treeView.selectNode(entity.uuid); //현제 선택된 엔티티 선택
+                                _attrView.set(entity);
+                                objViewer.setSelectEntity(entity);
+                            }
+                            break;
+                        case 'box':
+                            {
+                                const _selentity = objViewer.getSelectEntity();
+                                let geometry = new THREE.BoxGeometry(30, 30, 30);
+                                let entity = objViewer.objMng.addMeshObject({
+                                    geometry: geometry,
+                                    parent: _selentity ? _selentity : objViewer.elvis.root_dummy,
+                                });
+                                _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+                                _treeView.selectNode(entity.uuid); //현제 선택된 엔티티 선택
+                                _attrView.set(entity);
+                                objViewer.setSelectEntity(entity);
+
+                            }
+                            break;
+                        case 'sphere':
+                            {
+                                const _selentity = objViewer.getSelectEntity();
+                                let geometry = new THREE.SphereGeometry(30, 30, 30);
+                                let entity = objViewer.objMng.addMeshObject({
+                                    geometry: geometry,
+                                    parent: _selentity ? _selentity : objViewer.elvis.root_dummy,
+                                });
+                                _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+                                _treeView.selectNode(entity.uuid); //현제 선택된 엔티티 선택
+                                _attrView.set(entity);
+                                objViewer.setSelectEntity(entity);
+
+                            }
+                            break;
+
                     }
                 }
                 else if (btnName === 'Edit') {
                     switch (menuName) {
                         case 'resolve':
                             {
+                                _Context.progressBox.show();
                                 const _selentity = objViewer.getSelectEntity();
-                                await _selentity.resolve(objViewer.objMng);
+                                // await _selentity.resolve(objViewer.objMng, (progress) => {
+                                //     _Context.progressBox.update(progress);
+                                // });
+                                await objViewer.objMng.resolvePrefab({
+                                    entity: _selentity,
+                                    progress: (progress) => {
+                                        _Context.progressBox.update(progress);
+                                    }
+                                });
+
                                 _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
                                 _treeView.selectNode(_selentity.uuid); //현제 선택된 엔티티 선택
+
+                                _prefabView.set(_selentity);
+
+                                _Context.progressBox.closeDelay(100);
+
+                                _Context.messageModal.show({
+                                    msg: 'resolve complete'
+                                });
                             }
                             break;
+                        case 'rx90':
+                            {
+                                const _selentity = objViewer.getSelectEntity();
+                                if (_selentity) {
+                                    _selentity.rotateX(THREE.MathUtils.degToRad(-90));
+                                    _attrView.set(_selentity);
+                                }
 
+                            }
+                            break;
                     }
                 }
-
             }
-
         }
         catch (e) {
             console.log(e);
@@ -320,10 +589,6 @@ export default async function (_Context) {
                 msg: e.message,
             })
         }
-
-
-
-
     });
 
     ///////////////////////////
@@ -340,6 +605,8 @@ export default async function (_Context) {
         onSelectObject: (obj) => {
             console.log('select : ', obj)
             _treeView.selectNode(obj.uuid);
+            _attrView.set(obj);
+            _prefabView.set(obj);
         },
         onObjectEditChange: (obj) => {
             // console.log('edit change : ', obj)
@@ -362,6 +629,7 @@ export default async function (_Context) {
         objViewer.setSelectEntity(obj);
 
         _attrView.set(obj);
+        _prefabView.set(obj);
 
         console.log(obj);
 
@@ -375,6 +643,197 @@ export default async function (_Context) {
         _Context,
         _rootElm.querySelector('.prefab-attr')
     );
+
+    //prefab view 등록
+    const _prefabView = await prefabViewSetup(
+        _Context,
+        _rootElm.querySelector('.prefab-view')
+    );
+
+    _prefabView.setCallback(
+        {
+            onMaterialChange: async (entity) => {
+
+                if (entity?.isElvisObject3D) {
+
+                    let selectFile = await new Promise((resolve, reject) => {
+                        _Context.fileSelectBox.show(
+                            (evt) => {
+                                // console.log(evt);
+                                resolve(evt);
+                            },
+                            'material'
+                        )
+                    });
+
+                    if (selectFile) {
+                        console.log(selectFile);
+
+                        _Context.progressBox.show();
+                        const material = await _Context.objViewer.objMng.loadMaterial({
+                            fileID: selectFile.id,
+                            repo_ip: selectFile.repo_ip,
+                            onProgress: (progress) => {
+                                _Context.progressBox.update(progress);
+                            }
+                        });
+
+                        entity.traverse((child) => {
+                            if (child.isMesh) {
+                                child.material = material;
+                            }
+                        });
+
+                        entity.materialFile = {
+                            id: selectFile.id,
+                            repo_ip: selectFile.repo_ip,
+                            size: parseInt(selectFile.size),
+                            type: selectFile.type
+                        };
+
+                        // if (entity.isMesh) {
+                        //     entity.material = material;
+                        // }
+                        // else if (entity.isElvisObject3D) {
+                        //     entity.traverse((child) => {
+                        //         if (child.isMesh) {
+                        //             child.material = material;
+                        //         }
+                        //     });
+
+                        //     entity.materialFile = {
+                        //         id: selectFile.id,
+                        //         repo_ip: selectFile.repo_ip
+                        //     }
+                        // }
+
+                        _prefabView.set(entity);
+
+                        await _Context.progressBox.closeDelay(100);
+                    }
+                    else {
+                        console.log('cancel');
+                        _Context.messageModal.show({
+                            msg: 'cancel',
+                        });
+                    }
+                }
+                else {
+                    _Context.messageModal.show({
+                        msg: `not elvis object`,
+                    });
+                }
+
+            },
+            onGeometryChange: async (entity) => {
+
+                let parent_entity = entity;
+
+                if (!parent_entity?.isElvisObject3D) {
+                    _Context.messageModal.show({
+                        msg: '부모는 elvisObject3d여야 합니다.'
+                    });
+                    return;
+                }
+
+                let selectFile = await new Promise((resolve, reject) => {
+                    _Context.fileSelectBox.show(
+                        (evt) => {
+                            console.log(evt);
+                            resolve(evt);
+
+                        },
+                        'model'
+                    )
+                });
+                const fileID = selectFile.id
+
+                console.log(selectFile)
+
+                if (fileID) {
+
+                    _Context.progressBox.show();
+
+                    let res
+                    if (selectFile.type === 'application/gltf-buffer') {
+
+                        parent_entity.makePrefabEntity('prefab.glf')
+                        res = await _loadGlf(selectFile);
+                    }
+                    else if (selectFile.type === 'application/fbx') {
+                        parent_entity.makePrefabEntity('prefab.fbx')
+                        res = await _loadFbx(selectFile);
+                    }
+                    else {
+                        _Context.messageModal.show({
+                            msg: '지원하지 않는 파일 형식입니다.'
+                        });
+                        return;
+                    }
+
+                    console.log(res)
+
+                    if (res.r === 'ok') {
+
+                        parent_entity.geometryFile = {
+                            id: res.fileInfo._id,
+                            repo_ip: res.fileInfo.repo_ip,
+                            format: selectFile.type
+                        }
+
+
+
+                        objViewer.objMng.addObject({
+                            entity: res.object,
+                            parent: parent_entity
+                        });
+
+                        if (parent_entity.materialFile) {
+
+                            const material = await _Context.objViewer.objMng.loadMaterial({
+                                fileID: parent_entity.materialFile.id,
+                                repo_ip: parent_entity.materialFile.repo_ip,
+                                onProgress: (progress) => {
+                                    _Context.progressBox.update(progress);
+                                }
+                            });
+
+                            res?.object?.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.material = material;
+                                }
+                            });
+                        }
+
+                        //setup tree view
+                        _treeView.updateTree(objViewer.elvis.root_dummy);
+                        _prefabView.set(parent_entity);
+
+                        await _Context.progressBox.closeDelay(100);
+
+                        //message box
+                        _Context.messageModal.show({
+                            msg: 'load complete'
+                        });
+                        // }
+                        // else {
+
+                        // }
+                    }
+                    else {
+                        _Context.messageModal.show({
+                            msg: 'load fail'
+                        });
+                    }
+                }
+                else {
+                    _Context.messageModal.show({
+                        msg: '취소'
+                    })
+                }
+            }
+        }
+    )
 
 
     _Context.body_container.appendChild(_rootElm);

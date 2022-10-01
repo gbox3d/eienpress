@@ -50,7 +50,8 @@ class loader extends THREE.ObjectLoader {
 		data.geometryFile && (object.geometryFile = data.geometryFile);
 		data.materialFile && (object.materialFile = data.materialFile);
 		data.isPrefabRoot && (object.isPrefabRoot = data.isPrefabRoot);
-		
+		data.childTransforms && (object.childTransforms = data.childTransforms);
+
 		if (data.name !== undefined) object.name = data.name;
 
 		if (data.matrix !== undefined) {
@@ -135,6 +136,25 @@ class loader extends THREE.ObjectLoader {
 
 		}
 
+		// if (data.childTransforms !== undefined) {
+		// 	const childTransforms = data.childTransforms;
+		// 	for (let i = 0; i < childTransforms.length; i++) {
+		// 		const childTransform = childTransforms[i];
+
+		// 		if (childTransform.name !== '') {
+
+		// 			const child = object.getObjectByProperty('name', childTransform.name);
+		// 			if (child !== undefined) {
+		// 				// child.matrixAutoUpdate = false;
+		// 				child.matrix.fromArray(childTransform.matrix);
+		// 				child.matrix.decompose(child.position, child.quaternion, child.scale);
+						
+		// 				// child.matrixAutoUpdate = true;
+		// 			}
+		// 		}
+		// 	}
+		// }
+
 		return object;
 
 	}
@@ -167,7 +187,7 @@ class loader extends THREE.ObjectLoader {
 
 		const textures = this.parseTextures(json.textures, images);
 		const materials = this.parseMaterials(json.materials, textures);
-		
+
 		let object = this.parseObject(json.object, geometries, materials, textures, animations);
 
 		const skeletons = this.parseSkeletons(json.skeletons, object);

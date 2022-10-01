@@ -22,19 +22,22 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='new' >New</a>    
                 <a href="#" class="w3-bar-item w3-button" data-mid='load' >불러오기</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='save' >저장하기</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='save' >업데이트</a>
+                <hr>
+                <a href="#" class="w3-bar-item w3-button" data-mid='export_glf' >export glf</a>
             </div>
         </div>
         <div class="w3-dropdown-click">
             <button class="w3-button" >Entity</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button" data-mid='fbx' >fbx</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='obj' >obj</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='gltf' >gltf</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='glb' >glb</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='material' >재질 선택</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='group' >Group</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='elvisObject3d' >elvisObject3d</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='plane' >plane</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='box' >box</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='sphere' >sphere</a>
+                
             </div>
         </div>
+
         <div class="w3-dropdown-click">
             <button class="w3-button" >Edit</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">

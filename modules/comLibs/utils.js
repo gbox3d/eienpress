@@ -50,11 +50,11 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
     return res;
 }
 
-async function textDataUpload({hostUrl='',name='nope', directory='',description='',data,id=null }) {
+async function textDataUpload({hostUrl='',name='',title='' ,directory='',description='',data,id=null }) {
 
     const fileObj = {
         file: {
-            name: name,
+            name: name + '.txt',
             size: data.length,
             type: 'application/text',
         },
@@ -68,7 +68,7 @@ async function textDataUpload({hostUrl='',name='nope', directory='',description=
     const _res = await comFileUpload({
         fileObj: fileObj,
         fileType: 'application/text',
-        title: fileObj.file.name,
+        title: title,
         description: description,
         directory: directory,
         isPublic: true,

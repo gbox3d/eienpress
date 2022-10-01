@@ -166,28 +166,30 @@ export default async function (_Context, container) {
 
         console.log(selectFile)
 
-        _Context.progressBox.show();
+        if (selectFile) {
+            _Context.progressBox.show();
 
-        let _tex = await _Context.objViewer.objMng.loadTexture({
-            textureFile: selectFile.id,
-            repo_ip: selectFile.repo_ip,
-            onProgress: (progress) => {
-                console.log(progress)
-                _Context.progressBox.update(progress);
-            },
-            type: selectFile.type
-        });
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
 
-        attr_form.elements['diffuseMap'].value = selectFile.id;
+            attr_form.elements['diffuseMap'].value = selectFile.id;
 
-        const material = _Context.gameObject.entity.material
+            const material = _Context.gameObject.entity.material
 
-        material.map = _tex;
-        material.userData.texture = selectFile
+            material.map = _tex;
+            material.userData.texture = selectFile
 
-        material.needsUpdate = true;
+            material.needsUpdate = true;
 
-        _Context.progressBox.closeDelay(250);
+            _Context.progressBox.closeDelay(250);
+        }
 
     });
 
@@ -255,26 +257,29 @@ export default async function (_Context, container) {
 
         console.log(selectFile)
 
-        attr_form.elements['normalMap'].value = selectFile.id;
+        if (selectFile) {
 
-        _Context.progressBox.show();
+            attr_form.elements['normalMap'].value = selectFile.id;
 
-        let _tex = await _Context.objViewer.objMng.loadTexture({
-            textureFile: selectFile.id,
-            repo_ip: selectFile.repo_ip,
-            onProgress: (progress) => {
-                console.log(progress)
-                _Context.progressBox.update(progress);
-            },
-            type: selectFile.type
-        });
+            _Context.progressBox.show();
 
-        material.normalMap = _tex;
-        material.needsUpdate = true;
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
 
-        material.userData.normalMap = selectFile;
+            material.normalMap = _tex;
+            material.needsUpdate = true;
 
-        _Context.progressBox.closeDelay(250);
+            material.userData.normalMap = selectFile;
+
+            _Context.progressBox.closeDelay(250);
+        }
 
     });
 
@@ -455,26 +460,29 @@ export default async function (_Context, container) {
 
         console.log(selectFile)
 
-        attr_form.elements['roughnessMap'].value = selectFile.id;
+        if (selectFile) {
 
-        _Context.progressBox.show();
+            attr_form.elements['roughnessMap'].value = selectFile.id;
 
-        let _tex = await _Context.objViewer.objMng.loadTexture({
-            textureFile: selectFile.id,
-            repo_ip: selectFile.repo_ip,
-            onProgress: (progress) => {
-                console.log(progress)
-                _Context.progressBox.update(progress);
-            },
-            type: selectFile.type
-        });
+            _Context.progressBox.show();
 
-        material.roughnessMap = _tex;
-        material.needsUpdate = true;
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
 
-        material.userData.roughnessMap = selectFile;
+            material.roughnessMap = _tex;
+            material.needsUpdate = true;
 
-        _Context.progressBox.closeDelay(250);
+            material.userData.roughnessMap = selectFile;
+
+            _Context.progressBox.closeDelay(250);
+        }
 
     });
 
@@ -495,26 +503,29 @@ export default async function (_Context, container) {
 
         console.log(selectFile)
 
-        attr_form.elements['metalnessMap'].value = selectFile.id;
+        if (selectFile) {
 
-        _Context.progressBox.show();
+            attr_form.elements['metalnessMap'].value = selectFile.id;
 
-        let _tex = await _Context.objViewer.objMng.loadTexture({
-            textureFile: selectFile.id,
-            repo_ip: selectFile.repo_ip,
-            onProgress: (progress) => {
-                console.log(progress)
-                _Context.progressBox.update(progress);
-            },
-            type: selectFile.type
-        });
+            _Context.progressBox.show();
 
-        material.metalnessMap = _tex;
-        material.needsUpdate = true;
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
 
-        material.userData.metalnessMap = selectFile;
+            material.metalnessMap = _tex;
+            material.needsUpdate = true;
 
-        _Context.progressBox.closeDelay(250);
+            material.userData.metalnessMap = selectFile;
+
+            _Context.progressBox.closeDelay(250);
+        }
     });
 
 

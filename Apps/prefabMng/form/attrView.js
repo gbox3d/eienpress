@@ -1,5 +1,6 @@
 import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 import 'md5';
+import * as THREE from 'three';
 
 export default async function (_Context, container) {
 
@@ -119,23 +120,6 @@ export default async function (_Context, container) {
                     </div>
                 </div>
 
-
-
-                <div class='w3-row'>
-                    <label>material</label>
-                    <div class='w3-row'>
-                        <div class='w3-col s8'>
-                            <input class='w3-input w3-border' type='text' name='material' disabled />
-                        </div>
-                        <div class='w3-col s4'>
-                            <button class='w3-button w3-block w3-blue' type='button' name='materialBtn'>...</button>
-                        </div>
-                    </div>
-                </div>
-
-                
-
-                
             </form>
     </div>
     `;
@@ -166,9 +150,9 @@ export default async function (_Context, container) {
         _form.positionY.value = entity.position.y;
         _form.positionZ.value = entity.position.z;
 
-        _form.rotationX.value = entity.rotation.x;
-        _form.rotationY.value = entity.rotation.y;
-        _form.rotationZ.value = entity.rotation.z;
+        _form.rotationX.value = THREE.MathUtils.radToDeg(entity.rotation.x);
+        _form.rotationY.value = THREE.MathUtils.radToDeg(entity.rotation.y);
+        _form.rotationZ.value = THREE.MathUtils.radToDeg(entity.rotation.z);
 
         //scale
         _form.scaleX.value = entity.scale.x;
@@ -189,7 +173,7 @@ export default async function (_Context, container) {
         _form.renderOrder.value = entity.renderOrder;
 
         //material
-        _form.material.value = entity.materialFile?.id ? entity.materialFile.id : '';
+        // _form.material.value = entity.materialFile?.id ? entity.materialFile.id : '';
 
         // _form.resolved.checked = entity.resolved ? entity.resolved : false;
 
@@ -211,9 +195,9 @@ export default async function (_Context, container) {
                 z: parseFloat(_form.positionZ.value),
             },
             rotation: {
-                x: parseFloat(_form.rotationX.value),
-                y: parseFloat(_form.rotationY.value),
-                z: parseFloat(_form.rotationZ.value),
+                x: THREE.MathUtils.degToRad(parseFloat(_form.rotationX.value)),
+                y: THREE.MathUtils.degToRad(parseFloat(_form.rotationY.value)),
+                z: THREE.MathUtils.degToRad(parseFloat(_form.rotationZ.value)),
             },
             scale: {
                 x: parseFloat(_form.scaleX.value),
@@ -225,7 +209,7 @@ export default async function (_Context, container) {
             frustumCulled: _form.frustumCulled.checked,
             visible: _form.visible.checked,
             renderOrder: parseInt(_form.renderOrder.value),
-            materialFileID: _form.material.value
+            // materialFileID: _form.material.value
         }
 
     }
@@ -267,71 +251,71 @@ export default async function (_Context, container) {
         _update(entity);
     });
 
-    _form.querySelector('button[name=materialBtn]').addEventListener('click', async (evt) => {
-        evt.preventDefault();
-        const uuid = _form.uuid.value;
-        const entity = _Context.objViewer.elvis.scene.getObjectByProperty('uuid', uuid);
+    // _form.querySelector('button[name=materialBtn]').addEventListener('click', async (evt) => {
+    //     evt.preventDefault();
+    //     const uuid = _form.uuid.value;
+    //     const entity = _Context.objViewer.elvis.scene.getObjectByProperty('uuid', uuid);
 
-        if (entity.isMesh || entity.isElvisObject3D) {
+    //     if (entity.isMesh || entity.isElvisObject3D) {
             
-            let selectFile = await new Promise((resolve, reject) => {
-                _Context.fileSelectBox.show(
-                    (evt) => {
-                        // console.log(evt);
-                        resolve(evt);
-                    },
-                    'material'
-                )
-            });
+    //         let selectFile = await new Promise((resolve, reject) => {
+    //             _Context.fileSelectBox.show(
+    //                 (evt) => {
+    //                     // console.log(evt);
+    //                     resolve(evt);
+    //                 },
+    //                 'material'
+    //             )
+    //         });
 
-            if (selectFile) {
-                console.log(selectFile);
+    //         if (selectFile) {
+    //             console.log(selectFile);
 
-                _Context.progressBox.show();
-                const material = await _Context.objViewer.objMng.loadMaterial({
-                    fileID: selectFile.id,
-                    repo_ip: selectFile.repo_ip,
-                    onProgress: (progress) => {
-                        _Context.progressBox.update(progress);
-                    }
-                });
-                _Context.progressBox.closeDelay(100);
+    //             _Context.progressBox.show();
+    //             const material = await _Context.objViewer.objMng.loadMaterial({
+    //                 fileID: selectFile.id,
+    //                 repo_ip: selectFile.repo_ip,
+    //                 onProgress: (progress) => {
+    //                     _Context.progressBox.update(progress);
+    //                 }
+    //             });
+    //             _Context.progressBox.closeDelay(100);
 
-                if (entity.isMesh) {
-                    entity.material = material;
-                }
-                else if(entity.isElvisObject3D) {
-                    entity.traverse((child) => {
-                        if (child.isMesh) {
-                            child.material = material;
-                        }
-                    });
+    //             if (entity.isMesh) {
+    //                 entity.material = material;
+    //             }
+    //             else if(entity.isElvisObject3D) {
+    //                 entity.traverse((child) => {
+    //                     if (child.isMesh) {
+    //                         child.material = material;
+    //                     }
+    //                 });
 
-                    entity.materialFile = {
-                        id: selectFile.id,
-                        repo_ip: selectFile.repo_ip
-                    }
-                }
+    //                 entity.materialFile = {
+    //                     id: selectFile.id,
+    //                     repo_ip: selectFile.repo_ip
+    //                 }
+    //             }
                 
                 
 
-                _form.material.value = selectFile.id;
-            }
-            else {
-                console.log('cancel');
-                _Context.messageModal.show({
-                    msg: 'cancel',
-                });
-            }
-        }
-        else {
-            _Context.messageModal.show({
-                msg: `not support material ${entity.type}`
-            });
-        }
+    //             _form.material.value = selectFile.id;
+    //         }
+    //         else {
+    //             console.log('cancel');
+    //             _Context.messageModal.show({
+    //                 msg: 'cancel',
+    //             });
+    //         }
+    //     }
+    //     else {
+    //         _Context.messageModal.show({
+    //             msg: `not support material ${entity.type}`
+    //         });
+    //     }
 
 
-    });
+    // });
 
     console.log('complete setup tree view');
 

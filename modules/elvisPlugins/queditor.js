@@ -35,11 +35,8 @@ export default async function ({
     const host_url = Context.host_url;
     const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
     const grid_helper = new THREE.GridHelper(5000, 50, 0x00ff00, 0xff0000);
-    const defaultMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        metalness: 0.5,
-        roughness: 0.5,
-    });
+
+    
 
     const scope = await new Promise((resolve, reject) => {
 
@@ -417,7 +414,16 @@ export default async function ({
         });
     });
 
-    scope.defaultMaterial = defaultMaterial;
+    scope.defaultMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        metalness: 0.5,
+        roughness: 0.5,
+    });
+
+    scope.defaultMaterial_WF = new THREE.MeshStandardMaterial({
+        color: 0x00ff00,
+        wireframe: true
+    });
 
     //확장함수
     const setEnableKeyInput = function (bEnable) {
@@ -692,33 +698,22 @@ export default async function ({
     }
 
 
-    const toGltf = function ({ title, description }) {
+    const toGltf = function ({ title, description,entity,binary=true }) {
         // console.log('save scene');
         scope.root_dummy.userData.title = title
         scope.root_dummy.userData.description = description
 
         return new Promise((resolve, reject) => {
             const exporter = new GLTFExporter();
-            exporter.parse(scope.root_dummy, function (result) {
-                // console.log(result);
+            exporter.parse(entity, function (result) {
                 resolve(result);
             },
                 // called when there is an error in the generation
                 function (error) {
-
                     console.log('An error happened');
-
                 },
                 {
-                    // embed images in the glTF output
-                    // embedImages: false,
-                    binary: true
-                    // generate a default material
-                    // defaultMaterial: new THREE.MeshStandardMaterial(),
-                    // only required when embedding images
-                    // defaultTexture: new THREE.Texture(),
-                    // embed normals in the glTF output
-                    // embedNormals: true,
+                    binary: binary
                 }
             );
         });
@@ -934,7 +929,7 @@ export default async function ({
         elvis: scope,
         objMng: objMng,
         setEnableKeyInput,
-        
+        toGltf,
         showEnvMap: (bShow) => {
 
             if (bShow) {
