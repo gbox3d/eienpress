@@ -265,7 +265,11 @@ export default async function ({
                         if (intersects.length > 0) {
 
                             let _cursorHelper = this.cubeCorsor.getObjectByName('helper');
-                            let _dir = intersects[0].face.normal.clone().multiplyScalar(-1)
+                            let _faceDir = intersects[0].face.normal.clone()
+                            
+                            _faceDir.applyQuaternion(intersects[0].object.getWorldQuaternion(new THREE.Quaternion()));
+
+                            let _dir = _faceDir.multiplyScalar(-1)
                             _cursorHelper.setDirection(_dir);
                             _cursorHelper.position.copy((_dir.clone().multiplyScalar(-10)));
 
