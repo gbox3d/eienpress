@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eienpress</title>
 </head>
+
 <body>
 
     <script type="module">
@@ -13,56 +15,60 @@
         document.addEventListener('DOMContentLoaded', main);
     </script>
 
-    <div id="authtoken" >
+    <div id="authtoken">
         <!-- 인증키 입력 : <input ><button>submit</button> -->
         <div>
-            <a href="/login" >login window</a>
+            <a href="/login">login window</a>
         </div>
     </div>
-    <div id="authStatus" hidden >
+    <div id="authStatus" hidden>
         <h3></h3>
         <button class="logout">logout</button>
     </div>
-    <hr/>
-    <div>
-        <h3>file manager </h3>
-        <a href="/Apps/fileMng"> 바로가기</a>
-    </div>
-    <div>
-        <h3>material manager </h3>
-        <a href="/Apps/materialMng"> 바로가기</a>
-    </div>
-    <div>
-        <h3>prefab manager </h3>
-        <a href="/Apps/prefabMng"> 바로가기</a>
-    </div>
-    <div>
-        <h3>meta worker </h3>
-        <a href="/Apps/metaWorker"> 바로가기</a>
-    </div>
-    
-    <hr/>
-    <div>
-        <h3>example 1. hello world </h3>
-        <a href="/example/ex01_helloworld"> 바로가기</a>
+    <hr />
+
+    <div id="mainContainer">
+        <div>
+            <h3>file manager </h3>
+            <a href="/Apps/fileMng"> 바로가기</a>
+        </div>
+        <div>
+            <h3>material manager </h3>
+            <a href="/Apps/materialMng"> 바로가기</a>
+        </div>
+        <div>
+            <h3>prefab manager </h3>
+            <a href="/Apps/prefabMng"> 바로가기</a>
+        </div>
+        <div>
+            <h3>meta worker </h3>
+            <a href="/Apps/metaWorker"> 바로가기</a>
+        </div>
+
+        <hr />
+        <div>
+            <h3>example 1. hello world </h3>
+            <a href="/example/ex01_helloworld"> 바로가기</a>
+        </div>
+
+        <div>
+            <h3>example 2. object viewer </h3>
+            <a href="/example/ex02_objectViewer"> 바로가기</a>
+        </div>
+
+        <div>
+            <h3>example 3. sceneEditor </h3>
+            <a href="/example/ex03_sceneEditor"> 바로가기</a>
+        </div>
+
+        <div>
+            <h3>example 4. quEditor </h3>
+            <a href="/example/ex04_queditor"> 바로가기</a>
+        </div>
+
     </div>
 
-    <div>
-        <h3>example 2. object viewer </h3>
-        <a href="/example/ex02_objectViewer"> 바로가기</a>
-    </div>
-
-    <div>
-        <h3>example 3. sceneEditor </h3>
-        <a href="/example/ex03_sceneEditor"> 바로가기</a>
-    </div>
-
-    <div>
-        <h3>example 4. quEditor </h3>
-        <a href="/example/ex04_queditor"> 바로가기</a>
-    </div>
-
-    
 
 </body>
+
 </html>
