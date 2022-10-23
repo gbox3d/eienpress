@@ -28,15 +28,15 @@ export default async function ({
     isGrid = true,
     onSelectObject = null,
     onObjectEditChange = null,
-    Context = null
-
+    onPointerIntersectDown = null,
+    Context = null,
+    cameraControlMode = 'walk',
+    basePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
 }) {
 
     const host_url = Context.host_url;
     const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
     const grid_helper = new THREE.GridHelper(5000, 50, 0x00ff00, 0xff0000);
-
-    
 
     const scope = await new Promise((resolve, reject) => {
 
@@ -123,7 +123,7 @@ export default async function ({
 
                     //오빗컨트롤
                     //카메라의 현재 위치 기준으로 시작한다.
-                    var orbitControl = new OrbitControls(this.camera, this.renderer.domElement);
+                    const orbitControl = new OrbitControls(this.camera, this.renderer.domElement);
                     orbitControl.target.set(0, 0, 0);
                     orbitControl.update();
                     this.orbitControl = orbitControl;
@@ -149,14 +149,65 @@ export default async function ({
 
                     //cube cursor setup
                     {
-                        const geometry = new THREE.SphereGeometry(7, 16, 8);
-                        const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-                        const cube = new THREE.Mesh(geometry, material);
-                        cube.name = 'cubeCursor';
-                        this.scene.add(cube);
-                        this.cubeCorsor = cube;
-                        cube.visible = false;
+                        const dir = new THREE.Vector3(0, -1, 0);
+                        const length = 10;
+                        //normalize the direction vector (convert to vector of length 1)
+                        dir.normalize();
+
+                        const _helper = new THREE.ArrowHelper(
+                            dir,
+                            new THREE.Vector3(0, 0, 0),
+                            length,
+                            0xff0000,
+                            5,
+                            5
+                        );
+                        _helper.name = 'helper';
+
+                        // const geometry = new THREE.SphereGeometry(7, 16, 8);
+                        // const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+                        // const cube = new THREE.Mesh(geometry, material);
+                        // cube.name = 'cubeCursor';
+
+                        // this.scene.add(_helper);
+                        this.cubeCorsor = new THREE.Group();
+                        this.cubeCorsor.name = 'cubeCursor';
+                        this.cubeCorsor.add(_helper);
+                        let _container = new THREE.Group();
+                        _container.name = 'cubeCursorContainer';
+                        this.cubeCorsor.add(_container);
+
+                        this.cubeCorsor.visible = false;
+                        this.scene.add(this.cubeCorsor);
+
                     }
+
+                    //target display helper
+                    // const orbitTargetHelper = new THREE.AxesHelper(10);
+                    {
+                        const dir = new THREE.Vector3(0, -1, 0);
+                        const length = 5;
+                        //normalize the direction vector (convert to vector of length 1)
+                        dir.normalize();
+
+                        const orbitTargetHelper = new THREE.ArrowHelper(
+                            dir,
+                            new THREE.Vector3(0, 0, 0),
+                            length,
+                            0xffff00,
+                            2.5,
+                            2.5
+                        );
+
+                        scope.scene.add(orbitTargetHelper);
+                        orbitTargetHelper.position.copy(orbitControl.target.clone().sub(dir.clone().multiplyScalar(length)));
+
+                        orbitControl.addEventListener('change', function () {
+                            orbitTargetHelper.position.copy(orbitControl.target.clone().sub(dir.clone().multiplyScalar(length)));
+                        });
+
+                    }
+
 
                     //setup complete
                     this.startRender();
@@ -188,12 +239,10 @@ export default async function ({
                 onUpdate: function (event) {
 
                     // let angleSpeed = parseInt(angleSpeedSlider.value);
-
                     // this.cube.rotation.x += THREE.MathUtils.degToRad(angleSpeed) * event.deltaTick;
                     // this.cube.rotation.y += THREE.MathUtils.degToRad(angleSpeed) * event.deltaTick;
 
                     updateCamera(event.deltaTick);
-
 
                     // this.stats.update()
                     this.updateAll();
@@ -206,6 +255,7 @@ export default async function ({
                         let my = - (event.offsetY / this.window_size.height) * 2 + 1;
 
                         let _rayCaster = this.trn_control.getRaycaster();
+
                         _rayCaster.setFromCamera(new THREE.Vector2(mx, my), this.camera);
 
                         // //레이캐스팅 충돌 검사
@@ -213,11 +263,37 @@ export default async function ({
                         this.intersectObjects = intersects;
 
                         if (intersects.length > 0) {
+
+                            let _cursorHelper = this.cubeCorsor.getObjectByName('helper');
+                            let _dir = intersects[0].face.normal.clone().multiplyScalar(-1)
+                            _cursorHelper.setDirection(_dir);
+                            _cursorHelper.position.copy((_dir.clone().multiplyScalar(-10)));
+
                             this.cubeCorsor.position.copy(intersects[0].point);
                             this.cubeCorsor.visible = true;
                         }
                         else {
-                            this.cubeCorsor.visible = false;
+
+                            if (this.keyStates['AltLeft']) {
+                                let _ray = _rayCaster.ray;
+                                let _basePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+                                let _intersect = new THREE.Vector3();
+                                _ray.intersectPlane(_basePlane, _intersect);
+
+                                let _cursorHelper = this.cubeCorsor.getObjectByName('helper');
+                                let _dir = new THREE.Vector3(0, -1, 0);
+
+                                _cursorHelper.setDirection(_dir);
+                                _cursorHelper.position.copy((_dir.clone().multiplyScalar(-10)));
+
+                                this.cubeCorsor.position.copy(_intersect);
+
+                                this.cubeCorsor.visible = true;
+                            }
+                            else {
+                                this.cubeCorsor.visible = false;
+                            }
                         }
                     }
                     // mousePos.innerHTML = `${_.round(mx, 2)}, ${_.round(my, 2)}`;
@@ -240,86 +316,112 @@ export default async function ({
                         if (!checkIntersecctTransformController()) return;
 
                         console.log('checkIntersecctTransformController false');
-
-
                         // //레이캐스팅 충돌 검사
                         let intersects = _rayCaster.intersectObjects(this.root_dummy.children);
                         if (intersects.length > 0) {
 
                             const _nearIntersec = intersects[0];
-                            console.log(intersects[0])
 
-                            if (this.cubeCorsor.visible && this.cubeCorsor.children.length > 0) { //오브잭트 내려놓기 
+                            onPointerIntersectDown?.call(this, {
+                                type: 'intersect-object',
+                                altkey: this.keyStates['AltLeft'] ? true : false,
+                                intersect: _nearIntersec
+                            });
+                            // console.log(intersects[0])
+                            // if (getCursoredEntity().children.length > 0) {
 
-                                let _target = this.cubeCorsor.children[0];
+                            // }
 
-                                switch (_target.name) {
-                                    case 'triger':
-                                        _target.position.copy(_nearIntersec.point);
-                                        this.space_dummy.add(_target);
-                                    default:
-                                        this.dropObject(this.space_dummy);
-                                        break;
+                            // let _container = this.cubeCorsor.getObjectByName('cubeCursorContainer');
+
+                            // if (this.cubeCorsor.visible && _container.children.length > 0) { //오브잭트 내려놓기 
+                            //     // let _target = this.cubeCorsor.children[0];
+                            //     // switch (_target.name) {
+                            //     //     case 'triger':
+                            //     //         _target.position.copy(_nearIntersec.point);
+                            //     //         this.space_dummy.add(_target);
+                            //     //     default:
+                            //     //         // this.dropObject(this.space_dummy);
+                            //     //         break;
+                            //     // }
+
+                            // }
+                            // else if (this.keyStates['ShiftLeft']) {
+                            //     //현제 선택된 오브잭트 놓기 
+                            //     this?.select_node?.position.copy(_nearIntersec.point);
+                            // }
+                            // else {
+                            //     // 커서에 아무것도 없으면 오브잭트 선택 
+                            //     // let node = intersects[0].object.parent;
+                            //     // const _dummy = searchParentDummy(intersects[0].object);
+
+                            //     const _dummy = intersects[0].object
+
+                            //     if (this.select_node !== _dummy) {
+
+                            //         let objType = _dummy.userData.type ? _dummy.userData.type : 4; //정의 되어있지않으면 전시물로 설정
+
+                            //         console.log(objType)
+
+                            //         switch (objType) {
+                            //             case 0:
+                            //             case 1:
+                            //             case 3: //trigger
+                            //                 {
+                            //                     this.trn_control.attach(_dummy);
+                            //                     this.select_node = _dummy;
+                            //                     onSelectObject?.call(this, _dummy)
+                            //                     // console.log(node.parent.userData)
+                            //                 }
+                            //                 break;
+                            //             case 2: //건물
+                            //                 {
+                            //                     //건물은 선택된 오브잭트가 없을 경우 선택가능
+                            //                     if (!this.select_node) {
+                            //                         this.select_node = _dummy;
+                            //                         this.trn_control.detach();
+                            //                         onSelectObject?.call(this, _dummy)
+                            //                     }
+                            //                 }
+                            //                 break;
+                            //             case 4: // 전시물 
+                            //                 {
+                            //                     console.log(scope.trn_control.dragging)
+
+                            //                     console.log(_dummy.userData)
+                            //                     this.trn_control.attach(_dummy);
+                            //                     this.select_node = _dummy;
+                            //                     onSelectObject?.call(this, _dummy)
+
+                            //                 }
+                            //                 break;
+                            //             default:
+                            //                 break;
+                            //         }
+
+                            //     }
+
+                            // }
+                        }
+                        else {
+
+                            let _ray = _rayCaster.ray;
+                            let _basePlane = basePlane;
+
+                            let _intersect = new THREE.Vector3();
+                            _ray.intersectPlane(_basePlane, _intersect);
+
+                            onPointerIntersectDown?.call(this, {
+                                altkey: this.keyStates['AltLeft'] ? true : false,
+                                type: 'intersect-base-plane',
+                                intersect: {
+                                    diatance: scope.camera.position.distanceTo(_intersect),
+                                    face: {
+                                        normal: _basePlane.normal
+                                    },
+                                    point: _intersect
                                 }
-
-
-                            }
-                            else if (this.keyStates['ShiftLeft']) {
-                                //현제 선택된 오브잭트 놓기 
-                                this?.select_node?.position.copy(_nearIntersec.point);
-                            }
-                            else {
-                                // 커서에 아무것도 없으면 오브잭트 선택 
-                                // let node = intersects[0].object.parent;
-                                // const _dummy = searchParentDummy(intersects[0].object);
-
-                                const _dummy = intersects[0].object
-
-                                if (this.select_node !== _dummy) {
-
-                                    let objType = _dummy.userData.type ? _dummy.userData.type : 4; //정의 되어있지않으면 전시물로 설정
-
-                                    console.log(objType)
-
-                                    switch (objType) {
-                                        case 0:
-                                        case 1:
-                                        case 3: //trigger
-                                            {
-                                                this.trn_control.attach(_dummy);
-                                                this.select_node = _dummy;
-                                                onSelectObject?.call(this, _dummy)
-                                                // console.log(node.parent.userData)
-                                            }
-                                            break;
-                                        case 2: //건물
-                                            {
-                                                //건물은 선택된 오브잭트가 없을 경우 선택가능
-                                                if (!this.select_node) {
-                                                    this.select_node = _dummy;
-                                                    this.trn_control.detach();
-                                                    onSelectObject?.call(this, _dummy)
-                                                }
-                                            }
-                                            break;
-                                        case 4: // 전시물 
-                                            {
-                                                console.log(scope.trn_control.dragging)
-
-                                                console.log(_dummy.userData)
-                                                this.trn_control.attach(_dummy);
-                                                this.select_node = _dummy;
-                                                onSelectObject?.call(this, _dummy)
-
-                                            }
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                }
-
-                            }
+                            });
                         }
 
                     }
@@ -340,37 +442,6 @@ export default async function ({
                         this.keyStates[event.code] = true;
 
                         switch (event.keyCode) {
-
-                            // case 38: //up
-                            // {
-                            //     //move camera forward
-
-                            //     let _dir = new THREE.Vector3();
-                            //     this.camera.getWorldDirection(_dir);
-                            //     // console.log(_dir)
-                            //     _dir.normalize();
-                            //     _dir.multiplyScalar(10);
-                            //     this.camera.position.add(_dir);
-                            //     this.orbitControl.target.add(_dir);
-
-                            // }
-                            // // this.camera.position.translate(0, 0, 1);
-
-
-
-                            // break;
-                            // case 40: //down
-                            // break;
-                            // case 37: //left
-                            // break;
-                            // case 39: //right
-                            // break;
-                            // case 16: // Shift
-                            //     // snap control
-                            //     control.setTranslationSnap(1);
-                            //     control.setRotationSnap(THREE.MathUtils.degToRad(15));
-                            //     control.setScaleSnap(0.25);
-                            //     break;
                             case 81: // Q
                                 control.setSpace(this.trn_control.space == "local" ? "world" : "local");
                                 break;
@@ -433,8 +504,8 @@ export default async function ({
     //트랜스폼 컨트롤러와 충돌체크 함수
     const checkIntersecctTransformController = function (_rayCaster) {
 
-        if(scope.trn_control.dragging || scope.trn_control.axis) return false;
-        
+        if (scope.trn_control.dragging || scope.trn_control.axis) return false;
+
         return true;
     }
 
@@ -615,7 +686,7 @@ export default async function ({
         }
     }
 
-    
+
 
     const updateUserData = function ({
         objId,
@@ -698,7 +769,7 @@ export default async function ({
     }
 
 
-    const toGltf = function ({ title, description,entity,binary=true }) {
+    const toGltf = function ({ title, description, entity, binary = true }) {
         // console.log('save scene');
         scope.root_dummy.userData.title = title
         scope.root_dummy.userData.description = description
@@ -743,13 +814,7 @@ export default async function ({
             }
         );
 
-        // loader.parse(glb, function (gltf) {
-        //     console.log(gltf);
-        // },
-        //     function (error) {
-        //         console.log(error);
-        //     }
-        // );
+
     }
 
     const removeAllChild = function () {
@@ -871,6 +936,13 @@ export default async function ({
         let _side = new THREE.Vector3();
 
         _forward.subVectors(scope.orbitControl.target, scope.camera.position);
+
+        if (cameraControlMode === 'fly') {
+        }
+        else if (cameraControlMode === 'walk') {
+            _forward.y = 0;
+        }
+
         _forward.normalize();
         _side.crossVectors(_forward, scope.camera.up);
         _side.normalize();
@@ -878,27 +950,37 @@ export default async function ({
         _forward = _forward.multiplyScalar(scope.cameraSpeed * delta);
         _side = _side.multiplyScalar(scope.cameraSpeed * delta);
 
-        // let speed = 100
+        let bChanged = false;
         if (scope.keyStates['ArrowUp']) {
             scope.camera.position.add(_forward);
             scope.orbitControl.target.add(_forward);
             scope.camera.target.copy(scope.orbitControl.target);
+            bChanged = true;
         }
         if (scope.keyStates['ArrowDown']) {
             scope.camera.position.sub(_forward);
             scope.orbitControl.target.sub(_forward);
             scope.camera.target.copy(scope.orbitControl.target);
+            bChanged = true;
         }
         if (scope.keyStates['ArrowLeft']) {
             scope.camera.position.sub(_side);
             scope.orbitControl.target.sub(_side);
             scope.camera.target.copy(scope.orbitControl.target);
+            bChanged = true;
 
         }
         if (scope.keyStates['ArrowRight']) {
             scope.camera.position.add(_side);
             scope.orbitControl.target.add(_side);
             scope.camera.target.copy(scope.orbitControl.target);
+            bChanged = true;
+        }
+
+        if (bChanged) {
+            scope.orbitControl.dispatchEvent({
+                type: 'change'
+            });
         }
     }
     const getCameraLookAt = function () {
@@ -910,7 +992,7 @@ export default async function ({
     });
 
     function setSelectEntity(entity) {
-        
+
         if (entity) {
             // scope.orbitControl.target.copy(entity.position);
             // scope.camera.target.copy(entity.position);
@@ -922,7 +1004,62 @@ export default async function ({
         return scope.select_node
     }
 
-    
+    function copyEntityToCursor(entity) {
+        let _entity = entity.clone();
+        _entity.position.set(0, 0, 0);
+
+        if (_entity) {
+            removeCursoredEntity();
+            const cubeCursorContainer = scope.cubeCorsor.getObjectByName('cubeCursorContainer')
+            cubeCursorContainer.add(_entity);
+        }
+
+    }
+
+    function pasteEntityToCursor({ position, parent, isClone = false }) {
+        const cubeCursorContainer = scope.cubeCorsor.getObjectByName('cubeCursorContainer')
+        let _entity = cubeCursorContainer.children[0];
+
+        if (_entity) {
+
+            if (isClone) {
+                _entity = _entity.clone();
+            }
+            else {
+                cubeCursorContainer.remove(_entity);
+            }
+
+            _entity.position.copy(position);
+            // scope.root_dummy.attach(_entity);
+            if (parent) {
+                parent.attach(_entity);
+
+            }
+            else {
+                scope.root_dummy.attach(_entity);
+            }
+            // setSelectEntity(_entity)
+        }
+
+        return _entity
+    }
+
+    function getCursoredEntity() {
+        const cubeCursorContainer = scope.cubeCorsor.getObjectByName('cubeCursorContainer')
+        return cubeCursorContainer.children[0]
+    }
+
+    function removeCursoredEntity() {
+        const cubeCursorContainer = scope.cubeCorsor.getObjectByName('cubeCursorContainer')
+
+        while (cubeCursorContainer.children.length > 0) {
+            cubeCursorContainer.remove(cubeCursorContainer.children[0])
+        }
+        // let _entity = cubeCursorContainer.children[0];
+        // if (_entity) {
+        //     cubeCursorContainer.remove(_entity);
+        // }
+    }
 
 
     return {
@@ -955,12 +1092,23 @@ export default async function ({
             grid_helper.visible = !grid_helper.visible;
         },
         resetCamera: function () {
-            scope.camera.position.set(0, 100, 200);
-            scope.camera.lookAt(0, 0, 0);
+            // scope.camera.position.set(0, 100, 200);
+            // scope.camera.lookAt(0, 0, 0);
+            scope.orbitControl.reset();
         },
-
+        getCameraTarget: function () {
+            return scope.orbitControl.target;
+        },
         setSelectEntity,
-        getSelectEntity
+        getSelectEntity,
+
+        copyEntityToCursor,
+        pasteEntityToCursor,
+        getCursoredEntity,
+        getEntityByuuid(uuid) {
+            return scope.root_dummy.getObjectByProperty('uuid', uuid)
+        },
+        removeCursoredEntity,
 
     }
 

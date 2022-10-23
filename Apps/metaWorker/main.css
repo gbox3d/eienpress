@@ -1,0 +1,43 @@
+/* tree view css*/
+ul,
+.mytree {
+  list-style-type: none;
+}
+
+.myTree {
+  margin: 0;
+  padding: 0;
+}
+
+.myTree .box {
+  cursor: pointer;
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none;
+}
+
+.myTree .box::before {
+  content: "\2610";
+  color: black;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.myTree .check-box::before {
+  content: "\2611";
+  color: dodgerblue;
+}
+
+.myTree .nested {
+  display: none;
+}
+
+.myTree .active {
+  display: block;
+}
+
+.myTree .selected {
+  background-color: #888888;
+}
+

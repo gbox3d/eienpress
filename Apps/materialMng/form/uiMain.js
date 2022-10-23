@@ -1,7 +1,5 @@
 import * as THREE from 'three';
-// import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 import uiMenuBarSetup from './uiMenuBar.js';
-
 import { comFileFindFile, comFileUpload, comFileDelete } from "../../../modules/comLibs/utils.js";
 
 import objectViewerSetup from '../../../modules/elvisPlugins/objectViewer.js';
@@ -9,7 +7,6 @@ import materialListSetup from './materialList.js';
 import materialAttrSetup from './materialAttr.js';
 
 import 'md5';
-// import objMng from '../../../modules/elvisPlugins/objMng.js';
 
 export default async function (_Context) {
 

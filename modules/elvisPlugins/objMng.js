@@ -487,9 +487,7 @@ export default async function ({ scope }) {
 
 
     async function savePrefab({ entity, fileID = null, repo_ip = '', name }) {
-        // const _prefabRoot = selectPrefabRoot(entity);
-        // if (entity.type === 'elvis') {
-
+        
         const _data = entity.toJSON();
 
         const str_data = JSON.stringify(_data);
@@ -625,39 +623,62 @@ export default async function ({ scope }) {
 
     ////////////////////////////////
     //scene 
-    async function saveScene({ entity, name = 'nope' }) {
+    async function saveScene({ entity, name = 'nope',fileID = null, repo_ip = '' }) {
 
         const _entity = entity ? entity : scope.root_dummy;
 
-        let _json = _entity.toJSON();
+        let _data = _entity.toJSON();
 
-        _json.images = [];
-        _json.textures = [];
-        _json.materials = [];
-        // _json.geometries = [];
-        // const object = _json.object
+        console.log(_data)
 
-        console.log(_json);
+        const str_data = JSON.stringify(_data);
 
-        try {
-            const str_data = JSON.stringify(_json);
+        name ? null : name = entity.name;
 
-            const _res = await textDataUpload({
-                name: name,
-                data: str_data,
-                directory: 'scene'
-            })
+        const _res = await textDataUpload({
+            name: name,
+            title: `${name}.scene`,
+            data: str_data,
+            directory: 'scene',
+            id: fileID,
+            repo_ip: repo_ip
+        })
 
-            console.log(_res)
-            return _res
-
+        if (_res.data?.insertedId) {
+            _entity.userData.fileInfo = {
+                id: _res.data?.insertedId,
+                repo_ip: repo_ip
+            }
         }
-        catch (e) {
-            return {
-                r: 'error',
-                msg: 'no prefab root'
-            };
-        }
+        return _res;
+
+        // _json.images = [];
+        // _json.textures = [];
+        // _json.materials = [];
+        // // _json.geometries = [];
+        // // const object = _json.object
+
+        // console.log(_json);
+
+        // try {
+        //     const str_data = JSON.stringify(_json);
+
+        //     const _res = await textDataUpload({
+        //         name: name,
+        //         data: str_data,
+        //         directory: 'scene'
+        //     })
+
+        //     console.log(_res)
+        //     return _res
+
+        // }
+        // catch (e) {
+        //     return {
+        //         r: 'error',
+        //         msg: 'no prefab root'
+        //     };
+        // }
     }
 
     async function loadScene({ fileID, repo_ip }) {
@@ -672,7 +693,11 @@ export default async function ({ scope }) {
         const _loader = new elvisObjLoader(this);
         const obj = await _loader.parseAsync(_jsondata)
 
-        console.log(obj)
+        obj.userData.fileInfo = {
+            id: fileID,
+            repo_ip: repo_ip
+        }
+        
 
         return obj;
     }
@@ -680,6 +705,15 @@ export default async function ({ scope }) {
     return {
         addObject,
         addEntity: addObject,
+        deleteEntity({entity}) {
+            scope.trn_control?.detach(entity);
+            entity.removeFromParent();
+        },
+        attachEntity({entity, parent}) {
+            // attach child while maintaining the child's world transform.
+            scope.scene.attach(entity);
+            parent.attach(entity);
+        },
         addObject_fbx,
         clearObject,
         addPlane,
