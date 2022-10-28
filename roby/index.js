@@ -36,7 +36,7 @@ async function main() {
 
     document.querySelector('#authStatus .logout').addEventListener('click', function () {
         localStorage.removeItem('jwt_token');
-        location.href = '/';
+        location.reload();
     });
 
 

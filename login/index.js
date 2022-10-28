@@ -6,6 +6,10 @@ export default async function () {
     const registerForm = document.querySelector('#register')
     const resultView = document.querySelector('#resultView')
 
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+
     loginForm.querySelector('.register').addEventListener('click', (e) => {
         e.preventDefault()
 
@@ -32,9 +36,7 @@ export default async function () {
             console.log(_result)
             if (_result.r === 'ok') {
                 localStorage.setItem('jwt_token', _result.info.token)
-                // location.href = '/'
-                //back to previous page
-                history.back()
+                location.href = params.redirect || '/'
             }
             else {
                 alert(_result.info)
