@@ -431,7 +431,8 @@ export default async function (_Context) {
         let obj = objViewer.elvis.scene.getObjectByProperty('uuid', item_uuid)
         objViewer.setSelectEntity(obj);
         _attrView.set(obj);
-        // _prefabView.set(obj);
+        _prefabView.set(obj);
+        
         console.log(obj);
 
     });

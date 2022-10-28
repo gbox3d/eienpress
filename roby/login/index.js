@@ -32,9 +32,8 @@ export default async function () {
             console.log(_result)
             if (_result.r === 'ok') {
                 localStorage.setItem('jwt_token', _result.info.token)
-                // location.href = '/'
-                //back to previous page
-                history.back()
+                location.href = '/roby'
+                
             }
             else {
                 alert(_result.info)

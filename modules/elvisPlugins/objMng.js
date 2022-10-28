@@ -10,6 +10,13 @@ import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { comFileFindFile, comFileDownload, comFileUpload, textDataUpload, makeFileObj } from "../comLibs/utils.js";
 import elvisObjLoader from './elvisObjLoader.js';
 
+// const defaultMaterial = new THREE.MeshStandardMaterial({
+//     color: 0xffffff,
+//     metalness: 0.5,
+//     roughness: 0.5,
+// });
+
+
 export default async function ({ scope }) {
 
     const mEntityRepository = {}
@@ -23,6 +30,12 @@ export default async function ({ scope }) {
         roughness: 0.5,
         // map: mDefaultTexture
     });
+
+    const mDefaultWireframeMaterial = new THREE.MeshStandardMaterial({
+        color: 0x00ff00,
+        wireframe: true
+    });
+    
 
     function clearAllRepository() {
 
@@ -73,7 +86,7 @@ export default async function ({ scope }) {
 
                 object.traverse((child) => {
                     if (child.isMesh) {
-                        child.material = scope.defaultMaterial_WF;
+                        child.material = mDefaultWireframeMaterial;
                     }
                 });
 
@@ -196,6 +209,8 @@ export default async function ({ scope }) {
 
         if (!mTextureRepository[textureFile]) {
 
+            // mTextureRepository[textureFile] = {};
+
             let loader = new THREE.TextureLoader();
 
             if (type == 'application/exr') {
@@ -227,7 +242,7 @@ export default async function ({ scope }) {
                     }
                 );
             })
-            console.log(`repo added ${textureFile}`)
+            console.log(`texture repo added ${textureFile}`)
             mTextureRepository[textureFile] = texture;
         }
 
@@ -319,6 +334,8 @@ export default async function ({ scope }) {
             });
             material.displacementMap = _tex;
         }
+
+        console.log(`load matrial ${fileID}`, material);
 
         return material;
     }
@@ -572,7 +589,7 @@ export default async function ({ scope }) {
                         loader = loadGlf;
                     }
 
-                    let child_entity = await await loader({
+                    let child_entity = await loader({
                         fileID: entity.geometryFile.id,
                         repo_ip: entity.geometryFile.repo_ip,
                         onProgress: onProgress
@@ -724,7 +741,7 @@ export default async function ({ scope }) {
         saveGlf,
 
         addMeshObject({ geometry, material, position, rotation, scale, parent }) {
-            const object = new THREE.Mesh(geometry, material ? material : scope.defaultMaterial);
+            const object = new THREE.Mesh(geometry, material ? material : mDefaultStandardMaterial);
             position ? object.position.copy(position) : null;
             rotation ? object.rotation.copy(rotation) : null;
             scale ? object.scale.copy(scale) : null;
@@ -773,7 +790,8 @@ export default async function ({ scope }) {
         saveScene,
         loadScene,
         defaultMaterial: {
-            standard: mDefaultStandardMaterial
+            standard: mDefaultStandardMaterial,
+            wireframe : mDefaultWireframeMaterial
         }
     }
 

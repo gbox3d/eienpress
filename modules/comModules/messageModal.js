@@ -32,6 +32,8 @@ export default function (_Context) {
 
         _Msg.innerText = ''
         _rootElm.style.display = 'none';
+
+        // resolve && resolve();
     }
 
     _rootElm.querySelector('[title="Close Modal"]').addEventListener('click', closeModal);
@@ -40,11 +42,27 @@ export default function (_Context) {
 
     _CloseBtn.addEventListener('click', closeModal);
 
+    
+
     return {
         element: _rootElm,
         show: function ({ msg }) {
             _Msg.innerText = msg
             _rootElm.style.display = 'block';
+
+            // return new Promise(closeModal);
+        },
+        showWait: function ({ msg }) {
+            _Msg.innerText = msg
+            _rootElm.style.display = 'block';
+
+            return new Promise(resolve => {
+                _CloseBtn.removeEventListener('click', closeModal);
+                _CloseBtn.addEventListener('click', () => {
+                    closeModal();
+                    resolve();
+                });
+            } );
         },
         update: function (msg) {
             _Msg.innerText = msg;
