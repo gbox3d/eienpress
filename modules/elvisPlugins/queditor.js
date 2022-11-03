@@ -477,13 +477,9 @@ export default async function ({
 
                 },
                 onKeyUp: function (event) {
-
                     if (this.bEnableKeyInput === true) {
                         this.keyStates[event.code] = false;
-
                     }
-
-
                 }
 
             }

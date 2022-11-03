@@ -17,21 +17,18 @@ export default async function ({
     cameraTarget =new THREE.Vector3() , 
     cameraFov=45, 
     cameraNear=1, cameraFar=15000,
-    isGrid = true
+    isGrid = true,
+    onUpdate
 }) {
 
     console.log(`objectViewer version 1.0.0`);
     console.log(`THREE version ${THREE.REVISION}`);
     console.log(`elvis version ${Elvis.version}`);
-
-    // const Context = option.Context;
-    // let select_node = null;
-    // let onSelectObject = option.onSelectObject;
-    // let onObjectEditChange = option.onObjectEditChange;
-    // let envMapFile = option.envMapFile;
-    // let envMapFileFormat = option.envMapFileFormat ? option.envMapFileFormat : 'hdr';
-
+    
     const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
+
+    let bEnableKeyInput = true;
+    let keyStates = [];
     
     const scope = await new Promise((resolve, reject) => {
 
@@ -59,6 +56,8 @@ export default async function ({
                 const scope = this;
                 this.pauseKeyInput = false;
                 this.select_node = null;
+                this.onUpdate = onUpdate;
+
 
                 scope.userData = {}
 
@@ -141,15 +140,32 @@ export default async function ({
                 },
                 onUpdate: function (event) {
 
-                    this.scene.traverse((node) => {
-                        if(node.gameObject && node.gameObject.update){
-                            node.gameObject.update(event);
-                        }
-                    });
+                    this.onUpdate?.(event);
 
-                    // console.log(this.camera.position)
-                    
+                    // this.scene.traverse((node) => {
+                    //     if(node.gameObject && node.gameObject.update){
+                    //         node.gameObject.update(event);
+                    //     }
+                    // });
                     this.updateAll();
+                },
+                onMouseOver: function (event) {
+                    // console.log('mouse over');
+                    bEnableKeyInput = true;
+                },
+                onMouseLeave: function (event) {
+                    // console.log('mouse leave');
+                    bEnableKeyInput = false;
+                },
+                onKeyDown: function (event) {
+                    if (bEnableKeyInput === true) {
+                        keyStates[event.code] = true;
+                    }
+                },
+                onKeyUp: function (event) {
+                    if (bEnableKeyInput === true) {
+                        keyStates[event.code] = false;
+                    }
                 }
             }
         })
@@ -199,6 +215,15 @@ export default async function ({
         resetCamera : function(){
             scope.camera.position.set(0, 100, 200);
             scope.camera.lookAt(0, 0, 0);
+        },
+        getEnableKeyInput : function(){
+            return bEnableKeyInput;
+        },
+        setEnableKeyInput : function(bEnable){
+            bEnableKeyInput = bEnable;
+        },
+        getKeyStates : function(keyCode){
+            return keyStates[keyCode];
         }
     }
 

@@ -10,6 +10,8 @@ import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
 import { comFileFindFile, comFileDownload, comFileUpload, textDataUpload, makeFileObj } from "../comLibs/utils.js";
 import elvisObjLoader from './elvisObjLoader.js';
 
+import { dummyObject, gameObject } from './gameObject.js';
+
 // const defaultMaterial = new THREE.MeshStandardMaterial({
 //     color: 0xffffff,
 //     metalness: 0.5,
@@ -22,6 +24,7 @@ export default async function ({ scope }) {
     const mEntityRepository = {}
     const mTextureRepository = {}
     const mMaterialRepository = {}
+    const mSceneMng = scope;
 
     // const mDefaultTexture = new THREE.TextureLoader().load('https://threejsfundamentals.org/threejs/resources/images/checker.png');
     const mDefaultStandardMaterial = new THREE.MeshStandardMaterial({
@@ -35,7 +38,7 @@ export default async function ({ scope }) {
         color: 0x00ff00,
         wireframe: true
     });
-    
+
 
     function clearAllRepository() {
 
@@ -504,7 +507,7 @@ export default async function ({ scope }) {
 
 
     async function savePrefab({ entity, fileID = null, repo_ip = '', name }) {
-        
+
         const _data = entity.toJSON();
 
         const str_data = JSON.stringify(_data);
@@ -640,7 +643,7 @@ export default async function ({ scope }) {
 
     ////////////////////////////////
     //scene 
-    async function saveScene({ entity, name = 'nope',fileID = null, repo_ip = '' }) {
+    async function saveScene({ entity, name = 'nope', fileID = null, repo_ip = '' }) {
 
         const _entity = entity ? entity : scope.root_dummy;
 
@@ -714,19 +717,101 @@ export default async function ({ scope }) {
             id: fileID,
             repo_ip: repo_ip
         }
-        
+
 
         return obj;
     }
 
+    ////////////////////////////////
+    //gameobject
+    function initGameObjectSystem() {
+
+        if (scope.gameObj_dummy) {
+            scope.gameObj_dummy.removeFromParent();
+        }
+
+        scope.gameObj_dummy = new THREE.Group();
+        scope.gameObj_dummy.name = 'gameObj_dummy';
+        scope.scene.add(scope.gameObj_dummy);
+
+        scope.onUpdate = function (event) {
+
+            scope.gameObj_dummy?.traverse((child) => {
+                if (child.isElvisGameObject) {
+                    child.update(event);
+                }
+            });
+        }
+        console.log('gameobject system ready')
+
+    }
+
+    function addGameObject({ entity }) {
+        scope.gameObj_dummy.add(entity);
+    }
+
+    function addHostGameObject({ socket, roomName,sceneMng,user }) {
+        let hostObj = new gameObject({ socket, roomName,sceneMng,user });
+        hostObj.name = 'host';
+        // hostObj.remoteSocketId = socket.id;
+
+        addGameObject({
+            entity: hostObj,
+        });
+
+    }
+
+    function addGuestGameObject({ user, socket, roomName,sceneMng,data }) {
+        let remoteObj = new dummyObject({ socket, roomName,sceneMng,user });
+        remoteObj.remoteUser = user;
+        // remoteObj.remoteSocketId = socket.id;
+
+        addGameObject({
+            entity: remoteObj
+        });
+
+        remoteObj.receiveControl(
+            {
+                data: data,
+                user: user
+            }
+        );
+    }
+
+    function removeGameObject({ socketId }) {
+        if(socketId)
+            return scope.gameObj_dummy.getObjectByProperty('socketId', socketId)?.removeFromParent();
+        return null;
+    }
+
+    function removeAllGameObject() {
+
+        while (scope.gameObj_dummy.children.length > 0) {
+            scope.gameObj_dummy.children[0].removeFromParent();
+        }
+
+        // scope.gameObj_dummy.children.forEach((child) => {
+        //     child.removeFromParent();
+        // })
+    }
+
+    function getGameObjectBysocketId({ socketId }) {
+        return scope.gameObj_dummy.getObjectByProperty('socketId', socketId);
+    }
+
+
+
     return {
+        getSceneMng: function () {
+            return mSceneMng;
+        },
         addObject,
         addEntity: addObject,
-        deleteEntity({entity}) {
+        deleteEntity({ entity }) {
             scope.trn_control?.detach(entity);
             entity.removeFromParent();
         },
-        attachEntity({entity, parent}) {
+        attachEntity({ entity, parent }) {
             // attach child while maintaining the child's world transform.
             scope.scene.attach(entity);
             parent.attach(entity);
@@ -746,7 +831,6 @@ export default async function ({ scope }) {
             rotation ? object.rotation.copy(rotation) : null;
             scale ? object.scale.copy(scale) : null;
             parent ? parent.add(object) : scope.root_dummy.add(object);
-            // parent.add(object);
             return object;
         },
         removeObject(id) {
@@ -791,8 +875,16 @@ export default async function ({ scope }) {
         loadScene,
         defaultMaterial: {
             standard: mDefaultStandardMaterial,
-            wireframe : mDefaultWireframeMaterial
-        }
+            wireframe: mDefaultWireframeMaterial
+        },
+        //gameobject
+        initGameObjectSystem,
+        addGameObject,
+        addHostGameObject,
+        addGuestGameObject,
+        getGameObjectBysocketId,
+        removeGameObject,
+        removeAllGameObject
     }
 
 }
