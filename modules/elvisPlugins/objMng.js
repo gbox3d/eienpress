@@ -753,12 +753,9 @@ export default async function ({ scope }) {
     function addHostGameObject({ socket, roomName,sceneMng,user }) {
         let hostObj = new gameObject({ socket, roomName,sceneMng,user });
         hostObj.name = 'host';
-        // hostObj.remoteSocketId = socket.id;
-
         addGameObject({
             entity: hostObj,
         });
-
     }
 
     function addGuestGameObject({ user, socket, roomName,sceneMng,data }) {

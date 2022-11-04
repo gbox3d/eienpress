@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 import uiMenuBarSetup from './uiMenuBar.js';
 
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";

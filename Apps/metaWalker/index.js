@@ -8,8 +8,12 @@ import messageModal from '/modules/comModules/messageModal.js';
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";
 
 import sceneWalkerSetup from '../../modules/elvisPlugins/sceneWalker.js';
-import { walker } from './object/walker.js';
-import objMng from '../../modules/elvisPlugins/objMng.js';
+// import { walker } from './object/walker.js';
+
+import clientSocketSetup from './clientSocket.js';
+import { walkerGameObject } from '../../../modules/elvisPlugins/gameObject.js';
+
+// import objMng from '../../modules/elvisPlugins/objMng.js';
 
 async function main() {
 
@@ -27,7 +31,53 @@ async function main() {
     theApp.waitModal = waitModalSetup(theApp);
     theApp.progressBox = progressBoxSetup(theApp);
     theApp.messageModal = messageModal(theApp);
-    // theApp.objectInfoBox = await objectInfoBoxSetup(theApp);
+
+    theApp.chatWindow = document.querySelector('#chatWindow');
+
+
+    function _addChatMessage(user, message) {
+
+        const _ul = theApp.chatWindow.querySelector('#chatList')
+        const _li = document.createElement('li');
+
+        _li.innerHTML = `${user.userName} : ${message}`;
+        _ul.appendChild(_li);
+        _ul.scrollTop = _ul.scrollHeight;
+    }
+    theApp.chatWindow.querySelector('#chatInput').addEventListener('focusin', (e) => {
+        console.log('focus in');
+        theApp.renderEngine.setEnableKeyInput(false);
+    });
+
+    theApp.chatWindow.querySelector('#chatInput').addEventListener('focusout', (e) => {
+        console.log('focus out');
+        theApp.renderEngine.setEnableKeyInput(true);
+    });
+
+    theApp.chatWindow.querySelector('#chatInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const msg = e.target.value;
+            if (msg) {
+
+                theApp.clientSocket.sendMessage(msg);
+                _addChatMessage(theApp.user, msg);
+            }
+            e.target.value = '';
+        }
+    });
+
+    theApp.chatWindow.querySelector('#chatSend').addEventListener('click', (e) => {
+        console.log('chatSend');
+        const msg = theApp.chatWindow.querySelector('#chatInput').value;
+        if (msg) {
+            theApp.clientSocket.sendMessage(msg);
+            _addChatMessage(theApp.user, msg);
+            
+        }
+        e.target.value = '';
+    });
+
+
 
     try {
         theApp.waitModal.show({
@@ -53,53 +103,119 @@ async function main() {
 
         if (res?.r === 'ok') {
 
-            // loginStatus.innerHTML = `${res.user.userName} 님 환영합니다.`;
-            // theApp.root_path = res.repository + '/' + res.user.userId;
-            // theApp.uiMain = await uiMainSetup(theApp);
+            theApp.userName = res.user.userName;
+            theApp.userId = res.user.userId;
+            theApp.user = res.user;
+            theApp.user.room = theApp.sceneFileId;
 
-            
 
-            // theApp.messageModal.show({
-            //     msg: `${res.user.userName} 님 환영합니다.`
-            // });
 
             // //환경멥 로딩
             let basicEnvMapId = await comFileFindFile({
                 filename: 'basic_envmap'
             });
 
-            const sceneWalker = await sceneWalkerSetup({
+            const renderEngine = await sceneWalkerSetup({
                 Context: theApp,
                 // sceneFileID: params.gid,
                 envMapFile: basicEnvMapId,
                 onSelectObject: (obj) => {
-                    console.log(obj);
+                    console.log(obj.parent.name);
                 }
             });
 
-            //scene 로딩
-            sceneWalker.objMng.clearObject();
+            renderEngine.objMng.initGameObjectSystem();
 
-            const scene = await sceneWalker.objMng.loadScene({
-                fileID: params.gid,
-                repo_ip: theApp.host_url
+            //socket io setup
+            theApp.clientSocket = await clientSocketSetup({
+                renderEngine,
+                ioServerUrl: 'http://gears001.iptime.org:21041',
+                onMessage: (evt) => {
+                    _addChatMessage(evt.user, evt.msg);
+                }
             });
 
-            console.log(scene);
+            const socket = theApp.clientSocket.socket;
+            //join server
+            {
 
-            sceneWalker.objMng.addEntity({
-                entity:scene,
-            })
+                let result = await new Promise((resolve, reject) => {
+                    socket.emit('join', {
+                        userId: theApp.userId,
+                        userName: theApp.userName
+                    }, (evt) => {
+                        resolve(evt);
 
-            console.log(sceneWalker);
-            const player = new walker({
-                engine: sceneWalker,
-                playerHeight : 120,
-                playerWidth : 5
-            });
-            sceneWalker.addObjectList(player);
+                    });
+                });
 
-            theApp.sceneWalker = sceneWalker;
+                console.log('join server ', result);
+
+
+                if (result.r !== 'ok') {
+                    // theApp.waitModal.hide();
+                    theApp.messageModal.show({
+                        msg: 'server connection error'
+                    });
+
+                    return;
+                }
+            }
+
+            //enter room
+            {
+                let result = await new Promise((resolve, reject) => {
+                    socket.emit('enterRoom', theApp.sceneFileId, (evt) => {
+                        resolve(evt);
+                    });
+                });
+                //join room success
+                console.log('enter room', result);
+
+                theApp.clientSocket.setUserInfo({
+                    userId: theApp.userId,
+                    userName: theApp.userName,
+                    room: theApp.sceneFileId
+                });
+
+                if (result.r === 'ok') {
+
+                    //scene 로딩
+                    renderEngine.objMng.clearObject();
+                    const scene = await renderEngine.objMng.loadScene({
+                        fileID: theApp.sceneFileId,
+                        repo_ip: theApp.host_url
+                    });
+
+                    console.log(scene);
+
+                    renderEngine.objMng.addEntity({
+                        entity: scene,
+                    })
+
+                    console.log(renderEngine);
+
+                    const hostPlayer = new walkerGameObject({
+                        engine: renderEngine,
+                        playerHeight: 25,
+                        playerWidth: 5,
+                        socket: socket,
+                        user: theApp.user
+                    });
+                    renderEngine.objMng.addGameObject({
+                        entity: hostPlayer,
+                    });
+
+                    theApp.renderEngine = renderEngine;
+
+                }
+                else {
+                    theApp.messageModal.show({
+                        msg: 'room enter error'
+                    });
+                    return
+                }
+            }
 
             theApp.waitModal.close();
         }
@@ -116,7 +232,7 @@ async function main() {
 
 
         }
-    
+
     }
     catch (e) {
         console.log(e);

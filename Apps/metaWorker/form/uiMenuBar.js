@@ -1,5 +1,3 @@
-//import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
-
 import 'md5';
 
 
@@ -37,6 +35,8 @@ export default async function (_Context) {
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" data-mid='copy' >Copy</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='paste' >Paste</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='clone' >clone</a>
+
                 <a href="#" class="w3-bar-item w3-button" data-mid='clrCursor' >Clear Cursor</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='del' >Delete</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='resolveAll' >Resolve All</a>

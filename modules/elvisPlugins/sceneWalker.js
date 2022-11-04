@@ -81,6 +81,7 @@ export default async function setup({ container, onSelectObject,
 
     const objectList = [];
     let hostPlayer = null;
+    let bEnableKeyInput = true;
 
     const elvis = await new Promise((resolve, reject) => {
         new Elvis(
@@ -102,8 +103,6 @@ export default async function setup({ container, onSelectObject,
                     }
                 },
                 setup: async function () {
-
-
 
                     //초기화 코드는 여기에서 코딩한다.
                     const scope = this;
@@ -183,33 +182,33 @@ export default async function setup({ container, onSelectObject,
 
 
                         //cube cursor setup
-                        {
-                            const dir = new THREE.Vector3(0, -1, 0);
-                            const length = 10;
-                            //normalize the direction vector (convert to vector of length 1)
-                            dir.normalize();
+                        // {
+                        //     const dir = new THREE.Vector3(0, -1, 0);
+                        //     const length = 10;
+                        //     //normalize the direction vector (convert to vector of length 1)
+                        //     dir.normalize();
 
-                            const _helper = new THREE.ArrowHelper(
-                                dir,
-                                new THREE.Vector3(0, 0, 0),
-                                length,
-                                0xff0000,
-                                5,
-                                5
-                            );
-                            _helper.name = 'helper';
+                        //     const _helper = new THREE.ArrowHelper(
+                        //         dir,
+                        //         new THREE.Vector3(0, 0, 0),
+                        //         length,
+                        //         0xff0000,
+                        //         5,
+                        //         5
+                        //     );
+                        //     _helper.name = 'helper';
 
-                            this.cubeCorsor = new THREE.Group();
-                            this.cubeCorsor.name = 'cubeCursor';
-                            this.cubeCorsor.add(_helper);
-                            let _container = new THREE.Group();
-                            _container.name = 'cubeCursorContainer';
-                            this.cubeCorsor.add(_container);
+                        //     this.cubeCorsor = new THREE.Group();
+                        //     this.cubeCorsor.name = 'cubeCursor';
+                        //     this.cubeCorsor.add(_helper);
+                        //     let _container = new THREE.Group();
+                        //     _container.name = 'cubeCursorContainer';
+                        //     this.cubeCorsor.add(_container);
 
-                            this.cubeCorsor.visible = false;
-                            this.scene.add(this.cubeCorsor);
+                        //     this.cubeCorsor.visible = false;
+                        //     this.scene.add(this.cubeCorsor);
 
-                        }
+                        // }
 
 
                         //setup complete
@@ -242,17 +241,19 @@ export default async function setup({ container, onSelectObject,
                     },
                     onUpdate: function (event) {
 
-                        if(this.camera.rotation.x < -Math.PI/4) {
-                            this.camera.rotation.x = -Math.PI/4;
+                        if (this.camera.rotation.x < -Math.PI / 4) {
+                            this.camera.rotation.x = -Math.PI / 4;
                         }
-                        if(this.camera.rotation.x > Math.PI/4) {
-                            this.camera.rotation.x = Math.PI/4;
+                        if (this.camera.rotation.x > Math.PI / 4) {
+                            this.camera.rotation.x = Math.PI / 4;
                         }
 
+                        this.onUpdate?.(event); //외부에서 등록한 콜백함수가 있다면 호출한다.
 
-                        objectList.forEach((obj) => {
-                            obj.update(event);
-                        });
+
+                        // objectList.forEach((obj) => {
+                        //     obj.update(event);
+                        // });
                         this.updateAll();
 
                     },
@@ -267,21 +268,20 @@ export default async function setup({ container, onSelectObject,
                             m_mousePointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
                             m_rayCaster.setFromCamera(m_mousePointer, this.camera);
 
-                            console.log('tap event',m_mousePointer)
+                            console.log('tap event', m_mousePointer)
 
                             let intersects = m_rayCaster.intersectObjects(this.root_dummy.children);
                             if (intersects.length > 0) {
-                                console.log(intersects[0]);
-
+                                // console.log(intersects[0]);
                                 //find dummy parent
-                                let dummyParent = intersects[0].object.parent;
-                                while (dummyParent.userData.isDummy !== true && dummyParent.parent) {
-                                    dummyParent = dummyParent.parent;
-                                }
+                                // let dummyParent = intersects[0].object.parent;
+                                // while (dummyParent.userData.isDummy !== true && dummyParent.parent) {
+                                //     dummyParent = dummyParent.parent;
+                                // }
 
-                                onSelectObject(dummyParent);
+                                onSelectObject(intersects[0].object);
 
-                                this.cubeCorsor.position.copy(intersects[0].point);
+                                // this.cubeCorsor.position.copy(intersects[0].point);
                             }
                         }
 
@@ -290,17 +290,14 @@ export default async function setup({ container, onSelectObject,
                     onMouseMove: function (event) {
 
                         if (bDrag) {
-                            
+
                             //yaw
                             this.camera.rotation.y -= event.movementX / 500;
 
                             //pitch
                             let _x = this.camera.rotation.x;
                             _x -= event.movementY / 500;
-                            // console.log( _x)
-                            // if (_x < -2.5 && _x > -4.5) {
                             this.camera.rotation.x = _x;
-                            // }
 
                         }
                         bTaped = false;
@@ -338,7 +335,9 @@ export default async function setup({ container, onSelectObject,
                     },
 
                     onKeyDown: function (event) {
-                        keyStates[event.code] = true;
+                        if (bEnableKeyInput) {
+                            keyStates[event.code] = true;
+                        }
                     },
                     onKeyUp: function (event) {
                         keyStates[event.code] = false;
@@ -358,6 +357,14 @@ export default async function setup({ container, onSelectObject,
     return {
         elvis: elvis,
         objMng: objMng,
+        setEnableKeyInput: function (b) {
+            if(b === false){
+                for(let k in keyStates){
+                    keyStates[k] = false;
+                }
+            }
+            bEnableKeyInput = b;
+        },
         getHostPlayer: function () {
             return hostPlayer
         },
@@ -372,6 +379,9 @@ export default async function setup({ container, onSelectObject,
         },
         getKeyStatus() {
             return keyStates;
+        },
+        getDragStatus() {
+            return bDrag;
         },
         addObjectList(obj) {
             objectList.push(obj);

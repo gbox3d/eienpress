@@ -237,6 +237,4 @@ export class walker extends THREE.EventDispatcher {
 
     }
 
-
-
 }

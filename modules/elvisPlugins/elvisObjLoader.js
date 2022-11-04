@@ -167,7 +167,7 @@ class loader extends THREE.ObjectLoader {
 
 			object = this.parseElvisObject(data, geometries, materials, textures, animations);
 
-			console.log(`geomery : ${object.geometryFile?.id}, material : ${object.materialFile?.id}`)
+			// console.log(`geomery : ${object.geometryFile?.id}, material : ${object.materialFile?.id}`)
 
 		}
 		else {
