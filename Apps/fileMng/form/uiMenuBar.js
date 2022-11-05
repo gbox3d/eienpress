@@ -26,6 +26,21 @@ export default async function (_Context) {
             </div>
         </div>
         
+        <div class="w3-dropdown-click">
+            <button class="w3-button">Dir</button>
+            <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" data-mid='envmap' >envmap</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='model' >model</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='texture' >texture</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='sound' >sound</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='video' >video</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='script' >script</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='text' >text</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='material' >material</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='prefab' >prefab</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='scene' >scene</a>
+            </div>
+        </div>
     </div>
     `;
 

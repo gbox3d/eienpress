@@ -1,15 +1,15 @@
-import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
+// import { comFileUpdate,makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 
 import 'md5';
 
 
-export default async function (_Context) {
+export default async function (_Context,onSubmit) {
 
     const _htmlText = `
     <div class="ui-view">
         <form class='w3-container file-info'>
             <label>id</label>
-            <input class="w3-input" type="text" name='id'>
+            <input class="w3-input" type="text" name='id' disabled >
             <label>creator</label>
             <input class="w3-input" type="text" name='creator'>
             <label>title</label>
@@ -20,20 +20,21 @@ export default async function (_Context) {
             <input class="w3-input" type="text" name='directory'>
             <input class="w3-check w3-margin-top" type="checkbox" checked="checked" name='isPublic'> public <br><br>
             <label>created</label>
-            <input class="w3-input" type="text" name='created'>
+            <input class="w3-input" type="text" name='created' disabled>
             <label>file type</label>
-            <input class="w3-input" type="text" name='file_type'>
+            <input class="w3-input" type="text" name='file_type' disabled>
             <label>file size</label>
-            <input class="w3-input" type="text" name='file_size'>
+            <input class="w3-input" type="text" name='file_size' disabled>
             <label>source name</label>
-            <input class="w3-input" type="text" name='src_name'>
+            <input class="w3-input" type="text" name='src_name' disabled>
             <label>file path</label>
-            <input class="w3-input" type="text" name='file_path'>
+            <input class="w3-input" type="text" name='file_path' disabled>
             <label>file md5</label>
-            <input class="w3-input" type="text" name='file_md5'>
+            <input class="w3-input" type="text" name='file_md5' disabled>
             <label>repoitory address</label>
             <input class="w3-input" type="text" name='repo_ip'>
-                
+
+            <button class="w3-button w3-blue w3-margin-top" type='submit'> change </button>
         </form>
     </div>
     `;
@@ -48,6 +49,38 @@ export default async function (_Context) {
     _rootElm.style.overflow ='auto';
     
     console.log('complete setup uiMain');
+
+    const _form = _rootElm.querySelector('form');
+
+    _form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        onSubmit?.({
+            id: _form.id.value,
+            changeData : {
+                title : _form.title.value,
+                description : _form.description.value,
+                directory : _form.directory.value,
+                repo_ip : _form.repo_ip.value
+            }
+        });
+
+        // console.log(_form.title.value);
+
+        // let res = await comFileUpdate({
+        //     hostUrl: host_url,
+        //     id: _form.id.value,
+        //     changeData : {
+        //         title : _form.title.value,
+        //         description : _form.description.value,
+        //         directory : _form.directory.value,
+        //         repo_ip : _form.repo_ip.value
+        //     }
+        // });
+
+        // console.log(res);
+
+    });
 
     return {
         element: _rootElm,

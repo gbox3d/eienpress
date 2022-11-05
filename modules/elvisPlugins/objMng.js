@@ -219,7 +219,7 @@ export default async function ({ scope }) {
             if (type == 'application/exr') {
                 loader = new EXRLoader();
             }
-            else if (type == 'application/hdr') {
+            else if (type == 'application/hdr' || type == 'image/pict') {
                 loader = new RGBELoader();
             }
             else {
@@ -350,6 +350,32 @@ export default async function ({ scope }) {
         }
     }
 
+    //envmap
+    async function setEnvMap({
+        file_id,
+        repo_ip,
+        type,
+        onProgress,
+        bShow = true
+    }) {
+
+        const texture = await loadTexture({
+            textureFile: file_id,
+            onProgress: onProgress ? onProgress : null,
+            repo_ip: repo_ip,
+            type: type
+        });
+
+        console.log('load complete')
+
+        texture.mapping = THREE.EquirectangularReflectionMapping;
+        bShow ? scope.scene.background = texture :  scope.scene.background = null;
+        scope.scene.environment = texture;
+        //사용자변수 등록 
+        scope.userData.envMapTexure = texture;
+    }
+
+    //scene entity
 
     function setMaterialToEntity({ entity, material, materialFile }) {
 
@@ -381,11 +407,12 @@ export default async function ({ scope }) {
         // });
     }
 
-    const addObject_fbx = async function ({ file_id, material = null, repo_ip }) {
+    const addObject_fbx = async function ({ file_id, repo_ip,onProgress }) {
         let _obj = await loadFbx({
-            modelFile: file_id,
-            material: material,
-            repo_ip: repo_ip
+            fileID: file_id,
+            // material: material,
+            repo_ip: repo_ip,
+            onProgress
         });
         if (_obj) {
             console.log(_obj)
@@ -859,6 +886,8 @@ export default async function ({ scope }) {
         loadMaterial,
         disposeMaterial,
         setMaterialToEntity,
+
+        setEnvMap,
 
         //prefab
         selectPrefabRoot,

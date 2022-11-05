@@ -1,9 +1,10 @@
-import { makeFormBody,comFileDownload, comFileDelete, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
+import { comFileUpdate, comFileDownload, comFileDelete, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 
 import 'md5';
 
 import uiFileListSetup from "./uiFileList.js";
 import uiFileInfoSetup from "./uiFileInfo.js";
+// import objMng from "../../../modules/elvisPlugins/objMng.js";
 
 
 export default async function (_Context) {
@@ -22,7 +23,25 @@ export default async function (_Context) {
     const _fileListView = await uiFileListSetup(_Context);
     _rootElm.querySelector('.filelist-container').appendChild(_fileListView.element);
 
-    const _fileInfoView = await uiFileInfoSetup(_Context);
+    const _fileInfoView = await uiFileInfoSetup(_Context, async (data) => {
+
+        _Context.waitModal.show({
+            msg: 'connect...'
+        })
+
+        let res = await comFileUpdate({
+            hostUrl: host_url,
+            id: data.id,
+            changeData: data.changeData
+        });
+
+        console.log(res);
+
+        _Context.waitModal.close();
+
+
+        _fileListView.updateList();
+    });
     _rootElm.querySelector('.fileinfo-container').appendChild(_fileInfoView.element);
 
     const host_url = _Context.host_url;
@@ -50,7 +69,7 @@ export default async function (_Context) {
                                         // console.log(file);
                                         resolve(data);
                                     },
-                                    directory : _fileListView.getSelectedDirectory()
+                                    directory: _fileListView.getSelectedDirectory()
                                 });
                             });
 
@@ -91,14 +110,14 @@ export default async function (_Context) {
                         {
                             let items = _fileListView.getSelectedItem();
 
-                            
+
 
                             for (let i = 0; i < items.length; i++) {
                                 const _id = items[i].dataset._id;
                                 const fileName = items[i].dataset.fileName;
-                                
+
                                 let resp = await comFileDownload({
-                                    fileID : _id
+                                    fileID: _id
                                 });
 
                                 let _blob = await resp.blob()
@@ -113,10 +132,10 @@ export default async function (_Context) {
                                 a.click();
                                 window.URL.revokeObjectURL(url);
 
-                                
+
                             }
 
-                            
+
 
 
                             /*
@@ -171,35 +190,6 @@ export default async function (_Context) {
 
                             _Context.progressBox.closeDelay(200);
                             await _fileListView.updateList();
-
-                            /*
-                            const select_Item = _fileListView.getSelection();
-                            if (select_Item) {
-                                const _id = select_Item.dataset._id;
-                                
-                                try {
-                                    let res = await (await (fetch(`${host_url}/com/file/delete/${_id}`, {
-                                        method: 'GET',
-                                        headers: {
-                                            'Content-Type': 'application/text',
-                                            'authorization': localStorage.getItem('jwt_token')
-                                        }
-                                    }))).json();
-        
-                                    console.log(res)
-                                    if (res.r === 'ok') {
-                                        _Context.objViewer.objMng.clearObject();
-                                        await _fileListView.updateList();
-                                        
-                                        // await _updateList();
-                                    }
-                                }
-                                catch (err) {
-                                    console.log(err)
-                                }
-                            }
-                            */
-
                         }
                         break;
                 }
@@ -235,6 +225,11 @@ export default async function (_Context) {
                         }
                         break;
                 }
+            }
+            else if (btnName === 'Dir') {
+                const selDir = menuName;
+                _fileListView.changeDirectory(selDir);
+                await _fileListView.updateList();
             }
         }
         catch (e) {
@@ -272,9 +267,10 @@ export default async function (_Context) {
                 _fileInfoView.setData(res.data);
 
                 let _type = res.data.fileType.split('/')
+                const objMng = _Context.objViewer.objMng;
 
                 if (_type[0] === 'image') {
-                    let _tex = await _Context.objViewer.objMng.loadTexture({
+                    let _tex = await objMng.loadTexture({
                         textureFile: res.data._id,
                         repo_ip: res.data.repo_ip,
                         onProgress: (progress) => {
@@ -285,7 +281,7 @@ export default async function (_Context) {
 
                     console.log(_tex.source.data.width)
 
-                    _Context.objViewer.objMng.addPlane({
+                    objMng.addPlane({
                         width: _tex.source.data.width,
                         height: _tex.source.data.height,
                         map: _tex,
@@ -294,25 +290,48 @@ export default async function (_Context) {
                     console.log(_tex);
                 }
                 else if (_type[0] === 'application') {
-                    if (_type[1] === 'fbx') {
 
-                        let _obj = await _Context.objViewer.objMng.addObject_fbx({
-                            file_id: res.data._id,
-                            repo_ip: res.data.repo_ip,
-                            onProgress: (progress) => {
-                                console.log(progress)
-                                _Context.progressBox.update(progress);
+
+
+                    switch (_type[1]) {
+                        case 'fbx':
+                            // if (_type[1] === 'fbx') 
+                            {
+
+                                let _obj = await objMng.addObject_fbx({
+                                    file_id: res.data._id,
+                                    repo_ip: res.data.repo_ip,
+                                    onProgress: (progress) => {
+                                        console.log(progress)
+                                        _Context.progressBox.update(progress);
+                                    }
+                                });
+                                if (!_obj) {
+                                    _Context.messageModal.show({
+                                        msg: 'file load error : ' + res.data._id
+                                    });
+                                }
                             }
-                        });
-                        if (!_obj) {
-                            _Context.messageModal.show({
-                                msg: 'file load error : ' + res.data._id
-                            });
-                        }
+                            break;
+                        case 'hdr':
+                        case 'exr':
+                            {
+                                objMng.setEnvMap({
+                                    file_id: res.data._id,
+                                    repo_ip: res.data.repo_ip,
+                                    type: res.data.fileType,
+                                    onProgress: (progress) => {
+                                        console.log(progress)
+                                        _Context.progressBox.update(progress);
+                                    }
+                                });
+                            }
+                            break;
+
                     }
+                    await _Context.progressBox.closeDelay(300);
+                    // _Context.progressBox.close()
                 }
-                await _Context.progressBox.closeDelay(300);
-                // _Context.progressBox.close()
             }
         }
         catch (err) {

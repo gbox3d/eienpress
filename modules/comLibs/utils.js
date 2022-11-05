@@ -94,7 +94,6 @@ async function comFileFindFile({ hostUrl = '', filename = 'basic_envmap' }) {
         let res = await (await (fetch(`${hostUrl}/com/file/list`, {
             method: 'POST',
             headers: {
-                // 'Content-Type': 'application/json',
                 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                 'authorization': localStorage.getItem('jwt_token')
             },
@@ -107,14 +106,15 @@ async function comFileFindFile({ hostUrl = '', filename = 'basic_envmap' }) {
         // console.log(res);
         if (res.r === 'ok') {
             if (res.data.length > 0) {
-                _id = res.data[0]._id;
+                // _id = res.data[0]._id;
+                console.log('find file', res.data);
+                return res.data;
             }
             else {
                 return null
-                // theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
             }
         }
-        return _id;
+        
 
     }
     catch (e) {
@@ -150,6 +150,22 @@ async function comFileDelete({id,host_url=''}) {
 
     return res;
 }
+
+async function comFileUpdate({id,host_url='',changeData}) {
+
+    let res = await (await (fetch(`${host_url}/com/file/update/${id}`, {
+        method: 'POST',
+        body: JSON.stringify(changeData),
+        headers: {
+            'Content-Type': 'application/json',
+            'authorization': localStorage.getItem('jwt_token')
+        }
+    }))).json();
+
+    return res;
+
+}
+
 
 
 
@@ -208,6 +224,7 @@ export {
     comFileFindFile,
     comFileGetDetail,
     comFileDelete,
+    comFileUpdate,
 
     makeFormBody,
     get_file_list,

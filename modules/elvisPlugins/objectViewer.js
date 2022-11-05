@@ -25,7 +25,7 @@ export default async function ({
     console.log(`THREE version ${THREE.REVISION}`);
     console.log(`elvis version ${Elvis.version}`);
     
-    const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
+    // const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
 
     let bEnableKeyInput = true;
     let keyStates = [];
@@ -72,43 +72,43 @@ export default async function ({
                     scope.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
                     //tone map setup
-                    if (envMapFile) {
-                        let texture = await new Promise((resolve, reject) => {
-                            // new RGBELoader()
-                            // new EXRLoader()
-                            _HDRILoader
-                                .setPath('/com/file/download/pub/')
-                                .load(envMapFile, function (texture) {
-                                    return resolve(texture);
-                                },
-                                    function (xhr) {
-                                        // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                                    },
-                                    function (err) {
-                                        console.log(err);
-                                        return reject(err);
-                                    });
-                        });
+                    // if (envMapFile) {
+                    //     let texture = await new Promise((resolve, reject) => {
+                    //         // new RGBELoader()
+                    //         // new EXRLoader()
+                    //         _HDRILoader
+                    //             .setPath('/com/file/download/pub/')
+                    //             .load(envMapFile, function (texture) {
+                    //                 return resolve(texture);
+                    //             },
+                    //                 function (xhr) {
+                    //                     // console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                    //                 },
+                    //                 function (err) {
+                    //                     console.log(err);
+                    //                     return reject(err);
+                    //                 });
+                    //     });
 
-                        console.log('load complete')
+                    //     console.log('load complete')
 
-                        texture.mapping = THREE.EquirectangularReflectionMapping;
-                        // scope.scene.background = texture;
-                        scope.scene.environment = texture;
+                    //     texture.mapping = THREE.EquirectangularReflectionMapping;
+                    //     scope.scene.background = texture;
+                    //     scope.scene.environment = texture;
 
-                        //사용자변수 등록 
-                        scope.userData.envMapTexure = texture;
-                    }
+                    //     //사용자변수 등록 
+                    //     scope.userData.envMapTexure = texture;
+                    // }
 
-                    {
-                        scope.defaultMaterial = new THREE.MeshStandardMaterial({
-                            color: 0xffffff,
-                            metalness: 0.5,
-                            roughness: 0.5
-                            // transparent: true,
-                            // opacity: 0.5
-                        });
-                    }
+                    // {
+                    //     scope.defaultMaterial = new THREE.MeshStandardMaterial({
+                    //         color: 0xffffff,
+                    //         metalness: 0.5,
+                    //         roughness: 0.5
+                    //         // transparent: true,
+                    //         // opacity: 0.5
+                    //     });
+                    // }
 
 
                     
@@ -120,13 +120,12 @@ export default async function ({
                     orbitControl.update();
                     this.orbitControl = orbitControl;
 
-
                     //dummy object setup
                     this.root_dummy = new THREE.Group();
                     this.scene.add(this.root_dummy);
 
                     //setup complete
-                    this.startRender();
+                    // this.startRender();
                     resolve(this);
                 }
                 catch (e) {
@@ -184,6 +183,9 @@ export default async function ({
     const objMng = await ObjectMngSetup({
         scope : scope
     });
+
+    // objMng.setEnvMap(scope.userData.envMapTexure);
+    // scope.startRender();
 
     return {
         elvis: scope,

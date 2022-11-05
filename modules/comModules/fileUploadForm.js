@@ -79,8 +79,23 @@ export default function (_Context) {
         _fileTypeInput.value = evt.target.files[0].type;
 
         // get ext type
-        if(_fileTypeInput.value === ''){
-            const ext = evt.target.files[0].name.split('.').pop();
+        const ext = evt.target.files[0].name.split('.').pop();
+
+        if(ext == 'jpg' || ext == 'png' || ext == 'gif' || ext == 'jpeg') {
+            _directoryInput.value = 'texture';
+        } else if(ext == 'mp4' || ext == 'avi' || ext == 'mov') {
+            _directoryInput.value = 'video';
+        } else if(ext == 'mp3' || ext == 'wav') {
+            _directoryInput.value = 'audio';
+        } else if(ext == 'obj' || ext == 'fbx' || ext == 'dae') {
+            _directoryInput.value = 'model';
+        } else if(ext == 'hdr' || ext == 'exr') {
+            _directoryInput.value = 'envmap';
+        } else {
+            _directoryInput.value = '';
+        }
+        
+        if(_fileTypeInput.value === '') {
             _fileTypeInput.value = `application/${ext}`;
         }
 

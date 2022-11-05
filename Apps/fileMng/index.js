@@ -64,52 +64,36 @@ async function main() {
             theApp.root_path = res.repository + '/' + res.user.userId;
             console.log(theApp.root_path);
 
-
-            // theApp.objectReg = objectRegSetup(theApp);
-            // theApp.attrEditor = attrEditorSetup(theApp);
-
             theApp.uiMenuBar = await uiMenuBarSetup(theApp);
             theApp.uiMain = await uiMainSetup(theApp);
 
-
-
-            // let basicEnvMapId = null;
-            // {
-            //     let res = await (await (fetch(`/com/file/list`, {
-            //         method: 'POST',
-            //         headers: {
-            //             // 'Content-Type': 'application/json',
-            //             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-            //             'authorization': localStorage.getItem('jwt_token')
-            //         },
-            //         body: makeFormBody({
-            //             userId: 'all',
-            //             title: 'basic_envmap'
-            //         })
-            //     }))).json();
-
-            //     // console.log(res);
-            //     if (res.r === 'ok') {
-            //         if (res.data.length > 0) {
-            //             basicEnvMapId = res.data[0]._id;
-
-            //         }
-            //         else {
-            //             theApp.messageModal.show({ msg: '기본 환경맵이 없습니다. (basic_envmap)' });
-            //         }
-            //     }
-
-            // }
-            const basicEnvMapId = await comFileFindFile({
-                filename: 'basic_envmap'
-            })
+            
 
             theApp.objViewer = await objectViewerSetup({
                 Context: theApp,
                 container: glWindow,
                 // envMapFileFormat : '', // exr, hdr, pic , default : hdr
-                envMapFile: basicEnvMapId,
+                // envMapFile: basicEnvMapId,
             });
+
+            const basicEnvMap = await comFileFindFile({
+                filename: 'basic_envmap'
+            })
+
+            console.log(basicEnvMap);
+
+            await theApp.objViewer.objMng.setEnvMap({
+                type : basicEnvMap[0].fileType,
+                file_id : basicEnvMap[0]._id,
+                repo_ip : basicEnvMap[0].repo_ip,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    // _Context.progressBox.update(progress);
+                },
+                bShow : true
+            });
+
+            theApp.objViewer.elvis.startRender();
 
             theApp.waitModal.close();
 
