@@ -72,7 +72,7 @@ async function main() {
         if (msg) {
             theApp.clientSocket.sendMessage(msg);
             _addChatMessage(theApp.user, msg);
-            
+
         }
         e.target.value = '';
     });
@@ -118,11 +118,29 @@ async function main() {
             const renderEngine = await sceneWalkerSetup({
                 Context: theApp,
                 // sceneFileID: params.gid,
-                envMapFile: basicEnvMapId,
+                // envMapFile: basicEnvMapId,
                 onSelectObject: (obj) => {
                     console.log(obj.parent.name);
                 }
             });
+
+            //환경멥 세팅 
+            {
+                const basicEnvMap = await comFileFindFile({
+                    filename: 'basic_envmap'
+                });
+
+                await renderEngine.objMng.setEnvMap({
+                    type: basicEnvMap[0].fileType,
+                    file_id: basicEnvMap[0]._id,
+                    repo_ip: basicEnvMap[0].repo_ip,
+                    onProgress: (progress) => {
+                        // console.log(progress)
+                        // _Context.progressBox.update(progress);
+                    },
+                    bShow: true
+                });
+            }
 
             renderEngine.objMng.initGameObjectSystem();
 
