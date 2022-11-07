@@ -35,16 +35,12 @@ async function main() {
             body_container: document.querySelector('.body-container'),
             // modalContainer: document.querySelector('.modal-container')
         }
-
         
         theApp.progressBox = progressBoxSetup(theApp);
         theApp.waitModal = waitModalSetup(theApp);
         theApp.messageModal = messageModal(theApp);
         theApp.fileSelectBox = fileSelectBoxSetup(theApp);
         
-        
-        
-
         theApp.waitModal.show({
             msg: 'connecting to server...'
         })
@@ -65,34 +61,6 @@ async function main() {
             loginStatus.innerHTML = `${res.user.userName} 님 환영합니다.`;
             theApp.root_path = res.repository + '/' + res.user.userId;
             theApp.uiMain = await uiMainSetup(theApp);
-
-
-            // theApp.uiMenuBar = await uiMenuBarSetup(theApp);
-            // theApp.uiMain = await uiMainSetup(theApp);
-
-            // //환경멥 로딩
-            // let basicEnvMapId = await comFileFindFile({
-            //     filename : 'basic_envmap'
-            // });
-
-            // theApp.objViewer = await objectViewerSetup({
-            //     Context: theApp,
-            //     container: glWindow,
-            //     envMapFile: basicEnvMapId,
-            //     cameraPosition : new THREE.Vector3(-169, -62, -140),
-            //     isGrid : false
-            // });
-
-            // const geometry = new THREE.TorusGeometry(30,
-            //     10, 30, 30);
-            // const gameobject = theApp.objViewer.elvis.createGameObject({
-            //     geometry: geometry,
-            //     material: theApp.objViewer.elvis.defaultMaterial
-            // });
-
-            // theApp.objViewer.elvis.root_dummy.add(gameobject.entity);
-            // theApp.objViewer.showEnvMap(true);
-
 
             theApp.waitModal.close();
 

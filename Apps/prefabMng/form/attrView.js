@@ -2,7 +2,7 @@ import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLi
 import 'md5';
 import * as THREE from 'three';
 
-export default async function (_Context, container) {
+export default async function (_Context, container,onChange) {
 
     const _htmlText = `
     <div class="ui-view w3-container">
@@ -138,6 +138,8 @@ export default async function (_Context, container) {
     _rootElm.style.overflow = 'auto';
     _rootElm.style.border = '1px solid #ccc';
 
+    
+
     function _set(entity) {
         // const _form = _rootElm.querySelector('form');
 
@@ -146,18 +148,18 @@ export default async function (_Context, container) {
 
         _form.uuid.value = entity.uuid;
         _form.type.value = entity.type;
-        _form.positionX.value = entity.position.x;
-        _form.positionY.value = entity.position.y;
-        _form.positionZ.value = entity.position.z;
+        _form.positionX.value = _.round(entity.position.x,3);
+        _form.positionY.value = _.round(entity.position.y,2);
+        _form.positionZ.value = _.round(entity.position.z,2);
 
-        _form.rotationX.value = THREE.MathUtils.radToDeg(entity.rotation.x);
-        _form.rotationY.value = THREE.MathUtils.radToDeg(entity.rotation.y);
-        _form.rotationZ.value = THREE.MathUtils.radToDeg(entity.rotation.z);
+        _form.rotationX.value = _.round(THREE.MathUtils.radToDeg(entity.rotation.x),2);
+        _form.rotationY.value = _.round(THREE.MathUtils.radToDeg(entity.rotation.y),2);
+        _form.rotationZ.value = _.round(THREE.MathUtils.radToDeg(entity.rotation.z),2);
 
         //scale
-        _form.scaleX.value = entity.scale.x;
-        _form.scaleY.value = entity.scale.y;
-        _form.scaleZ.value = entity.scale.z;
+        _form.scaleX.value = _.round(entity.scale.x,2);
+        _form.scaleY.value = _.round(entity.scale.y,2);
+        _form.scaleZ.value = _.round(entity.scale.z,2);
 
         //shadow
         _form.castShadow.checked = entity.castShadow;
@@ -249,73 +251,9 @@ export default async function (_Context, container) {
         const uuid = _form.uuid.value;
         const entity = _Context.objViewer.elvis.scene.getObjectByProperty('uuid', uuid);
         _update(entity);
+        onChange?.(entity);
     });
 
-    // _form.querySelector('button[name=materialBtn]').addEventListener('click', async (evt) => {
-    //     evt.preventDefault();
-    //     const uuid = _form.uuid.value;
-    //     const entity = _Context.objViewer.elvis.scene.getObjectByProperty('uuid', uuid);
-
-    //     if (entity.isMesh || entity.isElvisObject3D) {
-            
-    //         let selectFile = await new Promise((resolve, reject) => {
-    //             _Context.fileSelectBox.show(
-    //                 (evt) => {
-    //                     // console.log(evt);
-    //                     resolve(evt);
-    //                 },
-    //                 'material'
-    //             )
-    //         });
-
-    //         if (selectFile) {
-    //             console.log(selectFile);
-
-    //             _Context.progressBox.show();
-    //             const material = await _Context.objViewer.objMng.loadMaterial({
-    //                 fileID: selectFile.id,
-    //                 repo_ip: selectFile.repo_ip,
-    //                 onProgress: (progress) => {
-    //                     _Context.progressBox.update(progress);
-    //                 }
-    //             });
-    //             _Context.progressBox.closeDelay(100);
-
-    //             if (entity.isMesh) {
-    //                 entity.material = material;
-    //             }
-    //             else if(entity.isElvisObject3D) {
-    //                 entity.traverse((child) => {
-    //                     if (child.isMesh) {
-    //                         child.material = material;
-    //                     }
-    //                 });
-
-    //                 entity.materialFile = {
-    //                     id: selectFile.id,
-    //                     repo_ip: selectFile.repo_ip
-    //                 }
-    //             }
-                
-                
-
-    //             _form.material.value = selectFile.id;
-    //         }
-    //         else {
-    //             console.log('cancel');
-    //             _Context.messageModal.show({
-    //                 msg: 'cancel',
-    //             });
-    //         }
-    //     }
-    //     else {
-    //         _Context.messageModal.show({
-    //             msg: `not support material ${entity.type}`
-    //         });
-    //     }
-
-
-    // });
 
     console.log('complete setup tree view');
 

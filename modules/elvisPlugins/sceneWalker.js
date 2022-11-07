@@ -14,6 +14,9 @@ export default async function setup({ container, onSelectObject,
 }) {
     const _HDRILoader = envMapFileFormat === 'exr' ? new EXRLoader() : new RGBELoader();
 
+
+    console.log('envMapFileFormat', envMapFileFormat);
+
     let bDrag = false;
     let bTaped = false;
     const m_rayCaster = new THREE.Raycaster();
@@ -112,6 +115,7 @@ export default async function setup({ container, onSelectObject,
 
                     this.pauseKeyInput = false;
                     this.select_node = null;
+                    this.userData = {};
 
 
                     this.bPlayNow = false;

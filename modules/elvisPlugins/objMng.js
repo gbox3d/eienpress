@@ -369,7 +369,7 @@ export default async function ({ scope }) {
         console.log('load complete')
 
         texture.mapping = THREE.EquirectangularReflectionMapping;
-        bShow ? scope.scene.background = texture :  scope.scene.background = null;
+        bShow ? scope.scene.background = texture : scope.scene.background = null;
         scope.scene.environment = texture;
         //사용자변수 등록 
         scope.userData.envMapTexure = texture;
@@ -407,7 +407,7 @@ export default async function ({ scope }) {
         // });
     }
 
-    const addObject_fbx = async function ({ file_id, repo_ip,onProgress }) {
+    const addObject_fbx = async function ({ file_id, repo_ip, onProgress }) {
         let _obj = await loadFbx({
             fileID: file_id,
             // material: material,
@@ -668,6 +668,48 @@ export default async function ({ scope }) {
 
     }
 
+    const resolveChildPrefab = async ({entity, onProgress}) => {
+        let _waitCount = 0;
+        await new Promise((resolve, reject) => {
+            entity.traverse(async (child) => {
+
+                _waitCount++;
+                if (child.isElvisObject3D) {
+
+                    await resolvePrefab({
+                        entity: child,
+                        progress: (progress) => {
+                            onProgress?.({
+                                progress
+                            });
+                            // _Context.progressBox.update(progress);
+                        }
+                    });
+
+                    _waitCount--;
+                }
+                else {
+                    await new Promise((resolve, reject) => {
+                        setTimeout(() => {
+
+                            resolve();
+                        }, 100);
+                    });
+                    _waitCount--;
+                }
+
+                // console.log('waitCount', _waitCount);
+                if (_waitCount === 0) {
+                    resolve();
+                }
+
+
+            });
+        });
+
+    }
+
+
     ////////////////////////////////
     //scene 
     async function saveScene({ entity, name = 'nope', fileID = null, repo_ip = '' }) {
@@ -777,16 +819,16 @@ export default async function ({ scope }) {
         scope.gameObj_dummy.add(entity);
     }
 
-    function addHostGameObject({ socket, roomName,sceneMng,user }) {
-        let hostObj = new gameObject({ socket, roomName,sceneMng,user });
+    function addHostGameObject({ socket, roomName, sceneMng, user }) {
+        let hostObj = new gameObject({ socket, roomName, sceneMng, user });
         hostObj.name = 'host';
         addGameObject({
             entity: hostObj,
         });
     }
 
-    function addGuestGameObject({ user, socket, roomName,sceneMng,data }) {
-        let remoteObj = new dummyObject({ socket, roomName,sceneMng,user });
+    function addGuestGameObject({ user, socket, roomName, sceneMng, data }) {
+        let remoteObj = new dummyObject({ socket, roomName, sceneMng, user });
         remoteObj.remoteUser = user;
         // remoteObj.remoteSocketId = socket.id;
 
@@ -803,7 +845,7 @@ export default async function ({ scope }) {
     }
 
     function removeGameObject({ socketId }) {
-        if(socketId)
+        if (socketId)
             return scope.gameObj_dummy.getObjectByProperty('socketId', socketId)?.removeFromParent();
         return null;
     }
@@ -894,7 +936,7 @@ export default async function ({ scope }) {
         savePrefab,
         loadPrefab,
         resolvePrefab,
-
+        resolveChildPrefab,
         clearAllRepository,
 
         saveScene,

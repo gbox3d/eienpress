@@ -9,11 +9,12 @@ export default async function (_Context) {
     <div class="ui-view w3-bar w3-light-grey">
         <a href="#" class="w3-bar-item w3-button">About</a>
         <div class="w3-dropdown-click">
-            <button class="w3-button" >Viwer</button>
+            <button class="w3-button" >Viewer</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" >camera reset</a>
                 <a href="#" class="w3-bar-item w3-button" >enviroment map</a>
                 <a href="#" class="w3-bar-item w3-button" >grid</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='refresh' >refresh</a>
             </div>
         </div>
         <div class="w3-dropdown-click">
@@ -22,8 +23,8 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='new' >New</a>    
                 <a href="#" class="w3-bar-item w3-button" data-mid='load' >불러오기</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='save' >저장하기</a>
-                <hr>
-                <a href="#" class="w3-bar-item w3-button" data-mid='export_glf' >export glf</a>
+                
+                
             </div>
         </div>
         <div class="w3-dropdown-click">
@@ -34,6 +35,11 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='plane' >plane</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='box' >box</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='sphere' >sphere</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='cylinder' >cylinder</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='cone' >cone</a>
+                
+                <hr/>
+                <a href="#" class="w3-bar-item w3-button" data-mid='export_glf' >export glf</a>
                 
             </div>
         </div>
@@ -43,9 +49,13 @@ export default async function (_Context) {
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
                 <a href="#" class="w3-bar-item w3-button" data-mid='resolve' >Resolve</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='rx90' >rotate X 90</a>
-                <a href="#" class="w3-bar-item w3-button" data-mid='del' >delete</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='del' >Delete</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='clone' >Clone</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='selmode' >Select Mode</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='viewmode' >View Mode</a>
             </div>
         </div>
+
     </div>
     `;
 

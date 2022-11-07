@@ -138,17 +138,6 @@ export default async function (_Context, container) {
         _onMaterialChange ? _onMaterialChange(entity) : null;
 
 
-        // else {
-        //     _Context, messageModal.show({
-        //         msg: 'Please select a ElvisObject3D.'
-        //     })
-        // }
-
-        // if (entity.isMesh || entity.isElvisObject3D) {
-
-
-
-
     });
 
     _form.querySelector('.geometry button').addEventListener('click', async (evt) => {
