@@ -20,7 +20,6 @@ export default async function (_Context) {
         <div class="w3-dropdown-click">
             <button class="w3-button">List</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
-                <a href="#" class="w3-bar-item w3-button" data-mid='selectDir' >Change Directory</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='selectAll' >select all</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='unSelectAll' >unselect all</a>
             </div>
@@ -29,6 +28,7 @@ export default async function (_Context) {
         <div class="w3-dropdown-click">
             <button class="w3-button">Dir</button>
             <div class="w3-dropdown-content w3-bar-block w3-card-4">
+                <a href="#" class="w3-bar-item w3-button" data-mid='all' >all</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='envmap' >envmap</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='model' >model</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='texture' >texture</a>
@@ -39,6 +39,7 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='material' >material</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='prefab' >prefab</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='scene' >scene</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='selectDir' >Change Any Directory</a>
             </div>
         </div>
     </div>

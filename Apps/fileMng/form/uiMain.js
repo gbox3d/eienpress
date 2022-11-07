@@ -196,23 +196,6 @@ export default async function (_Context) {
             }
             else if (btnName === 'List') {
                 switch (menuName) {
-                    case 'selectDir':
-                        {
-                            let selDir = prompt(
-                                'Select Directory'
-                            )
-
-                            if (selDir !== null) {
-                                _fileListView.changeDirectory(selDir);
-                                await _fileListView.updateList();
-                            }
-                            else {
-                                _Context.messageModal.show({
-                                    msg: 'cancel'
-                                });
-                            }
-                        }
-                        break;
                     case 'selectAll':
                         {
                             _fileListView.selectAll();
@@ -227,8 +210,35 @@ export default async function (_Context) {
                 }
             }
             else if (btnName === 'Dir') {
+
+
+
                 const selDir = menuName;
-                _fileListView.changeDirectory(selDir);
+                if (selDir === 'all') {
+                    _fileListView.changeDirectory('');
+                }
+                else if (selDir === 'selectDir') {
+                    // case 'selectDir':
+                    // {
+                    let selDir = prompt(
+                        'Select Directory'
+                    )
+
+                    if (selDir !== null) {
+                        _fileListView.changeDirectory(selDir);
+                        await _fileListView.updateList();
+                    }
+                    else {
+                        _Context.messageModal.show({
+                            msg: 'cancel'
+                        });
+                    }
+                    // }
+                    // break;
+                }
+                else {
+                    _fileListView.changeDirectory(selDir);
+                }
                 await _fileListView.updateList();
             }
         }
@@ -255,10 +265,7 @@ export default async function (_Context) {
                     'authorization': localStorage.getItem('jwt_token')
                 }
             }))).json();
-            console.log(res)
-
-
-
+            // console.log(res)
             if (res.r === 'ok') {
 
                 _Context.waitModal.close();
@@ -279,7 +286,7 @@ export default async function (_Context) {
                         }
                     });
 
-                    console.log(_tex.source.data.width)
+                    // console.log(_tex.source.data.width)
 
                     objMng.addPlane({
                         width: _tex.source.data.width,
@@ -287,7 +294,8 @@ export default async function (_Context) {
                         map: _tex,
                         color: 0xffffff,
                     });
-                    console.log(_tex);
+                    // console.log(_tex);
+                    await _Context.progressBox.closeDelay(300);
                 }
                 else if (_type[0] === 'application') {
 
