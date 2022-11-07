@@ -195,7 +195,7 @@ export default async function (_Context) {
                                     const material = await objViewer.objMng.loadMaterial({
                                         fileID: currentData.fileInfo._id,
                                         repo_ip: currentData.fileInfo.repo_ip,
-                                        reload : true,
+                                        reload: true,
                                         onProgress: (progress) => {
                                             _Context.progressBox.update(progress);
                                         }
@@ -301,11 +301,7 @@ export default async function (_Context) {
 
     });
 
-    //환경멥 로딩
-    let basicEnvMapId = await comFileFindFile({
-        filename: 'basic_envmap'
-    });
-
+    
     const objViewer = await objectViewerSetup({
         Context: theApp,
         window_size: {
@@ -314,7 +310,7 @@ export default async function (_Context) {
         },
         isGrid: false,
         container: _glContainer,
-        envMapFile: basicEnvMapId
+        // envMapFile: basicEnvMapId
     });
 
 
@@ -328,21 +324,33 @@ export default async function (_Context) {
     });
 
     objViewer.elvis.root_dummy.add(gameobject.entity);
-    objViewer.showEnvMap(true);
-
 
     _Context.body_container.appendChild(_rootElm);
     _Context.objViewer = objViewer;
     _Context.gameObject = gameobject;
 
+    
+    const basicEnvMap = await comFileFindFile({
+        filename: 'basic_envmap'
+    })
+
+    // console.log(basicEnvMap);
+
+    await objViewer.objMng.setEnvMap({
+        type: basicEnvMap[0].fileType,
+        file_id: basicEnvMap[0]._id,
+        repo_ip: basicEnvMap[0].repo_ip,
+        onProgress: (progress) => {
+            console.log(progress)
+            // _Context.progressBox.update(progress);
+        },
+        bShow: true
+    });
+
     //메트리얼 초기화
     new_Material();
-    // materialAttr.setData({
-    //     fileInfo: {
-    //         title: 'default material'
-    //     },
-    //     mtrlInfo: gameobject.entity.material
-    // });
+
+    objViewer.elvis.startRender();
 
     console.log('complete setup uiMain');
 
