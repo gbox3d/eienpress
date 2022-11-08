@@ -50,24 +50,25 @@ async function main() {
         }))).json();
 
         console.log(res);
+        theApp.waitModal.close();
 
         if (res.r === 'ok') {
-
+            
             loginStatus.innerHTML = `${res.user.userName} 님 환영합니다.`;
             theApp.root_path = res.repository + '/' + res.user.userId;
             theApp.uiMain = await uiMainSetup(theApp);
-            theApp.waitModal.close();
-
-            
 
         }
         else {
             loginStatus.innerHTML = `로그인이 필요합니다. <a href="/login">로그인</a>`;
-            theApp.waitModal.close();
         }
     }
     catch (err) {
         console.error(err);
+        theApp.waitModal.close();
+        theApp.messageModal.show({
+            msg: err.message
+        })
     }
 }
 

@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
-
 
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";
 
@@ -8,13 +6,11 @@ import elvisObject3d from '../../../modules/elvisPlugins/elvisObject3d.js';
 import objectViewerSetup from '../../../modules/elvisPlugins/queditor.js';
 
 import uiMenuBarSetup from './uiMenuBar.js';
-import objTreeViewSetup from '../../metaWorker/form/objTreeView.js';
-import attrViewSetup from './attrView.js';
+import objTreeViewSetup from '../../../modules/comModules/objTreeView.js';
+import attrViewSetup from '../../../modules/comModules/attrView.js';
 import prefabViewSetup from './prefabView.js';
 
 import 'md5';
-import attrView from './attrView.js';
-import objMng from '../../../modules/elvisPlugins/objMng.js';
 
 export default async function (_Context) {
 

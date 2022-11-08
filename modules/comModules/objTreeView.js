@@ -1,4 +1,3 @@
-import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
 import 'md5';
 
 export default async function (_Context, container) {
@@ -36,6 +35,7 @@ export default async function (_Context, container) {
     }
 
     function _onDrag(ev) {
+        console.log('drag', ev);
         ev.dataTransfer.setData("uuid", ev.target.dataset.uuid);
     }
 

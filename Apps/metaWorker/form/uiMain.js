@@ -5,8 +5,8 @@ import { comFileFindFile } from "../../../modules/comLibs/utils.js";
 // import objectViewerSetup from '../../../modules/elvisPlugins/objectViewer.js';
 import objectViewerSetup from '../../../modules/elvisPlugins/queditor.js';
 
-import objTreeViewSetup from './objTreeView.js';
-import attrViewSetup from './attrView.js';
+import objTreeViewSetup from '../../../modules/comModules/objTreeView.js';
+import attrViewSetup from '../../../modules/comModules/attrView.js';
 import prefabViewSetup from './prefabView.js';
 
 
@@ -54,6 +54,14 @@ export default async function (_Context) {
     //menu bar 등록 
     const _menuBar = await uiMenuBarSetup(_Context);
     _rootElm.querySelector('.ui-menu-bar').appendChild(_menuBar.element);
+
+    const _refreshAllView = (_entity) => {
+        _treeView.updateTree(objViewer.elvis.root_dummy); // 트리뷰업데이트
+        _treeView.selectNode(_entity.uuid); //현제 선택된 엔티티 선택
+        _attrView.set(_entity);
+        _prefabView.set(_entity);
+        objViewer.setSelectEntity(_entity);
+    }
 
     //메뉴 이밴트 처리 
     _menuBar.setCallback(async (menuName, btnName) => {
@@ -339,11 +347,6 @@ export default async function (_Context) {
 
     });
 
-    // //환경멥 로딩
-    let basicEnvMapId = await comFileFindFile({
-        filename: 'basic_envmap'
-    });
-
     const objViewer = await objectViewerSetup({
         Context: theApp,
         window_size: {
@@ -353,7 +356,7 @@ export default async function (_Context) {
         isGrid: true,
         container: _glContainer,
         // envMapFileFormat : '', // exr, hdr, pic , default : hdr
-        envMapFile: basicEnvMapId,
+        // envMapFile: basicEnvMapId,
         onPointerIntersectDown: function (evt) {
             console.log(evt);
 
@@ -373,9 +376,12 @@ export default async function (_Context) {
                         })
 
                         if (entity) {
-                            _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
+
+                            _refreshAllView(entity);
+
+                            // _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
                             // _treeView.selectNode(entity.uuid);
-                            _attrView.set(objViewer.getSelectEntity());
+                            // _attrView.set(objViewer.getSelectEntity());
                         }
                     }
                     else {
@@ -414,8 +420,28 @@ export default async function (_Context) {
 
     });
 
+    //setup default envmap
+    {
+        _Context.progressBox.show();
+        const basicEnvMap = await comFileFindFile({
+            filename: 'basic_envmap'
+        });
 
-    objViewer.showEnvMap(true);
+        await objViewer.objMng.setEnvMap({
+            type: basicEnvMap[0].fileType,
+            file_id: basicEnvMap[0]._id,
+            repo_ip: basicEnvMap[0].repo_ip,
+            onProgress: (progress) => {
+                _Context.progressBox.update(progress);
+            },
+            bShow: true
+        });
+
+        _Context.progressBox.closeDelay(100);
+    }
+
+
+    // objViewer.showEnvMap(true);
 
     _Context.objViewer = objViewer;
 
@@ -431,18 +457,22 @@ export default async function (_Context) {
         objViewer.setSelectEntity(obj);
         _attrView.set(obj);
         _prefabView.set(obj);
-        
+
         console.log(obj);
 
     });
 
     _treeView.setOnDropedItem((evt) => {
 
-        let _dest = objViewer.getEntityByuuid(evt.target.dataset.uuid);
+        // let _dest = objViewer.getEntityByuuid(evt.target.dataset.uuid);
+        let _dest = objViewer.getEntityByuuid(evt.target.closest('li').dataset.uuid);
         if (_dest.isGroup) {
             let _src = objViewer.getEntityByuuid(evt.dataTransfer.getData('uuid'));
-            _dest.attach(_src);
-            _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
+
+            if (_dest !== _src) {
+                _dest.attach(_src);
+                _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
+            }
         }
 
     });
@@ -455,13 +485,18 @@ export default async function (_Context) {
     //attr view 등록
     const _attrView = await attrViewSetup(
         _Context,
-        _rootElm.querySelector('.prefab-attr')
+        _rootElm.querySelector('.prefab-attr'),
+        (entity) => { //onchange
+            _treeView.updateTree(objViewer.elvis.root_dummy);
+            _refreshAllView(entity);
+        }
     );
 
-    _attrView.setOnChanged((entity) => {
+    // _attrView.setOnChanged((entity) => {
+    //     _treeView.updateTree(objViewer.elvis.root_dummy);
+    // });
 
-        _treeView.updateTree(objViewer.elvis.root_dummy);
-    });
+
 
     //prefab view 등록
     const _prefabView = await prefabViewSetup(
