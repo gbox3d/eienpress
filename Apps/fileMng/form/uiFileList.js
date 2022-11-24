@@ -69,12 +69,9 @@ export default async function (_Context) {
 
                 li.dataset._id = item._id;
                 li.dataset.fileName = item.srcName;
-                // li.dataset.modelFile = item.modelFile;
-                // li.dataset.textureFile = item.textureFile;
-                // li.dataset.type = item.type;
-
 
                 _listElm.appendChild(li);
+                _listElm.scrollTop = _listElm.scrollHeight; //맨밑으로 스크롤링 
             });
         }
         console.log(res);

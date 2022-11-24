@@ -1,4 +1,4 @@
-import { makeFormBody, comFileUpload, makeFileObj } from "..//comLibs/utils.js";
+import { makeFormBody, comFileUpload, makeFileObj } from "../comLibs/utils.js";
 
 export default function (_Context) {
 

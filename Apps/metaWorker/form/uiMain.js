@@ -197,8 +197,6 @@ export default async function (_Context) {
                     _Context.messageModal.close();
 
                 }
-
-
             }
             else if (btnName === 'Add') {
 
@@ -299,6 +297,24 @@ export default async function (_Context) {
                         _attrView.set(null);
                     }
                 }
+                else if(menuName === 'clone'){
+                    let _selEntity = objViewer.getSelectEntity()
+
+                    if (_selEntity?.name !== 'root_dummy') {
+
+                        let _entity = _selEntity.clone();
+                        objViewer.objMng.addEntity({
+                            entity: _entity,
+                            parent: _selEntity.parent
+                        });
+                        objViewer.setSelectEntity(_entity);
+
+                        //update tree view
+                        _treeView.updateTree(objViewer.elvis.root_dummy);
+                        _treeView.selectNode(_entity.uuid);
+                        _attrView.set(_entity);
+                    }
+                }
                 else if (menuName === 'copy') {
 
                     const entity = objViewer.getSelectEntity();
@@ -374,14 +390,9 @@ export default async function (_Context) {
                             parent: _root,
                             isClone: true
                         })
-
+                        
                         if (entity) {
-
                             _refreshAllView(entity);
-
-                            // _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
-                            // _treeView.selectNode(entity.uuid);
-                            // _attrView.set(objViewer.getSelectEntity());
                         }
                     }
                     else {
@@ -393,14 +404,16 @@ export default async function (_Context) {
                                 parent: _root,
                                 isClone: true
                             })
+                            
 
                             if (entity) {
-                                _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
-                                // _treeView.selectNode(entity.uuid);
-                                _attrView.set(objViewer.getSelectEntity());
+                                _refreshAllView(entity);
+                                // _treeView.updateTree(objViewer.elvis.root_dummy, objViewer.getSelectEntity());
+                                // _attrView.set(objViewer.getSelectEntity());
                             }
                         }
                     }
+                    objViewer.removeCursoredEntity(); //커서 클리어 
                 }
                 else {
                     _Context.messageModal.show({
