@@ -22,7 +22,7 @@ export default async function (_Context,onSubmit) {
             <label>created</label>
             <input class="w3-input" type="text" name='created' disabled>
             <label>file type</label>
-            <input class="w3-input" type="text" name='file_type' disabled>
+            <input class="w3-input" type="text" name='file_type'>
             <label>file size</label>
             <input class="w3-input" type="text" name='file_size' disabled>
             <label>source name</label>
@@ -61,7 +61,8 @@ export default async function (_Context,onSubmit) {
                 title : _form.title.value,
                 description : _form.description.value,
                 directory : _form.directory.value,
-                repo_ip : _form.repo_ip.value
+                repo_ip : _form.repo_ip.value,
+                fileType : _form.file_type.value
             }
         });
 

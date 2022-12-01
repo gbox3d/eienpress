@@ -40,7 +40,7 @@ async function comFileUpload({ fileObj, title, description, directory, hostUrl, 
     let res = await (await (fetch(`${host_url}/com/file/upload`, {
         method: 'POST',
         headers: {
-            'Content-Type': fileObj.file.type,
+            'Content-Type': fileType ? fileType : fileObj.file.type,
             'authorization': localStorage.getItem('jwt_token'),
             'query': query
         },

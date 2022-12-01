@@ -18,7 +18,7 @@ export class walker extends THREE.EventDispatcher {
 
         this.engine = engine;
         this.elvis = engine.elvis;
-        this.m_playerCollider = new Capsule(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, playerHeight, 0), playerWidth);
+        this.m_playerCollider = new Capsule(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 1000, 0), playerWidth);
         this.worldOctree = null
 
         // this.m_mousePointer = new THREE.Vector2();
@@ -173,8 +173,12 @@ export class walker extends THREE.EventDispatcher {
                     const deltaPosition = playerVelocity.clone().multiplyScalar(deltaTime);
                     m_playerCollider.translate(deltaPosition);
 
+                    
+
                     this.playerCollisions();
                     camera.position.copy(m_playerCollider.end);
+
+                    console.log(m_playerCollider.end)
 
                     // let isUpdateWorld = false;
 

@@ -454,6 +454,8 @@ class walkerGameObject extends elvisGameObject {
 			this.updatePlayer(deltaTime);
 		}
 
+		// console.log('update');
+
 
 
 	}

@@ -147,7 +147,8 @@ async function main() {
             //socket io setup
             theApp.clientSocket = await clientSocketSetup({
                 renderEngine,
-                ioServerUrl: 'http://gears001.iptime.org:21041',
+                // ioServerUrl: 'http://gears001.iptime.org:21041',
+                ioServerUrl: 'https://cam2us.ubiqos.co.kr:24031',
                 onMessage: (evt) => {
                     _addChatMessage(evt.user, evt.msg);
                 }
@@ -215,7 +216,7 @@ async function main() {
 
                     const hostPlayer = new walkerGameObject({
                         engine: renderEngine,
-                        playerHeight: 25,
+                        playerHeight: 150,
                         playerWidth: 5,
                         socket: socket,
                         user: theApp.user

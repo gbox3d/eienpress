@@ -67,7 +67,7 @@ async function main() {
             theApp.uiMenuBar = await uiMenuBarSetup(theApp);
             theApp.uiMain = await uiMainSetup(theApp);
 
-            
+
 
             theApp.objViewer = await objectViewerSetup({
                 Context: theApp,
@@ -82,16 +82,24 @@ async function main() {
 
             console.log(basicEnvMap);
 
-            await theApp.objViewer.objMng.setEnvMap({
-                type : basicEnvMap[0].fileType,
-                file_id : basicEnvMap[0]._id,
-                repo_ip : basicEnvMap[0].repo_ip,
-                onProgress: (progress) => {
-                    console.log(progress)
-                    // _Context.progressBox.update(progress);
-                },
-                bShow : true
-            });
+            if (basicEnvMap !== null) {
+
+                await theApp.objViewer.objMng.setEnvMap({
+                    type: basicEnvMap[0].fileType,
+                    file_id: basicEnvMap[0]._id,
+                    repo_ip: basicEnvMap[0].repo_ip,
+                    onProgress: (progress) => {
+                        console.log(progress)
+                        // _Context.progressBox.update(progress);
+                    },
+                    bShow: true
+                });
+            }
+            else {
+                alert('basic_envmap not found');
+                console.log('basic_envmap not found');
+            }
+            
 
             theApp.objViewer.elvis.startRender();
 
