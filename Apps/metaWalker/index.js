@@ -117,6 +117,7 @@ async function main() {
 
             const renderEngine = await sceneWalkerSetup({
                 Context: theApp,
+                isGrid : false,
                 // sceneFileID: params.gid,
                 // envMapFile: basicEnvMapId,
                 onSelectObject: (obj) => {

@@ -280,6 +280,7 @@ export default async function (_Context) {
                     let _tex = await objMng.loadTexture({
                         textureFile: res.data._id,
                         repo_ip: res.data.repo_ip,
+                        type : res.data.fileType,
                         onProgress: (progress) => {
                             console.log(progress)
                             _Context.progressBox.update(progress);
@@ -298,9 +299,6 @@ export default async function (_Context) {
                     await _Context.progressBox.closeDelay(300);
                 }
                 else if (_type[0] === 'application') {
-
-
-
                     switch (_type[1]) {
                         case 'fbx':
                             // if (_type[1] === 'fbx') 
@@ -349,8 +347,8 @@ export default async function (_Context) {
             });
         }
 
-        _Context.waitModal.close()
-
+        _Context.waitModal.close();
+        _Context.progressBox.close();
     });
 
     _Context.ui_container.appendChild(_rootElm);

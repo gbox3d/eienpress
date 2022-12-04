@@ -142,9 +142,7 @@ export default async function (_Context) {
                                 delete matJson.normalMap
                                 delete matJson.roughnessMap
                                 delete matJson.alphaMap
-
-
-
+                                
                                 let _data = JSON.stringify(matJson)
 
                                 const currentData = materialAttr.getData();

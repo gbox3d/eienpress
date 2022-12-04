@@ -6,6 +6,7 @@ import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
 
 import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js';
+import { TGALoader } from 'three/addons/loaders/TGALoader.js';
 
 import { comFileFindFile, comFileDownload, comFileUpload, textDataUpload, makeFileObj } from "../comLibs/utils.js";
 import elvisObjLoader from './elvisObjLoader.js';
@@ -214,6 +215,8 @@ export default async function ({ scope }) {
 
             // mTextureRepository[textureFile] = {};
 
+            console.log(`load texture ${textureFile} ,${type}`);
+
             let loader = new THREE.TextureLoader();
 
             if (type == 'application/exr') {
@@ -221,6 +224,9 @@ export default async function ({ scope }) {
             }
             else if (type == 'application/hdr' || type == 'image/pict') {
                 loader = new RGBELoader();
+            }
+            else if(type == 'image/targa'){
+                loader = new TGALoader();
             }
             else {
                 loader = new THREE.TextureLoader();

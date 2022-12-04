@@ -700,6 +700,7 @@ export default async function (_Context) {
                         const material = await _Context.objViewer.objMng.loadMaterial({
                             fileID: selectFile.id,
                             repo_ip: selectFile.repo_ip,
+                            type : selectFile.type,
                             onProgress: (progress) => {
                                 _Context.progressBox.update(progress);
                             }

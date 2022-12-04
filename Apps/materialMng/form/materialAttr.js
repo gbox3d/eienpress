@@ -152,47 +152,6 @@ export default async function (_Context, container) {
         e.preventDefault();
     });
 
-    attr_form.querySelector('[name="change-diffuseMap"]').addEventListener('click', async (e) => {
-
-        let selectFile = await new Promise((resolve, reject) => {
-            _Context.fileSelectBox.show(
-                (evt) => {
-                    // console.log(evt);
-                    resolve(evt);
-                },
-                'texture'
-            )
-        });
-
-        console.log(selectFile)
-
-        if (selectFile) {
-            _Context.progressBox.show();
-
-            let _tex = await _Context.objViewer.objMng.loadTexture({
-                textureFile: selectFile.id,
-                repo_ip: selectFile.repo_ip,
-                onProgress: (progress) => {
-                    console.log(progress)
-                    _Context.progressBox.update(progress);
-                },
-                type: selectFile.type
-            });
-
-            attr_form.elements['diffuseMap'].value = selectFile.id;
-
-            const material = _Context.gameObject.entity.material
-
-            material.map = _tex;
-            material.userData.texture = selectFile
-
-            material.needsUpdate = true;
-
-            _Context.progressBox.closeDelay(250);
-        }
-
-    });
-
     attr_form.querySelector('[name="color"]').addEventListener('input', async (e) => {
         const material = _Context.gameObject.entity.material;
         material.color.set(e.target.value);
@@ -240,6 +199,48 @@ export default async function (_Context, container) {
         material.needsUpdate = true;
     });
 
+    //diffuse map
+    attr_form.querySelector('[name="change-diffuseMap"]').addEventListener('click', async (e) => {
+
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    resolve(evt);
+                },
+                'texture'
+            )
+        });
+
+        console.log(selectFile)
+
+        if (selectFile) {
+            _Context.progressBox.show();
+
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                type : selectFile.type,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
+
+            attr_form.elements['diffuseMap'].value = selectFile.id;
+
+            const material = _Context.gameObject.entity.material
+
+            material.map = _tex;
+            material.userData.texture = selectFile
+            // material.userData.texture_type = selectFile.type
+
+            material.needsUpdate = true;
+
+            _Context.progressBox.closeDelay(250);
+        }
+
+    });
     //normal map
     attr_form.querySelector('[name="change-normalMap"]').addEventListener('click', async (e) => {
 
@@ -266,6 +267,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
+                type : selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -334,6 +336,7 @@ export default async function (_Context, container) {
         let _tex = await _Context.objViewer.objMng.loadTexture({
             textureFile: selectFile.id,
             repo_ip: selectFile.repo_ip,
+            type : selectFile.type,
             onProgress: (progress) => {
                 console.log(progress)
                 _Context.progressBox.update(progress);
@@ -383,6 +386,7 @@ export default async function (_Context, container) {
         let _tex = await _Context.objViewer.objMng.loadTexture({
             textureFile: selectFile.id,
             repo_ip: selectFile.repo_ip,
+            type : selectFile.type,
             onProgress: (progress) => {
                 console.log(progress)
                 _Context.progressBox.update(progress);
@@ -435,9 +439,9 @@ export default async function (_Context, container) {
     attr_form.querySelector('[name="change-envMap"]').addEventListener('click', async (e) => {
     });
 
-    //ao map
-    attr_form.querySelector('[name="change-aoMap"]').addEventListener('click', async (e) => {
-    });
+    // //ao map
+    // attr_form.querySelector('[name="change-aoMap"]').addEventListener('click', async (e) => {
+    // });
 
     //light map
     attr_form.querySelector('[name="change-lightMap"]').addEventListener('click', async (e) => {
@@ -469,6 +473,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
+                type : selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -512,6 +517,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
+                type : selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
