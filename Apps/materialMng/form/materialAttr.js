@@ -1,5 +1,7 @@
 // import { makeFormBody, comFileUpload, makeFileObj } from "../../../modules/comLibs/utils.js";
+import * as THREE from 'three';
 import 'md5';
+
 
 export default async function (_Context, container) {
 
@@ -21,6 +23,8 @@ export default async function (_Context, container) {
             <input class="w3-check w3-margin-top" type="checkbox" checked="checked" name='isPublic'> public <br><br>
             <hr/>
 
+            <label>type</label>
+            <input class="w3-input" type="text" name='type' disabled >
             <div>
                 <input class="w3-check w3-margin-top" type="checkbox" checked="checked" name='wire-frame'> wire frame  
             </div>
@@ -30,6 +34,8 @@ export default async function (_Context, container) {
 
             <div>
                 <input class="w3-check w3-margin-top" type="checkbox" checked="checked" name='transparent'> transparent 
+                <br>
+                <input class="w3-check w3-margin-top" type="checkbox" checked="checked" name='fog'> fog 
             </div>
             
             <div class="w3-row">
@@ -49,23 +55,43 @@ export default async function (_Context, container) {
                 <input  type="range" name='metalness' value='0.5' min='0' max='1' step='0.01'>
                 <span class='metalness-value'></span>
             </div>
-
-            
-
             <hr/>
 
-            <label>diffuse map</label>
-            <input class="w3-input" type="text" name='diffuseMap' disabled>
-            <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-diffuseMap" >change</button>
+            <div class='w3-section w3-border' >
+                <label>Diffuse map</label>
+                <input class="w3-input" type="text" name='diffuseMap' disabled>
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-diffuseMap" >change</button>
+            </div>
 
-            <label>normal map</label>
-            <input class="w3-input" type="text" name='normalMap' disabled>
-            <select class="w3-select" name="normalMapType">
-                <option value="0" selected>TangentSpace</option>
-                <option value="1">ObjectSpace</option>
-            </select>
-            <input class="w3-input" type="text" name="normalMapScale">
-            <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-normalMap" >change</button>
+            <div class='w3-section w3-border' >
+                <label>Alpha map (opacity 속성켜고사용)</label>
+                <input class="w3-input" type="text" name='alphaMap' disabled>
+                
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-alphaMap" >change</button>
+            </div>
+
+            <div class='w3-section w3-border' >
+                <label>Normal map</label>
+                <input class="w3-input" type="text" name='normalMap' disabled>
+                <select class="w3-select" name="normalMapType">
+                    <option value="0" selected>TangentSpace</option>
+                    <option value="1">ObjectSpace</option>
+                </select>
+                <input class="w3-input" type="text" name="normalMapScale">
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-normalMap" >change</button>
+            </div>
+
+            <div class='w3-section w3-border' >
+                <label>Bump map</label>
+                <input class="w3-input" type="text" name='bumpMap' disabled>
+                <div class="w3-row">
+                    <input type="range" name="bumpMapScale" value='1' min='0' max='1' step='0.01' >
+                    <span class='bumpMapScale-value'></span>
+                </div>
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-bumpMap" >change</button>
+            </div>
+
+
 
             <div class='w3-section w3-border' >
                 <label>ao map</label>
@@ -76,11 +102,6 @@ export default async function (_Context, container) {
                 </div>
                 <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-aoMap" >change</button>
             </div>
-
-            <label>bump map</label>
-            <input class="w3-input" type="text" name='bumpMap' disabled>
-            <input class="w3-input" type="text" name='bumpMap-scale' >
-            <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-bumpMap" >change</button>
 
             <div class='w3-section w3-border' >
                 <label> -Displacement map</label>
@@ -98,27 +119,42 @@ export default async function (_Context, container) {
                 <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-displacementMap" >change</button>
             </div>
 
-            <label>emissive map</label>
-            <input class="w3-input" type="text" name='emissiveMap' disabled>
-            <input class="w3-input" type="text" name='emissiveMao-intensity' >
-            <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-emissiveMap" >change</button>
+            <div class='w3-section w3-border' >
+
+                <label>emissive map</label>
+                <input class="w3-input" type="text" name='emissiveMap' disabled>
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-emissiveMap" >change</button>
+                
+                <div class="w3-row">
+                    <label>emissive intensity</label>
+                    <input name='emissiveMapIntensity' value='1.0'>
+                </div>
+                
+                <label>emissive color</label>
+                <input type="color" name='emissiveColor'>
+            </div>
 
             <div class='w3-section w3-border' >
                 <label>env map</label>
                 <input class="w3-input" type="text" name='envMap' disabled>
                 <div class="w3-row">
-                <label>envmap intensity (hdr expose effect)</label>
-                <input  type="range" name='envMapIntensity' value='0.5' min='0' max='2' step='0.01'>
-                <span class='envMapIntensity-value'></span>
+                    <label>envmap intensity (hdr expose effect)</label>
+                    <input  type="range" name='envMapIntensity' value='0.5' min='0' max='2' step='0.01'>
+                    <span class='envMapIntensity-value'></span>
                 </div>
                 <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-envMap" >change</button>
-
             </div>
 
-            <label>light map</label>
-            <input class="w3-input" type="text" name='lightMap' disabled>
-            <input class="w3-input" type="text" name='lightMap-intensity' >
-            <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-lightMap" >change</button>
+            <div class='w3-section w3-border' >
+                <label>Light map</label>
+                <input class="w3-input" type="text" name='lightMap' disabled>
+                <button class="w3-button w3-block w3-green w3-margin-bottom" type='button' name="change-lightMap" >change</button>
+
+                <div class="w3-row">
+                    <label>light map intensity</label>
+                    <input name='lightMapIntensity'>
+                </div>
+            </div>
 
             <label>metalness map</label>
             <input class="w3-input" type="text" name='metalnessMap' disabled>
@@ -185,13 +221,6 @@ export default async function (_Context, container) {
         material.needsUpdate = true;
     });
 
-    attr_form.querySelector('[name="envMapIntensity"]').addEventListener('input', (e) => {
-        const material = _Context.gameObject.entity.material;
-        let _val = e.target.value;
-        attr_form.querySelector('.envMapIntensity-value').innerText = _val;
-        material.envMapIntensity = parseFloat(_val);
-        material.needsUpdate = true;
-    });
 
     attr_form.querySelector('[name="wire-frame"]').addEventListener('change', (e) => {
         const material = _Context.gameObject.entity.material;
@@ -219,7 +248,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
-                type : selectFile.type,
+                type: selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -241,6 +270,48 @@ export default async function (_Context, container) {
         }
 
     });
+
+    //alpha map
+    attr_form.querySelector('[name="change-alphaMap"]').addEventListener('click', async (e) => {
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    resolve(evt);
+                },
+                'texture'
+            )
+        });
+
+        console.log(selectFile)
+
+        if (selectFile) {
+            _Context.progressBox.show();
+
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                type: selectFile.type,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
+
+            attr_form.elements['alphaMap'].value = selectFile.id;
+
+            const material = _Context.gameObject.entity.material
+
+            material.alphaMap = _tex;
+            material.userData.texture = selectFile
+            material.needsUpdate = true;
+
+            _Context.progressBox.closeDelay(250);
+        }
+    });
+
+
+
     //normal map
     attr_form.querySelector('[name="change-normalMap"]').addEventListener('click', async (e) => {
 
@@ -267,7 +338,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
-                type : selectFile.type,
+                type: selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -312,6 +383,60 @@ export default async function (_Context, container) {
         material.needsUpdate = true;
     });
 
+    //bump map
+    attr_form.querySelector('[name="change-bumpMap"]').addEventListener('click', async (e) => {
+
+        const material = _Context.gameObject.entity.material;
+
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    // console.log(evt);
+                    resolve(evt);
+                },
+                'texture'
+            )
+        });
+
+        console.log(selectFile)
+
+        if (selectFile) {
+
+            attr_form.elements['bumpMap'].value = selectFile.id;
+
+            _Context.progressBox.show();
+
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                type: selectFile.type,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);  
+                },
+                type: selectFile.type
+            });
+
+            material.bumpMap = _tex;
+            material.needsUpdate = true;
+
+            material.userData.bumpMap = selectFile;
+
+            _Context.progressBox.closeDelay(250);
+        }
+
+    });
+
+    attr_form.querySelector('[name="bumpMapScale"]').addEventListener('input', (e) => {
+        const material = _Context.gameObject.entity.material;
+
+        material.bumpScale = parseFloat(e.target.value);
+        material.needsUpdate = true;
+
+        attr_form.querySelector('.bumpMapScale-value').innerText = material.bumpScale;
+
+    });
+
     //ao map
     attr_form.querySelector('[name="change-aoMap"]').addEventListener('click', async (e) => {
 
@@ -336,7 +461,7 @@ export default async function (_Context, container) {
         let _tex = await _Context.objViewer.objMng.loadTexture({
             textureFile: selectFile.id,
             repo_ip: selectFile.repo_ip,
-            type : selectFile.type,
+            type: selectFile.type,
             onProgress: (progress) => {
                 console.log(progress)
                 _Context.progressBox.update(progress);
@@ -386,7 +511,7 @@ export default async function (_Context, container) {
         let _tex = await _Context.objViewer.objMng.loadTexture({
             textureFile: selectFile.id,
             repo_ip: selectFile.repo_ip,
-            type : selectFile.type,
+            type: selectFile.type,
             onProgress: (progress) => {
                 console.log(progress)
                 _Context.progressBox.update(progress);
@@ -433,18 +558,141 @@ export default async function (_Context, container) {
                 'texture'
             )
         });
+
+        attr_form.elements['emissiveMap'].value = selectFile.id;
+
+        _Context.progressBox.show();
+
+        let _tex = await _Context.objViewer.objMng.loadTexture({
+            textureFile: selectFile.id,
+            repo_ip: selectFile.repo_ip,
+            type: selectFile.type,
+            onProgress: (progress) => {
+                console.log(progress)
+                _Context.progressBox.update(progress);
+            },
+            type: selectFile.type
+        });
+
+        material.emissiveMap = _tex;
+        material.needsUpdate = true;
+
+        material.userData.emissiveMap = selectFile;
+
+        _Context.progressBox.closeDelay(250);
     });
+
+    attr_form.querySelector('[name="emissiveMapIntensity"]').addEventListener('input', (e) => {
+        const material = _Context.gameObject.entity.material;
+        let _val = e.target.value;
+        // attr_form.querySelector('.emissiveMapIntensity-value').innerText = _val;
+        material.emissiveIntensity = parseFloat(_val);
+        material.needsUpdate = true;
+    });
+    attr_form.querySelector('[name="emissiveColor"]').addEventListener('input', async (e) => {
+        const material = _Context.gameObject.entity.material;
+        material.emissive.set(e.target.value);
+    });
+
+
 
     //env map
     attr_form.querySelector('[name="change-envMap"]').addEventListener('click', async (e) => {
+        const material = _Context.gameObject.entity.material;
+
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    resolve(evt);
+                },
+                'envmap'
+            )
+        });
+
+        attr_form.elements['envMap'].value = selectFile.id;
+
+        _Context.progressBox.show();
+
+        let _tex = await _Context.objViewer.objMng.loadTexture({
+            textureFile: selectFile.id,
+            repo_ip: selectFile.repo_ip,
+            type: selectFile.type,
+            onProgress: (progress) => {
+                console.log(progress)
+                _Context.progressBox.update(progress);
+            },
+            type: selectFile.type
+        });
+
+        _tex.mapping = THREE.EquirectangularReflectionMapping;
+        _tex.encoding = THREE.sRGBEncoding;
+
+        material.envMap = _tex;
+        material.needsUpdate = true;
+        material.userData.envMap = selectFile;
+
+        _Context.progressBox.closeDelay(250);
+
+
+    });
+    attr_form.querySelector('[name="envMapIntensity"]').addEventListener('input', (e) => {
+        const material = _Context.gameObject.entity.material;
+        let _val = e.target.value;
+        attr_form.querySelector('.envMapIntensity-value').innerText = _val;
+        material.envMapIntensity = parseFloat(_val);
+        material.needsUpdate = true;
     });
 
-    // //ao map
-    // attr_form.querySelector('[name="change-aoMap"]').addEventListener('click', async (e) => {
-    // });
 
     //light map
     attr_form.querySelector('[name="change-lightMap"]').addEventListener('click', async (e) => {
+
+        const material = _Context.gameObject.entity.material;
+
+        let selectFile = await new Promise((resolve, reject) => {
+            _Context.fileSelectBox.show(
+                (evt) => {
+                    // console.log(evt);
+                    resolve(evt);
+                },
+                'texture'
+            )
+        });
+
+        console.log(selectFile)
+
+        if (selectFile) {
+
+            attr_form.elements['lightMap'].value = selectFile.id;
+
+            _Context.progressBox.show();
+
+            let _tex = await _Context.objViewer.objMng.loadTexture({
+                textureFile: selectFile.id,
+                repo_ip: selectFile.repo_ip,
+                type: selectFile.type,
+                onProgress: (progress) => {
+                    console.log(progress)
+                    _Context.progressBox.update(progress);
+                },
+                type: selectFile.type
+            });
+
+            material.lightMap  = _tex;
+            material.needsUpdate = true;
+
+            material.userData.roughnessMap = selectFile;
+
+            _Context.progressBox.closeDelay(250);
+        }
+
+    });
+    attr_form.querySelector('[name="lightMapIntensity"]').addEventListener('input', (e) => {
+        const material = _Context.gameObject.entity.material;
+        let _val = e.target.value;
+        // attr_form.querySelector('.lightMapIntensity-value').innerText = _val;
+        material.lightMapIntensity = parseFloat(_val);
+        material.needsUpdate = true;
     });
 
     //roughness map
@@ -473,7 +721,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
-                type : selectFile.type,
+                type: selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -517,7 +765,7 @@ export default async function (_Context, container) {
             let _tex = await _Context.objViewer.objMng.loadTexture({
                 textureFile: selectFile.id,
                 repo_ip: selectFile.repo_ip,
-                type : selectFile.type,
+                type: selectFile.type,
                 onProgress: (progress) => {
                     console.log(progress)
                     _Context.progressBox.update(progress);
@@ -575,11 +823,14 @@ export default async function (_Context, container) {
             const form = _rootElm.querySelector('.file-info');
 
             form.elements.id.value = data._id ? data._id : '';
+            
             form.elements.creator.value = data.creator ? data.creator : '';
             form.elements.title.value = data.title ? data.title : '';
             form.elements.description.value = data.description ? data.description : '';
             // form.elements.directory.value = data.directory;
             form.elements.isPublic.checked = data.isPublic ? data.isPublic : false;
+
+            form.elements.type.value = mtrl.type;
 
             //diffuseMap
             form.elements.diffuseMap.value = mtrl.userData?.texture?.id ? mtrl.userData.texture.id : '';
@@ -587,6 +838,7 @@ export default async function (_Context, container) {
             form.elements.color.value = `#${mtrl.color.getHexString()}`;
 
             form.elements.transparent.checked = mtrl.transparent;
+            form.elements.fog.checked = mtrl.fog;
 
             form.elements.opacity.value = mtrl.opacity;
             form.querySelector('.opacity-value').innerText = mtrl.opacity;
@@ -597,16 +849,30 @@ export default async function (_Context, container) {
             form.elements.metalness.value = mtrl.metalness;
             form.querySelector('.metalness-value').innerText = mtrl.metalness;
 
+            //emissive map
+            form.elements.emissiveMap.value = mtrl.userData?.emissiveMap?.id ? mtrl.userData?.emissiveMap?.id : '';
+            form.elements.emissiveMapIntensity.value = mtrl.emissiveIntensity
+            form.elements.emissiveColor.value = `#${mtrl.emissive.getHexString()}`;
+
+            //envMap
             form.elements.envMapIntensity.value = mtrl.envMapIntensity;
             form.querySelector('.envMapIntensity-value').innerText = mtrl.envMapIntensity;
-
+            form.elements.envMap.value = mtrl.userData?.envMap?.id ? mtrl.userData.envMap.id : '';
 
             form.elements['wire-frame'].checked = mtrl.wireframe;
+
+            //alphaMap
+            form.elements.alphaMap.value = mtrl.userData?.alphaMap?.id ? mtrl.userData.alphaMap.id : '';
 
             //normalMap
             form.elements.normalMap.value = mtrl.userData?.normalMap?.id ? mtrl.userData.normalMap.id : '';
             form.elements.normalMapScale.value = `${mtrl.normalScale.x},${mtrl.normalScale.y}`;
             form.elements.normalMapType.value = mtrl.normalMapType;
+
+            //bumMap
+            form.elements.bumpMap.value = mtrl.userData?.bumpMap?.id ? mtrl.userData.bumpMap.id : '';
+            form.elements.bumpMapScale.value = mtrl.bumpScale;
+            form.querySelector('.bumpMapScale-value').innerText = mtrl.bumpScale;
 
             //ao map
             form.elements.aoMap.value = mtrl.userData?.aoMap?.id ? mtrl.userData.aoMap.id : '';
@@ -626,6 +892,10 @@ export default async function (_Context, container) {
 
             //metalnessMap
             form.elements.metalnessMap.value = mtrl.userData?.metalnessMap?.id ? mtrl.userData.metalnessMap.id : '';
+
+            //lightMap
+            form.elements.lightMap.value = mtrl.userData?.lightMap?.id ? mtrl.userData.lightMap.id : '';
+            form.elements.lightMapIntensity.value = mtrl.lightMapIntensity;
 
         }
 
