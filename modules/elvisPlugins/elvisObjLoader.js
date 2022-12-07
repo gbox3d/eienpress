@@ -32,6 +32,8 @@ import { Scene } from 'three';
 */
 
 import elvisObject3d from './elvisObject3d.js';
+import {elvisTrigerObject,elvisStartPoint} from './elvisTrigerObject.js';
+
 
 class loader extends THREE.ObjectLoader {
 	constructor(objMng, onProgress) {
@@ -40,18 +42,9 @@ class loader extends THREE.ObjectLoader {
 		this.onProgress = onProgress;
 	}
 
-	parseElvisObject(data, geometries, materials, textures, animations) {
-
-		const object = new elvisObject3d();
+	_parseObject(object,data, geometries, materials, textures, animations) {
 
 		object.uuid = data.uuid;
-
-		data.assetType && (object.assetType = data.assetType);
-		data.geometryFile && (object.geometryFile = data.geometryFile);
-		data.materialFile && (object.materialFile = data.materialFile);
-		data.isPrefabRoot && (object.isPrefabRoot = data.isPrefabRoot);
-		data.childTransforms && (object.childTransforms = data.childTransforms);
-
 		if (data.name !== undefined) object.name = data.name;
 
 		if (data.matrix !== undefined) {
@@ -67,8 +60,54 @@ class loader extends THREE.ObjectLoader {
 			if (data.rotation !== undefined) object.rotation.fromArray(data.rotation);
 			if (data.quaternion !== undefined) object.quaternion.fromArray(data.quaternion);
 			if (data.scale !== undefined) object.scale.fromArray(data.scale);
-
 		}
+
+		if (data.visible !== undefined) object.visible = data.visible;
+		if (data.frustumCulled !== undefined) object.frustumCulled = data.frustumCulled;
+		if (data.renderOrder !== undefined) object.renderOrder = data.renderOrder;
+		if (data.userData !== undefined) object.userData = data.userData;
+		if (data.layers !== undefined) object.layers.mask = data.layers;
+
+		// return object;
+
+	}
+
+	parseElvisObject(data, geometries, materials, textures, animations) {
+
+		const object = new elvisObject3d();
+
+		this._parseObject(object,data, geometries, materials, textures, animations);
+
+		// object.uuid = data.uuid;
+
+		data.assetType && (object.assetType = data.assetType);
+		data.geometryFile && (object.geometryFile = data.geometryFile);
+		data.materialFile && (object.materialFile = data.materialFile);
+		data.isPrefabRoot && (object.isPrefabRoot = data.isPrefabRoot);
+		data.childTransforms && (object.childTransforms = data.childTransforms);
+
+		// if (data.name !== undefined) object.name = data.name;
+
+		// if (data.matrix !== undefined) {
+
+		// 	object.matrix.fromArray(data.matrix);
+
+		// 	if (data.matrixAutoUpdate !== undefined) object.matrixAutoUpdate = data.matrixAutoUpdate;
+		// 	if (object.matrixAutoUpdate) object.matrix.decompose(object.position, object.quaternion, object.scale);
+
+		// } else {
+
+		// 	if (data.position !== undefined) object.position.fromArray(data.position);
+		// 	if (data.rotation !== undefined) object.rotation.fromArray(data.rotation);
+		// 	if (data.quaternion !== undefined) object.quaternion.fromArray(data.quaternion);
+		// 	if (data.scale !== undefined) object.scale.fromArray(data.scale);
+
+		// }
+		// if (data.visible !== undefined) object.visible = data.visible;
+		// if (data.frustumCulled !== undefined) object.frustumCulled = data.frustumCulled;
+		// if (data.renderOrder !== undefined) object.renderOrder = data.renderOrder;
+		// if (data.userData !== undefined) object.userData = data.userData;
+		// if (data.layers !== undefined) object.layers.mask = data.layers;
 
 		if (data.castShadow !== undefined) object.castShadow = data.castShadow;
 		if (data.receiveShadow !== undefined) object.receiveShadow = data.receiveShadow;
@@ -82,12 +121,6 @@ class loader extends THREE.ObjectLoader {
 			if (data.shadow.camera !== undefined) object.shadow.camera = this.parseObject(data.shadow.camera);
 
 		}
-
-		if (data.visible !== undefined) object.visible = data.visible;
-		if (data.frustumCulled !== undefined) object.frustumCulled = data.frustumCulled;
-		if (data.renderOrder !== undefined) object.renderOrder = data.renderOrder;
-		if (data.userData !== undefined) object.userData = data.userData;
-		if (data.layers !== undefined) object.layers.mask = data.layers;
 
 		if (data.children !== undefined) {
 
@@ -115,48 +148,55 @@ class loader extends THREE.ObjectLoader {
 
 		}
 
-		if (data.type === 'LOD') {
+		// if (data.type === 'LOD') {
 
-			if (data.autoUpdate !== undefined) object.autoUpdate = data.autoUpdate;
+		// 	if (data.autoUpdate !== undefined) object.autoUpdate = data.autoUpdate;
 
-			const levels = data.levels;
+		// 	const levels = data.levels;
 
-			for (let l = 0; l < levels.length; l++) {
+		// 	for (let l = 0; l < levels.length; l++) {
 
-				const level = levels[l];
-				const child = object.getObjectByProperty('uuid', level.object);
+		// 		const level = levels[l];
+		// 		const child = object.getObjectByProperty('uuid', level.object);
 
-				if (child !== undefined) {
+		// 		if (child !== undefined) {
 
-					object.addLevel(child, level.distance);
+		// 			object.addLevel(child, level.distance);
 
-				}
-
-			}
-
-		}
-
-		// if (data.childTransforms !== undefined) {
-		// 	const childTransforms = data.childTransforms;
-		// 	for (let i = 0; i < childTransforms.length; i++) {
-		// 		const childTransform = childTransforms[i];
-
-		// 		if (childTransform.name !== '') {
-
-		// 			const child = object.getObjectByProperty('name', childTransform.name);
-		// 			if (child !== undefined) {
-		// 				// child.matrixAutoUpdate = false;
-		// 				child.matrix.fromArray(childTransform.matrix);
-		// 				child.matrix.decompose(child.position, child.quaternion, child.scale);
-						
-		// 				// child.matrixAutoUpdate = true;
-		// 			}
 		// 		}
+
 		// 	}
+
 		// }
+		return object;
+	}
+
+	
+
+	parseElvisTrigerObject(data, geometries, materials, textures, animations) {
+
+		const object = new elvisTrigerObject();
+
+		this._parseObject(object,data, geometries, materials, textures, animations);
+
+		object.height = data.height;
+		object.radius = data.radius;
 
 		return object;
 
+
+	}
+
+	parseElvisStartPoint(data, geometries, materials, textures, animations) {
+		
+		const object = new elvisStartPoint();
+
+		this._parseObject(object,data, geometries, materials, textures, animations);
+
+		object.height = data.height;
+		object.radius = data.radius;
+
+		return object;
 	}
 
 	parseObject(data, geometries, materials, textures, animations) {
@@ -169,6 +209,12 @@ class loader extends THREE.ObjectLoader {
 
 			// console.log(`geomery : ${object.geometryFile?.id}, material : ${object.materialFile?.id}`)
 
+		}
+		else if(data.type === 'elvisStartPoint') {
+			object = this.parseElvisStartPoint(data, geometries, materials, textures, animations);
+		}
+		else if(data.type === 'elvisTrigerObject') {
+			object = this.parseElvisTrigerObject(data, geometries, materials, textures, animations);
 		}
 		else {
 			object = super.parseObject(data, geometries, materials, textures, animations);

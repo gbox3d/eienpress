@@ -7,6 +7,33 @@ export default async function (_Context, container,onChange) {
     <div class="ui-view w3-container">
             <form class='w3-container' >
 
+                <div class='w3-row' id='trigger-attr'>
+                    <div class='w3-col s12 m12 l12'>
+                        <label>radius</label>
+                        <input class='w3-input' type='text' name='radius' />
+                    </div>
+                    <div class='w3-col s12 m12 l12'>
+                        <label>link</label>
+                        <input class='w3-input' type='text' name='link' />
+                    </div>
+                </div>
+
+                <div class='w3-row' id='startpoint-attr'>
+                    <label>base player shape</label>
+                    <div class='w3-row'>
+                        <div class='w3-col s4'>
+                            <label>height</label>
+                            <input class='w3-input w3-border' type='text' name='height' value= />
+                        </div>
+                        <div class='w3-col s4'>
+                            <label>Radius</label>
+                            <input class='w3-input w3-border' type='text' name='radius' />
+                        </div>
+                    </div>
+                </div>
+
+                
+
                 <div class='w3-row'>
                     <div class='w3-col s12'>
                         <label>ID</label>
@@ -119,6 +146,9 @@ export default async function (_Context, container,onChange) {
                     </div>
                 </div>
 
+                
+
+
             </form>
     </div>
     `;
@@ -128,6 +158,12 @@ export default async function (_Context, container,onChange) {
     const htmlDoc = parser.parseFromString(_htmlText, 'text/html');
     const _rootElm = htmlDoc.querySelector('.ui-view');
     const _form = _rootElm.querySelector('form');
+    
+    const _form_triger_attr = _rootElm.querySelector('#trigger-attr');
+    _form_triger_attr.style.display = 'none';
+
+    const _form_startpoint_attr = _rootElm.querySelector('#startpoint-attr');
+    _form_startpoint_attr.style.display = 'none';
 
 
     container.appendChild(_rootElm);
@@ -142,6 +178,24 @@ export default async function (_Context, container,onChange) {
     function _set(entity) {
         
         if(!entity) return;
+
+        //속성에따른 뷰보여주기 
+        _form_triger_attr.style.display = 'none';
+        _form_startpoint_attr.style.display = 'none';
+
+        if(entity.type === 'elvisTrigerObject') {
+            _form_triger_attr.style.display = 'block';
+
+            _form_triger_attr.querySelector('input[name="radius"]').value = entity.radius;
+            _form_triger_attr.querySelector('input[name="link"]').value = entity.link;
+        }
+        else if(entity.type === 'elvisStartPoint') {
+            _form_startpoint_attr.style.display = 'block';
+
+            _form_startpoint_attr.querySelector('input[name="height"]').value = entity.height;
+            _form_startpoint_attr.querySelector('input[name="radius"]').value = entity.radius;
+        }
+
 
         _form.elements.id.value = entity.id;
         _form.elements.name.value = entity.name;
@@ -234,6 +288,15 @@ export default async function (_Context, container,onChange) {
         entity.frustumCulled = data.frustumCulled;
         entity.visible = data.visible;
         entity.renderOrder = data.renderOrder;
+
+        if(entity.type === 'elvisStartPoint') {
+            entity.height = parseFloat(_form_startpoint_attr.querySelector('input[name="height"]').value);
+            entity.radius = parseFloat(_form_startpoint_attr.querySelector('input[name="radius"]').value);
+        }
+        else if(entity.type === 'elvisTrigerObject') {
+            entity.radius = parseFloat(_form_triger_attr.querySelector('input[name="radius"]').value);
+            entity.link = _form_triger_attr.querySelector('input[name="link"]').value;
+        }
 
         
 

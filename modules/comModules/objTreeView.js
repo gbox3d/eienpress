@@ -81,15 +81,19 @@ export default async function (_Context, container) {
 
             if(obj.bFold) {
                 _childUl.style.display = 'none';
+            }   
+            
+            if( obj.isElvisTrigerObject ||
+                obj.isElvisObject3D ||
+                obj.isElvisStartPoint
+                ) {
+                    //todo...
             }
-
-
-            if (!obj.isElvisObject3D) {
+            else {
                 for (let i = 0; i < obj.children.length; i++) {
                     _updateTree(obj.children[i], _childUl);
                 }
             }
-
         }
 
         return

@@ -674,6 +674,35 @@ export default async function ({ scope }) {
 
     }
 
+    const unresolvedPrefab = function ({entity}) {
+            
+            // if (entity.isElvisObject3D) {
+    
+            //     if (entity.geometryFile) {
+            //         if (!entity.geometryFile.resolve) {
+            //             return true;
+            //         }
+            //         entity.geometryFile.resolve = false;
+
+                    
+
+                    
+
+
+            //     }
+    
+            //     if (entity.materialFile) {
+            //         if (!entity.materialFile.resolve) {
+            //             return true;
+            //         }
+            //     }
+    
+            // }
+    
+            return false;
+    }
+        
+
     const resolveChildPrefab = async ({entity, onProgress}) => {
         let _waitCount = 0;
         await new Promise((resolve, reject) => {
@@ -877,6 +906,9 @@ export default async function ({ scope }) {
         getSceneMng: function () {
             return mSceneMng;
         },
+        getRootScene: function () {
+            return scope.root_dummy;
+        },
         addObject,
         addEntity: addObject,
         deleteEntity({ entity }) {
@@ -943,6 +975,7 @@ export default async function ({ scope }) {
         loadPrefab,
         resolvePrefab,
         resolveChildPrefab,
+        unresolvedPrefab,
         clearAllRepository,
 
         saveScene,

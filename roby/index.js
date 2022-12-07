@@ -5,7 +5,13 @@ async function main() {
 
     const mainContainer = document.querySelector('#mainContainer');
     mainContainer.style.display = 'none';
-    
+
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+    });
+
+    console.log(location.hostname);
+    console.log(location.port);
 
     try {
 
@@ -22,9 +28,8 @@ async function main() {
         if (res?.r === 'ok') {
             document.querySelector('#authtoken').hidden = true;
             document.querySelector('#authStatus').hidden = false;
-            document.querySelector('#authStatus').querySelector('h3').innerHTML = `login ok ${res.user.userName}`;
+            document.querySelector('#authStatus').querySelector('h3').innerHTML = `login ok ${res.user.userName} [${res.user.userId}]`;
             mainContainer.style.display = 'block';
-
 
             let _result = await (await (fetch(`${host_url}/com/file/list`, {
                 method: 'POST',
@@ -33,7 +38,7 @@ async function main() {
                     'authorization': localStorage.getItem('jwt_token')
                 },
                 body: makeFormBody({
-                    userId : 'all',
+                    userId : res.user.userId,// 'all',
                     fileType: '',
                     directory : 'scene',
                     skip: 0,
@@ -44,16 +49,31 @@ async function main() {
             console.log(_result);
 
             const _ul = document.querySelector('#roomList');
+            _ul.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-copy')) {
+                    const _id = e.target.closest('LI').dataset.id;
+                    const _url = `${location.hostname}:${location.port}/Apps/metaWalker?gid=${_id}`;
+                    navigator.clipboard.writeText(_url);
+                    console.log(_url)
+                }
+            });
+
+            
+            
+
             if(_result.r === 'ok') {
 
                 let _fileList = _result.data;
 
                 _fileList.forEach((item, index) => {
+                    const _url = `/Apps/metaWalker?gid=${item._id}`;
                     let _li = document.createElement('li');
                     _li.innerHTML = `
                         <h3> ${index} : ${item.title} </h3>
-                        <a href="/Apps/metaWalker?gid=${item._id}"> 바로가기</a>
+                        <a href="${_url}"> 바로가기</a>
+                        <button class='btn-copy' ">링크복사</button>
                     `;
+                    _li.dataset.id = item._id;
                     _ul.appendChild(_li);
                             
                     console.log(item._id, item.title);

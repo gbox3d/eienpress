@@ -268,13 +268,15 @@ export default async function ({
                         if (intersects.length > 0) {
 
                             let _cursorHelper = this.cubeCorsor.getObjectByName('helper');
-                            let _faceDir = intersects[0].face.normal.clone()
-                            
-                            _faceDir.applyQuaternion(intersects[0].object.getWorldQuaternion(new THREE.Quaternion()));
+                            if (intersects[0].face) {
+                                let _faceDir = intersects[0].face.normal.clone()
 
-                            let _dir = _faceDir.multiplyScalar(-1)
-                            _cursorHelper.setDirection(_dir);
-                            _cursorHelper.position.copy((_dir.clone().multiplyScalar(-10)));
+                                _faceDir.applyQuaternion(intersects[0].object.getWorldQuaternion(new THREE.Quaternion()));
+
+                                let _dir = _faceDir.multiplyScalar(-1)
+                                _cursorHelper.setDirection(_dir);
+                                _cursorHelper.position.copy((_dir.clone().multiplyScalar(-10)));
+                            }
 
                             this.cubeCorsor.position.copy(intersects[0].point);
                             this.cubeCorsor.visible = true;
@@ -502,7 +504,7 @@ export default async function ({
             });
         }
     }
-    
+
     const objMng = await ObjectMngSetup({
         scope: scope
     });

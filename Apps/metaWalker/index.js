@@ -8,12 +8,9 @@ import messageModal from '/modules/comModules/messageModal.js';
 import { comFileFindFile } from "../../../modules/comLibs/utils.js";
 
 import sceneWalkerSetup from '../../modules/elvisPlugins/sceneWalker.js';
-// import { walker } from './object/walker.js';
 
 import clientSocketSetup from './clientSocket.js';
 import { walkerGameObject } from '../../../modules/elvisPlugins/gameObject.js';
-
-// import objMng from '../../modules/elvisPlugins/objMng.js';
 
 async function main() {
 
@@ -207,26 +204,65 @@ async function main() {
                         repo_ip: theApp.host_url
                     });
 
-                    console.log(scene);
+                    // console.log(scene);
 
                     renderEngine.objMng.addEntity({
                         entity: scene,
                     })
 
-                    console.log(renderEngine);
+                    // console.log(renderEngine);
+
+                    //start point , triger찾기
+                    theApp.startPoint = null;
+                    theApp.triger = [];
+
+                    scene.traverse((obj) => {
+                        if(obj.isElvisStartPoint) {
+                            theApp.startPoint = obj;
+                        }
+                        else if(obj.isElvisTrigerObject) {
+                            theApp.triger.push(obj);
+                        }
+                    });
+
+                    //start point가 없으면 원점으로
+                    if(theApp.startPoint === null) {
+                        theApp.startPoint = {
+                            position: {
+                                x: 0,
+                                y: 0,
+                                z: 0
+                            },
+                            radius: 1,
+                            height: 1
+                        }
+                    }
 
                     const hostPlayer = new walkerGameObject({
                         engine: renderEngine,
-                        playerHeight: 150,
-                        playerWidth: 5,
+                        playerHeight: theApp.startPoint.height,
+                        playerWidth: theApp.startPoint.radius,
                         socket: socket,
                         user: theApp.user
                     });
+                    hostPlayer.moveTo(
+                        theApp.startPoint.position.x,
+                        theApp.startPoint.position.y,
+                        theApp.startPoint.position.z
+                    );
+
                     renderEngine.objMng.addGameObject({
                         entity: hostPlayer,
                     });
 
+                    theApp.hostPlayer = hostPlayer;
+
                     theApp.renderEngine = renderEngine;
+
+
+                    
+
+
 
                 }
                 else {
@@ -236,7 +272,6 @@ async function main() {
                     return
                 }
             }
-
             theApp.waitModal.close();
         }
         else {
@@ -249,9 +284,23 @@ async function main() {
 
             //goto login page
             window.location.href = '/login';
-
-
         }
+
+        console.log('start trigger check loop');
+
+        (function _trigger_loop() {
+            theApp.triger.forEach((triger) => {
+                
+                if(theApp.hostPlayer.position.distanceTo(triger.position) < triger.radius) {
+                    window.replace(triger.link);
+                }
+            });
+            setTimeout(() => {
+                _trigger_loop();
+            }, 1000);
+        })();
+
+
 
     }
     catch (e) {

@@ -28,6 +28,7 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='group' >group </a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='prefab' >prefab </a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='triger' >triger </a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='startPoint' >start Point </a>
             </div>
         </div>
         <div class="w3-dropdown-click">
@@ -40,6 +41,8 @@ export default async function (_Context) {
                 <a href="#" class="w3-bar-item w3-button" data-mid='clrCursor' >Clear Cursor</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='del' >Delete</a>
                 <a href="#" class="w3-bar-item w3-button" data-mid='resolveAll' >Resolve All</a>
+                <a href="#" class="w3-bar-item w3-button" data-mid='unresolve' >UnResolve</a>
+
             </div>
         </div>
     </div>

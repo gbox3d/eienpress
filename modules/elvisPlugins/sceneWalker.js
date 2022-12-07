@@ -182,49 +182,9 @@ export default async function setup({ container, onSelectObject,
                         //dummy object setup
                         this.root_dummy = new THREE.Group();
                         this.scene.add(this.root_dummy);
-
-
-
-                        //cube cursor setup
-                        // {
-                        //     const dir = new THREE.Vector3(0, -1, 0);
-                        //     const length = 10;
-                        //     //normalize the direction vector (convert to vector of length 1)
-                        //     dir.normalize();
-
-                        //     const _helper = new THREE.ArrowHelper(
-                        //         dir,
-                        //         new THREE.Vector3(0, 0, 0),
-                        //         length,
-                        //         0xff0000,
-                        //         5,
-                        //         5
-                        //     );
-                        //     _helper.name = 'helper';
-
-                        //     this.cubeCorsor = new THREE.Group();
-                        //     this.cubeCorsor.name = 'cubeCursor';
-                        //     this.cubeCorsor.add(_helper);
-                        //     let _container = new THREE.Group();
-                        //     _container.name = 'cubeCursorContainer';
-                        //     this.cubeCorsor.add(_container);
-
-                        //     this.cubeCorsor.visible = false;
-                        //     this.scene.add(this.cubeCorsor);
-
-                        // }
-
-
-                        //setup complete
                         this.startRender();
-
-                        // onComplete?(this);
-                        // console.log('setup complete');
-                        // this.bPlayNow = true;
-                        // playerFsm = 'play';
+                        
                         resolve(this);
-
-                        // return true;
 
                     }
                     catch (e) {

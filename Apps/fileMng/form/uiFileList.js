@@ -85,7 +85,7 @@ export default async function (_Context) {
 
         if (e.target.classList.contains('w3-check')) return;
 
-        _Context.objViewer.objMng.clearObject();
+        // _Context.objViewer.objMng.clearObject();
 
         let item = e.target;
 

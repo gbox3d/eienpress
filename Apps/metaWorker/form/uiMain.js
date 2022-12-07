@@ -9,6 +9,8 @@ import objTreeViewSetup from '../../../modules/comModules/objTreeView.js';
 import attrViewSetup from '../../../modules/comModules/attrView.js';
 import prefabViewSetup from './prefabView.js';
 
+import { elvisTrigerObject, elvisStartPoint } from '../../../modules/elvisPlugins/elvisTrigerObject.js';
+
 
 import 'md5';
 
@@ -61,6 +63,21 @@ export default async function (_Context) {
         _attrView.set(_entity);
         _prefabView.set(_entity);
         objViewer.setSelectEntity(_entity);
+    }
+
+    function _addStartPointHelper(_entity) {
+        const box = new THREE.Box3();
+        box.setFromCenterAndSize(new THREE.Vector3(0, 0, 0), new THREE.Vector3(20, 10, 30));
+        const helper = new THREE.Box3Helper(box, 0xffff00);
+        _entity.add(helper);
+    }
+
+    function _addTrigerHelper(_entity) {
+        const box = new THREE.Box3();
+        box.setFromCenterAndSize(new THREE.Vector3(0, 0, 0), new THREE.Vector3(_entity.radius,_entity.radius,_entity.radius));
+        const helper = new THREE.Box3Helper(box, 0x0000ff);
+        
+        _entity.add(helper);
     }
 
     //메뉴 이밴트 처리 
@@ -179,19 +196,19 @@ export default async function (_Context) {
 
                         console.log(scene);
 
-                        // const entity = await objViewer.objMng.loadPrefab({
-                        //     fileID: sel_file.id,
-                        //     repo_ip: sel_file.repo_ip
-                        // });
-
+                        scene.traverse((obj) => {
+                            if (obj.isElvisStartPoint) {
+                                _addStartPointHelper(obj);
+                            }
+                            if(obj.isElvisTrigerObject){
+                                _addTrigerHelper(obj);
+                            }
+                        });
+                        
                         objViewer.objMng.addEntity({
                             entity: scene,
                         });
-                        // //update tree view
                         _treeView.updateTree(objViewer.elvis.root_dummy);
-                        // _treeView.selectNode(entity.uuid);
-                        // _attrView.set(entity);
-                        // _prefabView.set(entity);
                     }
 
                     _Context.messageModal.close();
@@ -201,6 +218,13 @@ export default async function (_Context) {
             else if (btnName === 'Add') {
 
                 let _root = objViewer.getSelectEntity();
+
+                if(!_root?.isGroup ) {
+                    _Context.messageModal.show({
+                        msg: '그룹을 선택해 주세요.',
+                    });
+                    return;
+                }
 
                 if (menuName === 'prefab') {
                     let sel_file = await new Promise((resolve, reject) => {
@@ -220,6 +244,8 @@ export default async function (_Context) {
                         return;
                     }
                     else {
+                        //resolve prefab
+                        _Context.progressBox.show();
 
                         //load prefab
                         const entity = await objViewer.objMng.loadPrefab({
@@ -227,38 +253,22 @@ export default async function (_Context) {
                             repo_ip: sel_file.repo_ip
                         });
 
-                        entity.position.copy(objViewer.getCameraTarget());
+                        // entity.position.copy(objViewer.getCameraTarget());
 
-                        //resolve prefab
-                        _Context.progressBox.show();
-                        await objViewer.objMng.resolvePrefab({
-                            entity: entity,
-                            progress: (progress) => {
-                                _Context.progressBox.update(progress);
-                            }
-                        });
+                        // await objViewer.objMng.resolvePrefab({
+                        //     entity: entity,
+                        //     progress: (progress) => {
+                        //         _Context.progressBox.update(progress);
+                        //     }
+                        // });
+
+
                         _Context.progressBox.closeDelay(100);
 
                         //커서에 올리기 
                         if (entity) {
                             objViewer.copyEntityToCursor(entity);
                         }
-
-
-
-                        // //register prefab
-                        // objViewer.objMng.attachEntity({
-                        //     entity: entity,
-                        //     parent: _root
-                        // });
-
-                        // objViewer.setSelectEntity(entity);
-                        // console.log(entity);
-
-                        // // //update tree view
-                        // _treeView.updateTree(objViewer.elvis.root_dummy);
-                        // _treeView.selectNode(entity.uuid);
-                        // _attrView.set(entity);
 
                     }
 
@@ -273,12 +283,62 @@ export default async function (_Context) {
                         entity: _entity,
                         parent: _root
                     });
-                    // objViewer.setSelectEntity(_entity);
+                    //update tree view
+                    _treeView.updateTree(objViewer.elvis.root_dummy);
+                    _treeView.selectNode(_root?.uuid);
+
+                }
+                else if (menuName === 'triger') {
+
+                    let _entity = new elvisTrigerObject();
+                    _entity.position.copy(objViewer.elvis.orbitControl.target);
+                    objViewer.objMng.addEntity({
+                        entity: _entity,
+                        parent: _root
+                    });
+
+                    _addTrigerHelper(_entity); //핼퍼 등록
+
+                    console.log(_entity)
 
                     //update tree view
                     _treeView.updateTree(objViewer.elvis.root_dummy);
                     _treeView.selectNode(_root?.uuid);
-                    // _attrView.set(_entity);
+
+                }
+                else if (menuName === 'startPoint') {
+
+                    let bFind = false;
+                    await objViewer.objMng.getRootScene().traverse((obj) => {
+                        if (obj instanceof elvisStartPoint) {
+                            bFind = true;
+                            console.log('find start point');
+                        }
+                    });
+
+                    if (bFind) {
+                        _Context.messageModal.show({
+                            msg: '시작점은 하나만 있어야 합니다.'
+                        });
+                        return;
+                    }
+                    else {
+                        let _entity = new elvisStartPoint();
+                        _entity.position.copy(objViewer.elvis.orbitControl.target);
+
+                        _addStartPointHelper(_entity); //핼퍼 등록 
+
+                        objViewer.objMng.addEntity({
+                            entity: _entity,
+                            parent: _root
+                        });
+
+                        //update tree view
+                        _treeView.updateTree(objViewer.elvis.root_dummy);
+                        _treeView.selectNode(_root?.uuid);
+
+                    }
+
 
                 }
             }
@@ -297,7 +357,7 @@ export default async function (_Context) {
                         _attrView.set(null);
                     }
                 }
-                else if(menuName === 'clone'){
+                else if (menuName === 'clone') {
                     let _selEntity = objViewer.getSelectEntity()
 
                     if (_selEntity?.name !== 'root_dummy') {
@@ -381,7 +441,23 @@ export default async function (_Context) {
             //커서에 오브잭트가 올려져있는 상황 
             if (objViewer.getCursoredEntity()) {
 
-                if (_root?.isElvisObject3D !== true) {
+
+                if(_root?.isElvisStartPoint === true) {
+                    _Context.messageModal.show({
+                        msg: '시작점은 자식을 가질수없습니다.'
+                    });
+                }
+                else if(_root?.isElvisTrigerObject === true) {
+                    _Context.messageModal.show({
+                        msg: '트리거 오브젝트는 자식을 가질수없습니다.'
+                    });
+                }
+                else if(_root?.isElvisObject3D === true) {
+                    _Context.messageModal.show({
+                        msg: 'elvis object3d 는 자식을 가질수없습니다.'
+                    })
+                }
+                else {
 
                     if (evt.altkey) {
 
@@ -389,8 +465,16 @@ export default async function (_Context) {
                             position: evt.intersect.point,
                             parent: _root,
                             isClone: true
-                        })
-                        
+                        });
+
+                        entity.traverse((_entity) => {
+                            if (_entity.isElvisObject3D && !_entity.resolved) {
+                                objViewer.objMng.resolvePrefab({
+                                    entity: _entity
+                                });
+                            }
+                        });
+
                         if (entity) {
                             _refreshAllView(entity);
                         }
@@ -404,7 +488,7 @@ export default async function (_Context) {
                                 parent: _root,
                                 isClone: true
                             })
-                            
+
 
                             if (entity) {
                                 _refreshAllView(entity);
@@ -415,11 +499,7 @@ export default async function (_Context) {
                     }
                     objViewer.removeCursoredEntity(); //커서 클리어 
                 }
-                else {
-                    _Context.messageModal.show({
-                        msg: 'elvis object3d 는 자식을 가질수없습니다.'
-                    })
-                }
+                
             }
         },
         onSelectObject: function (entity) {
@@ -502,6 +582,13 @@ export default async function (_Context) {
         (entity) => { //onchange
             _treeView.updateTree(objViewer.elvis.root_dummy);
             _refreshAllView(entity);
+
+            //update triger helper
+            if(entity.isElvisTrigerObject) {
+                entity.clear();
+                _addTrigerHelper(entity);
+            }
+
         }
     );
 

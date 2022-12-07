@@ -187,9 +187,13 @@ class walkerGameObject extends elvisGameObject {
 		this.m_playerCollider = new Capsule(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, playerHeight, 0), playerWidth);
 		this.worldOctree = null
 
+
 		// this.m_mousePointer = new THREE.Vector2();
 
 		this.playerSpeed = playerSpeed;
+		this.playerHeight = playerHeight;
+		this.playerWidth = playerWidth;
+
 		this.playerVelocity = new THREE.Vector3();
 		this.playerDirection = new THREE.Vector3();
 		this.playerFsm = 'ready';
@@ -206,7 +210,7 @@ class walkerGameObject extends elvisGameObject {
 
 		this.AccTimer_ping = 0;
 
-		
+
 	}
 
 	sendControl() {
@@ -316,26 +320,28 @@ class walkerGameObject extends elvisGameObject {
 
 		// console.log(m_playerCollider.start)
 
-
-		if (m_playerCollider.start.y <= 0) {
-			m_playerCollider.start.y = 0;
-			playerVelocity.y = 0;
-			this.playerOnFloor = true;
-		}
-
 		if (result) {
+
+			// console.log(result)
 
 			this.playerOnFloor = result.normal.y > 0;
 
 			if (!this.playerOnFloor) {
 
 				playerVelocity.addScaledVector(result.normal, - result.normal.dot(playerVelocity));
-
 			}
 
 			m_playerCollider.translate(result.normal.multiplyScalar(result.depth));
 
 		}
+
+		if (m_playerCollider.start.y <= 0) {
+			m_playerCollider.start.y = 0;
+			m_playerCollider.end.y = this.playerHeight;
+			playerVelocity.y = 0;
+			this.playerOnFloor = true;
+		}
+
 	}
 
 	async checkResolve() {
@@ -421,17 +427,16 @@ class walkerGameObject extends elvisGameObject {
 					this.playerCollisions();
 					camera.position.copy(m_playerCollider.end);
 
-					
+
 					//움직임 여부 판단 
-					if (deltaPosition.length() > 0.01 || this.engine.getDragStatus()) 
-					{
+					if (deltaPosition.length() > 0.01 || this.engine.getDragStatus()) {
 						this.sendControl();
 						//check resolve
 						await this.checkResolve();
 					}
 
 					//ping
-					if( this.AccTimer_ping > 2.5 ) {
+					if (this.AccTimer_ping > 2.5) {
 						this.AccTimer_ping = 0;
 						this.sendControl();
 					}
@@ -442,7 +447,16 @@ class walkerGameObject extends elvisGameObject {
 				break;
 		}
 
+		this.position.copy(m_playerCollider.end);
+	}
 
+	moveTo(x, y, z) {
+		const m_playerCollider = this.m_playerCollider;
+		const playerVelocity = this.playerVelocity;
+
+		m_playerCollider.start.set(x, y, z);
+		m_playerCollider.end.set(x, y + this.playerHeight, z);
+		playerVelocity.set(0, 0, 0);
 	}
 
 	update(event) {
@@ -454,13 +468,7 @@ class walkerGameObject extends elvisGameObject {
 			this.updatePlayer(deltaTime);
 		}
 
-		// console.log('update');
-
-
-
 	}
 }
-
-
 
 export { dummyObject, gameObject, walkerGameObject };

@@ -250,8 +250,12 @@ export default async function (_Context) {
     });
 
     _fileListView.setOnSelect(async ({ item, _id }) => {
-        console.log(item)
 
+        const objMng = _Context.objViewer.objMng;
+        
+        objMng.clearObject();
+
+        console.log(item)
         _Context.waitModal.show({
             msg: 'loading...'
         })
@@ -274,7 +278,7 @@ export default async function (_Context) {
                 _fileInfoView.setData(res.data);
 
                 let _type = res.data.fileType.split('/')
-                const objMng = _Context.objViewer.objMng;
+                
 
                 if (_type[0] === 'image') {
                     let _tex = await objMng.loadTexture({
@@ -301,7 +305,6 @@ export default async function (_Context) {
                 else if (_type[0] === 'application') {
                     switch (_type[1]) {
                         case 'fbx':
-                            // if (_type[1] === 'fbx') 
                             {
 
                                 let _obj = await objMng.addObject_fbx({
@@ -333,7 +336,31 @@ export default async function (_Context) {
                                 });
                             }
                             break;
+                        case 'text':
+                            {
+                                if(res.data.directory === 'prefab') {
+                                    
+                                    const entity = await objMng.loadPrefab({
+                                        fileID: res.data._id,
+                                        repo_ip: res.data.repo_ip
+                                    });
 
+                                    objMng.addEntity({
+                                        entity: entity
+                                    });
+
+                                    await objMng.resolveChildPrefab({
+                                        entity: entity,
+                                        onProgress: (progress) => {
+                                            _Context.progressBox.setProgress(progress);
+                                        }
+                                    });
+    
+                                    console.log('end resolve')
+
+                                }
+                            }
+                            break;
                     }
                     await _Context.progressBox.closeDelay(300);
                     // _Context.progressBox.close()
