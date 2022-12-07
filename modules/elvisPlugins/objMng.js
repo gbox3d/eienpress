@@ -296,6 +296,19 @@ export default async function ({ scope }) {
             material.map = _tex;
         }
 
+        //alpha map 있으면 로드
+        if (material.userData?.alphaMap?.id) {
+            const fileInfo = material.userData.alphaMap;
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type: fileInfo.type
+            });
+            material.alphaMap = _tex;
+        }
+
+        //normal map 있으면 로드
         if (material.userData?.normalMap?.id) {
             const fileInfo = material.userData.normalMap;
 
@@ -306,6 +319,17 @@ export default async function ({ scope }) {
                 type: fileInfo.type
             });
             material.normalMap = _tex;
+        }
+        //bump map 있으면 로드
+        if (material.userData?.bumpMap?.id) {
+            const fileInfo = material.userData.bumpMap;
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type: fileInfo.type
+            });
+            material.bumpMap = _tex;
         }
 
         if (material.userData?.roughnessMap?.id) {
@@ -344,6 +368,45 @@ export default async function ({ scope }) {
             material.displacementMap = _tex;
         }
 
+        if(material.userData?.envMap?.id){
+            const fileInfo = material.userData.envMap;
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type: fileInfo.type
+            });
+
+            _tex.mapping = THREE.EquirectangularReflectionMapping;
+            _tex.encoding = THREE.sRGBEncoding;
+
+            material.displacementMap = _tex;
+        }
+        //emissive map 있으면 로드
+        if (material.userData?.emissiveMap?.id) {
+            const fileInfo = material.userData.emissiveMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type: fileInfo.type
+            });
+            material.emissiveMap = _tex;
+        }
+        //ao map 있으면 로드
+        if (material.userData?.aoMap?.id) {
+            const fileInfo = material.userData.aoMap;
+
+            let _tex = await loadTexture({
+                textureFile: fileInfo.id,
+                repo_ip: fileInfo.repo_ip,
+                onProgress: onProgress ? onProgress : null,
+                type: fileInfo.type
+            });
+            material.aoMap = _tex;
+        }
+
         console.log(`load matrial ${fileID}`, material);
 
         return material;
@@ -375,6 +438,8 @@ export default async function ({ scope }) {
         console.log('load complete')
 
         texture.mapping = THREE.EquirectangularReflectionMapping;
+        // texture.encoding = THREE.sRGBEncoding;
+        
         bShow ? scope.scene.background = texture : scope.scene.background = null;
         scope.scene.environment = texture;
         //사용자변수 등록 
