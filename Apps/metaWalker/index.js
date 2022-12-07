@@ -290,9 +290,9 @@ async function main() {
 
         (function _trigger_loop() {
             theApp.triger.forEach((triger) => {
-                
+                // console.log(theApp.hostPlayer.position.distanceTo(triger.position), triger.radius);
                 if(theApp.hostPlayer.position.distanceTo(triger.position) < triger.radius) {
-                    window.replace(triger.link);
+                    window.location.replace(triger.link);
                 }
             });
             setTimeout(() => {

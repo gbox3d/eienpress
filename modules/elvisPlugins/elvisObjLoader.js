@@ -179,8 +179,9 @@ class loader extends THREE.ObjectLoader {
 
 		this._parseObject(object,data, geometries, materials, textures, animations);
 
-		object.height = data.height;
+		// object.height = data.height;
 		object.radius = data.radius;
+		object.link = data.link;
 
 		return object;
 

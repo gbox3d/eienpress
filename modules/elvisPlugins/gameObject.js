@@ -447,7 +447,7 @@ class walkerGameObject extends elvisGameObject {
 				break;
 		}
 
-		this.position.copy(m_playerCollider.end);
+		this.position.copy(m_playerCollider.start);
 	}
 
 	moveTo(x, y, z) {

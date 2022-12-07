@@ -10,8 +10,8 @@ async function main() {
         get: (searchParams, prop) => searchParams.get(prop),
     });
 
-    console.log(location.hostname);
-    console.log(location.port);
+    // console.log(location.hostname);
+    // console.log(location.port);
 
     try {
 
@@ -52,7 +52,7 @@ async function main() {
             _ul.addEventListener('click', function (e) {
                 if (e.target.classList.contains('btn-copy')) {
                     const _id = e.target.closest('LI').dataset.id;
-                    const _url = `${location.hostname}:${location.port}/Apps/metaWalker?gid=${_id}`;
+                    const _url = `${location.origin}/Apps/metaWalker?gid=${_id}`;
                     navigator.clipboard.writeText(_url);
                     console.log(_url)
                 }
