@@ -56,6 +56,12 @@ async function main() {
                     navigator.clipboard.writeText(_url);
                     console.log(_url)
                 }
+
+                if (e.target.classList.contains('btn-copy-zerowalker')) {
+                    const _id = e.target.closest('LI').dataset.id;
+                    const _url = `${location.origin}/Apps/zeroWalker?gid=${_id}`;
+                    navigator.clipboard.writeText(_url);
+                }
             });
 
             
@@ -71,7 +77,8 @@ async function main() {
                     _li.innerHTML = `
                         <h3> ${index} : ${item.title} </h3>
                         <a href="${_url}"> 바로가기</a>
-                        <button class='btn-copy' ">링크복사</button>
+                        <button class='btn-copy' ">링크복사 (멀티 플레이어) </button>
+                        <button class='btn-copy-zerowalker' ">링크복사 (싱글 플레리어) </button>
                     `;
                     _li.dataset.id = item._id;
                     _ul.appendChild(_li);

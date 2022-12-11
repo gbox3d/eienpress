@@ -906,7 +906,10 @@ export default async function ({ scope }) {
         scope.onUpdate = function (event) {
 
             scope.gameObj_dummy?.traverse((child) => {
-                if (child.isElvisGameObject) {
+                if (
+                    child.isElvisGameObject ||
+                    child.isZeroWalkerObject
+                    ) {
                     child.update(event);
                 }
             });
