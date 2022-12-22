@@ -18,7 +18,7 @@ async function main() {
     console.log(`THREEJS Version : ${THREE.REVISION} `);
     console.log(`WebGL Support : ${WEBGL.isWebGL2Available()}`);
 
-    const glWindow = document.querySelector('.gl-container');
+    // const glWindow = document.querySelector('.gl-container');
     const loginStatus = document.querySelector('#userStatus')
 
     try {

@@ -6,22 +6,32 @@ import uiFileListSetup from "./uiFileList.js";
 import uiFileInfoSetup from "./uiFileInfo.js";
 // import objMng from "../../../modules/elvisPlugins/objMng.js";
 
+import { comFileFindFile } from "../../../modules/comLibs/utils.js";
+import objectViewerSetup from '../../../modules/elvisPlugins/objectViewer.js';
+import uiMenuBarSetup from './uiMenuBar.js';
+
+
 
 export default async function (_Context) {
 
     const _htmlText = `
     <div class="ui-view">
-        <div class="filelist-container" ></div>
-		<div class="fileinfo-container" ></div>
+        <div class='ui-menu-bar'></div>
+        <div class="ui-container">
+            <div class="left-frame">
+                <div class="filelist-container" ></div>
+                <div class="fileinfo-container" ></div>
+            </div>
+            <div class="right-frame">
+                <div class="obj-viewer-container"></div>
+            </div>
+        </div>
     </div>
     `;
 
     const parser = new DOMParser();
     const htmlDoc = parser.parseFromString(_htmlText, 'text/html');
     const _rootElm = htmlDoc.querySelector('.ui-view');
-
-    const _fileListView = await uiFileListSetup(_Context);
-    _rootElm.querySelector('.filelist-container').appendChild(_fileListView.element);
 
     const _fileInfoView = await uiFileInfoSetup(_Context, async (data) => {
 
@@ -46,8 +56,10 @@ export default async function (_Context) {
 
     const host_url = _Context.host_url;
 
-    //메뉴 이밴트 처리 
-    _Context.uiMenuBar.setCallback(async (menuName, btnName) => {
+    //메뉴바 만들기 
+    const _menuBar = await uiMenuBarSetup(_Context);
+    //메뉴 이밴트 핸들러 등록
+    _menuBar.setCallback(async (menuName, btnName) => {
 
         console.log(menuName);
 
@@ -248,7 +260,13 @@ export default async function (_Context) {
         }
 
     });
+    _rootElm.querySelector('.ui-menu-bar').appendChild(_menuBar.element);
 
+    ////////////////////////////////////////////
+
+    //file list view setup
+    const _fileListView = await uiFileListSetup(_Context);
+    _rootElm.querySelector('.filelist-container').appendChild(_fileListView.element);
     _fileListView.setOnSelect(async ({ item, _id }) => {
 
         const objMng = _Context.objViewer.objMng;
@@ -377,16 +395,27 @@ export default async function (_Context) {
         _Context.waitModal.close();
         _Context.progressBox.close();
     });
+    
 
-    _Context.ui_container.appendChild(_rootElm);
+    ////////////////////////////////////////////
+    const _elmObjViewer = _rootElm.querySelector('.obj-viewer-container');
 
+    _Context.objViewer = await objectViewerSetup({
+        Context: theApp,
+        container: _elmObjViewer,
+        window_size : {
+            width : 512,
+            height : 512
+        }
+    });
+
+    _Context.objViewer.elvis.startRender();
+
+    _Context.body_container.appendChild(_rootElm);
     console.log('complete setup uiMain');
 
     return {
         element: _rootElm
-        // getSelection: function () {
-        //     return select_Item;
-        // }
     }
 
 }

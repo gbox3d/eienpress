@@ -50,7 +50,7 @@ export default async function (_Context) {
     const htmlDoc = parser.parseFromString(_htmlText, 'text/html');
     const _rootElm = htmlDoc.querySelector('.ui-view');
 
-    _Context.menubar_container.appendChild(_rootElm);
+    // _Context.menubar_container.appendChild(_rootElm);
     let callBack = null;
 
     //click event

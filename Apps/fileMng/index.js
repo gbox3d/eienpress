@@ -1,12 +1,10 @@
 import * as THREE from 'three';
 import WEBGL from 'three/addons/capabilities/WebGL.js';
 
-import { comFileFindFile } from "../../modules/comLibs/utils.js";
-import objectViewerSetup from '../../modules/elvisPlugins/objectViewer.js';
 
 //forms
 import uiMainSetup from './form/uiMain.js';
-import uiMenuBarSetup from './form/uiMenuBar.js';
+
 
 //models
 import waitModalSetup from '../../modules/comModules/waitModal.js';
@@ -22,7 +20,7 @@ async function main() {
     console.log(`THREEJS Version : ${THREE.REVISION} `);
     console.log(`WebGL Support : ${WEBGL.isWebGL2Available()}`);
 
-    const glWindow = document.querySelector('.gl-container');
+    // const glWindow = document.querySelector('.gl-container');
     const loginStatus = document.querySelector('#userStatus')
 
     try {
@@ -30,15 +28,13 @@ async function main() {
 
         globalThis.theApp = {
             host_url: '',
-            menubar_container: document.querySelector('.menubar-container'),
-            ui_container: document.querySelector('.ui-container'),
+            body_container : document.querySelector('.body-container'),
             modalContainer: document.querySelector('.modal-container')
         }
 
         theApp.progressBox = progressBoxSetup(theApp);
         theApp.waitModal = waitModalSetup(theApp);
         theApp.messageModal = messageModal(theApp);
-        // theApp.fileSelector = fileSelectorSetup(theApp);
         theApp.fileUploadForm = fileUploadFormSetup(theApp);
 
 
@@ -63,46 +59,7 @@ async function main() {
 
             theApp.root_path = res.repository + '/' + res.user.userId;
             console.log(theApp.root_path);
-
-            theApp.uiMenuBar = await uiMenuBarSetup(theApp);
             theApp.uiMain = await uiMainSetup(theApp);
-
-
-
-            theApp.objViewer = await objectViewerSetup({
-                Context: theApp,
-                container: glWindow,
-                // envMapFileFormat : '', // exr, hdr, pic , default : hdr
-                // envMapFile: basicEnvMapId,
-            });
-
-            const basicEnvMap = await comFileFindFile({
-                filename: 'basic_envmap'
-            })
-
-            console.log(basicEnvMap);
-
-            if (basicEnvMap !== null) {
-
-                await theApp.objViewer.objMng.setEnvMap({
-                    type: basicEnvMap[0].fileType,
-                    file_id: basicEnvMap[0]._id,
-                    repo_ip: basicEnvMap[0].repo_ip,
-                    onProgress: (progress) => {
-                        console.log(progress)
-                        // _Context.progressBox.update(progress);
-                    },
-                    bShow: true
-                });
-            }
-            else {
-                alert('basic_envmap not found');
-                console.log('basic_envmap not found');
-            }
-            
-
-            theApp.objViewer.elvis.startRender();
-
             theApp.waitModal.close();
 
         }

@@ -1,20 +1,21 @@
 
-.root-container {
-    display: flex;
-}
 
-.root-container .ui-container {
+.ui-container {
+
+    display: flex;
     
-    margin: 3px;
+    /* margin: 3px; */
     /* width: content; */
     /*flex-grow: 1; */ /* 나머지 빈공간 체워넣기 */
-    width : 512px;
-    height: 1024px;
+    /* width : 512px; */
+    /* height: 1024px; */
     /* background-color: #f0f0f0; */
-    overflow: auto;
+    /* overflow: auto; */
 }
 
-.root-container .gl-container {
-    width: 1024px;
-    height: 768px;
+.ui-container .left-frame {
+
+    width: 512px;
+    /* background-color: black; */
+    /* color: green; */
 }
