@@ -38,7 +38,7 @@ export default function (_Context) {
 
     _rootElm.querySelector('[title="Close Modal"]').addEventListener('click', closeModal);
 
-    console.log(_rootElm.querySelector('[title="Close Modal"]'))
+    // console.log(_rootElm.querySelector('[title="Close Modal"]'))
 
     _CloseBtn.addEventListener('click', closeModal);
 
